@@ -104,17 +104,60 @@
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| _all v1 requirements_ | _pending roadmap_ | Pending |
+| BOOT-01 | Phase 1 | Pending |
+| BOOT-02 | Phase 1 | Pending |
+| BOOT-03 | Phase 1 | Pending |
+| BOOT-04 | Phase 1 | Pending |
+| BOOT-05 | Phase 1 | Pending |
+| MATH-01 | Phase 2 | Pending |
+| MATH-02 | Phase 2 | Pending |
+| MATH-03 | Phase 2 | Pending |
+| MATH-04 | Phase 2 | Pending |
+| MATH-05 | Phase 2 | Pending |
+| MATH-06 | Phase 2 | Pending |
+| SCALE-01 | Phase 2 | Pending |
+| SCALE-02 | Phase 2 | Pending |
+| SCALE-03 | Phase 2 | Pending |
+| SCALE-04 | Phase 2 | Pending |
+| SCALE-05 | Phase 2 | Pending |
+| IO-01 | Phase 2 | Pending |
+| IO-02 | Phase 2 | Pending |
+| IO-03 | Phase 3 | Pending |
+| IO-04 | Phase 2 | Pending |
+| IO-05 | Phase 2 | Pending |
+| AUDIO-01 | Phase 2 | Pending |
+| AUDIO-02 | Phase 2 | Pending |
+| AUDIO-03 | Phase 2 | Pending |
+| AUDIO-04 | Phase 2 | Pending |
+| AUDIO-05 | Phase 2 | Pending |
+| AUDIO-06 | Phase 3 | Pending |
+| NOTES-01 | Phase 2 | Pending |
+| NOTES-02 | Phase 2 | Pending |
+| NOTES-03 | Phase 2 | Pending |
+| NOTES-04 | Phase 2 | Pending |
+| NOTES-05 | Phase 2 | Pending |
+| COMP-01 | Phase 2 | Pending |
+| COMP-02 | Phase 2 | Pending |
+| COMP-03 | Phase 2 | Pending |
+| VIZ-01 | Phase 3 | Pending |
+| VIZ-02 | Phase 3 | Pending |
+| VIZ-03 | Phase 3 | Pending |
+| ANAL-01 | Phase 4 | Pending |
+| ANAL-02 | Phase 4 | Pending |
+| ANAL-03 | Phase 4 | Pending |
+| ANAL-04 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 36 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 36 ⚠️ (will resolve at roadmap step)
+- v1 requirements: 42 total
+- Mapped to phases: 42 ✓
+- Unmapped: 0
+- Phase 1 (Bootstrap): 5 reqs (all BOOT)
+- Phase 2 (Kernel + Composition MVP): 28 reqs (MATH, SCALE, IO except IO-03, AUDIO except AUDIO-06, NOTES, COMP)
+- Phase 3 (Visualization + Mobile): 5 reqs (VIZ, IO-03, AUDIO-06)
+- Phase 4 (Analysis & Sharing): 4 reqs (ANAL)
 
 ---
 *Requirements defined: 2026-05-02*
-*Last updated: 2026-05-02 after initial definition*
+*Last updated: 2026-05-02 after roadmap creation (traceability populated)*

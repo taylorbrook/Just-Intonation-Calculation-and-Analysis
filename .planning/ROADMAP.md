@@ -1,0 +1,82 @@
+# Roadmap: Tuning Systems
+
+## Overview
+
+A research notebook + JI calculator built on Observable Framework. Five phases follow a strict dependency-ordered critical path: bootstrap the Framework project; build a pure math kernel anchored end-to-end by the in-progress composition page (the kernel-MVP that proves the architecture); add visualization plus the mobile Safari audio audit; then layer analysis features (EDO mappings, MOS, comparison, persistent URLs) once the foundations are solid. The temperament browser and other deep-theory work are explicitly v2 and not in this roadmap.
+
+## Phases
+
+**Phase Numbering:**
+- Integer phases (1, 2, 3): Planned milestone work
+- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+
+Decimal phases appear between their surrounding integers in numeric order.
+
+- [ ] **Phase 1: Bootstrap & Build** - Observable Framework scaffold, TS+Vitest, xen-dev stack installed, deployment target wired
+- [ ] **Phase 2: Math Kernel + Composition Anchor (MVP)** - Pure JI kernel, Scala I/O, audio playback, notes surface, composition page end-to-end
+- [ ] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified
+- [ ] **Phase 4: Analysis & Sharing** - EDO ↔ JI mapping, MOS construction, scale comparison, persistent URLs
+
+## Phase Details
+
+### Phase 1: Bootstrap & Build
+**Goal**: A deployable Observable Framework project with TypeScript type-checking, unit testing, the xenharmonic-devs stack installed, and a concrete static-site deployment target wired up — all the scaffolding required before any kernel code is written.
+**Depends on**: Nothing (first phase)
+**Requirements**: BOOT-01, BOOT-02, BOOT-03, BOOT-04, BOOT-05
+**Success Criteria** (what must be TRUE):
+  1. User can run `npm run dev` and see an Observable Framework site at localhost
+  2. User can run `npm run build` and produce static output deployable to the chosen host
+  3. User can run `npm run lint:types` and `npm run test` with both passing on a stub kernel module
+  4. User can `import { Fraction } from "fraction.js"` and the BigInt-backed v5 resolves correctly via `xen-dev-utils`
+  5. User can push to the configured deployment target (e.g., Cloudflare Pages) and see the static site live
+**Plans**: TBD
+
+### Phase 2: Math Kernel + Composition Anchor (MVP)
+**Goal**: The full kernel-MVP — pure `Interval`/`Scale` math, Scala `.scl` round-trip I/O, Web Audio playback with proper lifecycle, the Markdown+widgets notes surface, and a composition dashboard page that exercises every kernel feature end-to-end. This phase is the architectural proof; if the composition page works, the kernel works.
+**Depends on**: Phase 1
+**Requirements**: MATH-01, MATH-02, MATH-03, MATH-04, MATH-05, MATH-06, SCALE-01, SCALE-02, SCALE-03, SCALE-04, SCALE-05, IO-01, IO-02, IO-04, IO-05, AUDIO-01, AUDIO-02, AUDIO-03, AUDIO-04, AUDIO-05, NOTES-01, NOTES-02, NOTES-03, NOTES-04, NOTES-05, COMP-01, COMP-02, COMP-03
+**Success Criteria** (what must be TRUE):
+  1. User can open the composition page, see the piece's scale as a ratios + cents-from-12tet table, click play to audition any interval, arpeggiate the full scale, hold a drone, and download the scale as a valid `.scl` file
+  2. User can construct any JI ratio (including `81/79` and far larger) from text input and have it round-trip exactly through ratio → monzo → ratio with no precision loss
+  3. User can read a second theory page (e.g., syntonic comma) with KaTeX-typeset math and inline `${playInterval(...)}` widgets that share the same kernel and audio synth
+  4. User can re-import any `.scl` file the project produces and get a Scale equal to the original (verified by golden tests against the Huygens-Fokker archive samples)
+  5. User can edit a cell repeatedly during `observable preview` without leaking AudioContexts (count stays at 1) and without orphaning voices when navigating away
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 3: Visualization + Mobile Audio Audit
+**Goal**: Add the visual layer — D3-backed lattice with configurable prime basis, configurable-odd-limit tonality diamond, scale-on-keyboard SVG — plus the `.kbm` I/O that pairs with `.scl`, and verify mobile Safari audio actually works (the long-deferred quirk audit). After this phase, the kernel has a complete visual surface and audio is portable.
+**Depends on**: Phase 2
+**Requirements**: VIZ-01, VIZ-02, VIZ-03, IO-03, AUDIO-06
+**Success Criteria** (what must be TRUE):
+  1. User can render any `Scale` as a 2D lattice with a chosen prime basis (e.g., `[3, 5, 7]`) and pan/zoom the SVG
+  2. User can view a tonality diamond at any odd-limit (7, 11, 13, 21, 31, 81) without hardcoded constants
+  3. User can see a scale's pitches mapped onto a piano-keyboard SVG with cents-offset labels
+  4. User can export and re-import a `.kbm` keyboard mapping where `referenceKey ≠ middleNote` (the three named fields are explicit, never conflated)
+  5. User can open the composition page on iPhone Safari, tap a play button, and hear the interval (mute switch and autoplay-policy quirks documented)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 4: Analysis & Sharing
+**Goal**: The analysis features that extend the kernel into theory-research territory — EDO ↔ JI mapping (best EDO for a JI scale; best JI in an EDO), MOS / generator-period scale construction, side-by-side scale comparison, and shareable scale URLs via hash encoding. None of these block the composition; all of them deepen the notebook.
+**Depends on**: Phase 3
+**Requirements**: ANAL-01, ANAL-02, ANAL-03, ANAL-04
+**Success Criteria** (what must be TRUE):
+  1. User can pick a JI scale and see a ranked table of best-fit EDOs (and inversely, pick an EDO and see its best JI approximations)
+  2. User can construct a MOS scale by specifying generator + period and have it appear with the same `Scale` API as any hand-built scale
+  3. User can place two scales side-by-side and see degree-by-degree cents, common subset, and max deviation
+  4. User can share a URL whose hash encodes a scale, and the recipient lands on a page seeded with that exact scale
+**Plans**: TBD
+**UI hint**: yes
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 1 → 2 → 3 → 4
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Bootstrap & Build | 0/TBD | Not started | - |
+| 2. Math Kernel + Composition Anchor (MVP) | 0/TBD | Not started | - |
+| 3. Visualization + Mobile Audio Audit | 0/TBD | Not started | - |
+| 4. Analysis & Sharing | 0/TBD | Not started | - |
