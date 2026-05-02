@@ -1,0 +1,120 @@
+# Requirements: Tuning Systems
+
+**Defined:** 2026-05-02
+**Core Value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
+
+## v1 Requirements
+
+### BOOT — Bootstrap & Build
+
+- [ ] **BOOT-01**: Observable Framework project scaffolded; static-site build is deployable
+- [ ] **BOOT-02**: TypeScript with `tsc --noEmit` running in CI (Framework transpiles but doesn't type-check)
+- [ ] **BOOT-03**: Vitest configured and running for kernel unit tests
+- [ ] **BOOT-04**: xenharmonic-devs stack installed and resolved (`xen-dev-utils`, `sw-synth`, `ji-lattice`, `sonic-weave`, `fraction.js` v5)
+- [ ] **BOOT-05**: Concrete static-site deployment target chosen and wired (e.g. Cloudflare Pages)
+
+### MATH — JI Math Kernel
+
+- [ ] **MATH-01**: Arbitrary-precision `Interval` (BigInt-backed Fraction) — any ratio (e.g. `81/79`) round-trips exactly with no prime-limit ceiling
+- [ ] **MATH-02**: Lazy monzo (prime-factor vector) computation from any `Interval`
+- [ ] **MATH-03**: Cents conversion + signed cent-deviation-from-12tet display (display projection only — not source of truth in kernel)
+- [ ] **MATH-04**: Interval arithmetic — multiply, divide, invert, octave-reduce, complement-to-octave (preserves exact rationals)
+- [ ] **MATH-05**: Complexity metrics — Tenney height, Benedetti height, prime-limit, odd-limit
+- [ ] **MATH-06**: Named-comma identification by canonical monzo (lookup table; never cents-within-epsilon)
+
+### SCALE — Scale Construction
+
+- [ ] **SCALE-01**: Build `Scale` from text input accepting mixed ratios / cents / monzos
+- [ ] **SCALE-02**: Sort, deduplicate, octave-reduce a scale (period-aware, not just `2/1`)
+- [ ] **SCALE-03**: Mode rotation (rotate scale degrees)
+- [ ] **SCALE-04**: Transpose scale by interval
+- [ ] **SCALE-05**: Construct JI subset of an EDO
+
+### IO — Import / Export
+
+- [ ] **IO-01**: Parse Scala `.scl` files — handles ratios, cents, comments, implicit `1/1`, period-by-`.`-detection
+- [ ] **IO-02**: Serialize `Scale` to `.scl`
+- [ ] **IO-03**: Parse and serialize `.kbm` keyboard mappings (`KbmMapping` keeps `referenceKey`/`referenceHz`/`middleNote` as named fields)
+- [ ] **IO-04**: Copy ratios + cent-deviation-from-12tet table to clipboard
+- [ ] **IO-05**: Round-trip golden tests against Huygens-Fokker `.scl` archive samples
+
+### AUDIO — Web Audio Playback
+
+- [ ] **AUDIO-01**: Lazy `AudioContext` wrapped in `createSynth()` factory; disposed via Framework `invalidation` (no leaks under hot-reload)
+- [ ] **AUDIO-02**: Click-to-play interval with ADSR envelope (no clicks / pops)
+- [ ] **AUDIO-03**: Arpeggio audition for full scale
+- [ ] **AUDIO-04**: Drone + interval-over-drone playback
+- [ ] **AUDIO-05**: Polyphony cap with voice tracking — no orphaned voices
+- [ ] **AUDIO-06**: Mobile Safari audio verified working (autoplay-policy + AudioContext quirks)
+
+### NOTES — Research-Notes Surface
+
+- [ ] **NOTES-01**: Markdown prose pages with reactive JS cells (Framework baseline)
+- [ ] **NOTES-02**: KaTeX math typesetting in prose
+- [ ] **NOTES-03**: Inline widget pattern — `<PlayInterval>`, `<ScaleTable>`, etc. embeddable mid-paragraph via Markdown `${...}` interpolation
+- [ ] **NOTES-04**: Reusable `src/lib/` (pure kernel) and `src/components/` (DOM factories) — no kernel-DOM bleed; documented in `src/lib/INVENTORY.md`
+- [ ] **NOTES-05**: At least one additional general theory page proves the architecture supports >1 page
+
+### COMP — Composition Anchor
+
+- [ ] **COMP-01**: In-progress piece's pitch material lives in `src/lib/pieces/<piece>.ts` as single source of truth
+- [ ] **COMP-02**: Composition dashboard page — full end-to-end usage of kernel for the piece (design scale, see ratios/cents, audition, export `.scl`)
+- [ ] **COMP-03**: CI test asserts the piece module's scale parses and exports correctly (catches kernel-vs-composition drift)
+
+### VIZ — Visualization
+
+- [ ] **VIZ-01**: Lattice rendering (D3 + `ji-lattice`) with configurable prime basis
+- [ ] **VIZ-02**: Tonality diamond with configurable odd-limit
+- [ ] **VIZ-03**: Scale-on-keyboard SVG view
+
+### ANAL — Analysis
+
+- [ ] **ANAL-01**: EDO ↔ JI mapping table — find best EDO for a JI scale; find JI approximations in an EDO
+- [ ] **ANAL-02**: MOS / generator-period scale construction
+- [ ] **ANAL-03**: Side-by-side scale comparison cell
+- [ ] **ANAL-04**: Persistent URLs for scales (URL hash encoding) — share + reproduce
+
+## v2 Requirements
+
+### TEMP — Temperament Browser & Deep Theory
+
+- **TEMP-01**: Temperament browser — paste comma list → mappings, error, complexity
+- **TEMP-02**: Ratio-to-comma decomposition
+- **TEMP-03**: Plomp-Levelt dissonance curve
+- **TEMP-04**: Citations / bibliography across pages
+- **TEMP-05**: Harmonic entropy
+- **TEMP-06**: 3D lattice rendering
+- **TEMP-07**: SonicWeave embedded as in-cell scale DSL
+- **TEMP-08**: Periodicity blocks (Fokker)
+- **TEMP-09**: Scala archive browser
+- **TEMP-10**: MIDI Tuning Standard / hardware-synth bridge
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Engraved JI staff notation (HEJI2 / Sagittal / Johnston) | Explicit user decision — ratio + cent-deviation display only; conflicts with ratio-native data model and pulls in heavy font / library commitment |
+| MIDI input or MTS / SysEx as primary v1 surface | `.scl`/`.kbm` covers the bridge to external tools; live MIDI / hardware integration is a separate problem class |
+| Full DAW / sequencer / arrangement | Not the purpose; this is a calculator + research notebook, not a composition environment |
+| User accounts / cloud storage / real-time collab | Personal-tool framing — static site, single author |
+| Hosted Observable.com platform | Chose Observable Framework for self-hosting, ownership, git versioning, no platform lock-in |
+| Python / Jupyter / Marimo stack | Committed to JS in Framework — one stack end-to-end, browser-native |
+| Generic public competitor to Scale Workshop / x31eq | Not the purpose; this is a personal research notebook that happens to be shareable, not a tool to replace existing community tools |
+| 1:1 Scale Workshop feature parity | Wastes effort, misses the prose-differentiator gap; depend on / interop with the xen-dev ecosystem instead |
+
+## Traceability
+
+Populated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| _all v1 requirements_ | _pending roadmap_ | Pending |
+
+**Coverage:**
+- v1 requirements: 36 total
+- Mapped to phases: 0 (pending roadmap)
+- Unmapped: 36 ⚠️ (will resolve at roadmap step)
+
+---
+*Requirements defined: 2026-05-02*
+*Last updated: 2026-05-02 after initial definition*
