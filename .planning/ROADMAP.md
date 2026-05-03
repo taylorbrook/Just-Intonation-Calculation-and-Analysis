@@ -29,7 +29,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can run `npm run lint:types` and `npm run test` with both passing on a stub kernel module
   4. User can `import { Fraction } from "fraction.js"` and the BigInt-backed v5 resolves correctly via `xen-dev-utils`
   5. User can push to the configured deployment target (e.g., Cloudflare Pages) and see the static site live
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 01-01-PLAN.md — Bootstrap Framework scaffold, package.json with D-13 scripts, .nvmrc, .gitignore, README (BOOT-01)
+  - [ ] 01-02-PLAN.md — Configure TypeScript (D-16 strict), Vitest (D-07 colocated), ESLint 9 flat (D-12), Prettier; stub kernel module + test (BOOT-02, BOOT-03)
+  - [ ] 01-03-PLAN.md — Install xen-dev stack (xen-dev-utils, sw-synth, ji-lattice, sonic-weave) + exact-pin fraction.js@5.3.4; write D-14 hello page (BOOT-04)
+  - [ ] 01-04-PLAN.md — GitHub Actions workflow per D-02/D-03/D-05 wiring CI gates + Pages deploy on push to main (BOOT-01, BOOT-02, BOOT-03, BOOT-05)
 
 ### Phase 2: Math Kernel + Composition Anchor (MVP)
 **Goal**: The full kernel-MVP — pure `Interval`/`Scale` math, Scala `.scl` round-trip I/O, Web Audio playback with proper lifecycle, the Markdown+widgets notes surface, and a composition dashboard page that exercises every kernel feature end-to-end. This phase is the architectural proof; if the composition page works, the kernel works.
@@ -76,7 +80,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Bootstrap & Build | 0/TBD | Not started | - |
+| 1. Bootstrap & Build | 0/4 | Planned | - |
 | 2. Math Kernel + Composition Anchor (MVP) | 0/TBD | Not started | - |
 | 3. Visualization + Mobile Audio Audit | 0/TBD | Not started | - |
 | 4. Analysis & Sharing | 0/TBD | Not started | - |
