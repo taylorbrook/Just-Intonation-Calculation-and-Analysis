@@ -1,0 +1,87 @@
+# Single GitHub Actions workflow for Tuning Systems.
+# Per Phase 1 CONTEXT.md decisions:
+#   D-02: npm ci → lint:types → test → lint → format:check → build → upload-artifact → deploy
+#   D-03: PRs run gates + build; only push-to-main runs upload-artifact + deploy
+#   D-05: NOT using the deprecated Observable Cloud deploy command; ship via Pages actions
+#   D-18: Node 20 LTS, pinned via .nvmrc
+
+name: CI and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Pages deploy permissions per GitHub's first-party recipe.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deploy; cancel in-progress runs of this workflow
+# but DO NOT cancel an in-progress deploy (let it finish so the live site stays consistent).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and run gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies (deterministic)
+        run: npm ci
+
+      - name: Type-check (D-10 gate 1)
+        run: npm run lint:types
+
+      - name: Unit tests (D-10 gate 2)
+        run: npm run test
+
+      - name: Lint (D-10 gate 3)
+        run: npm run lint
+
+      - name: Format check (D-10 gate 4)
+        run: npm run format:check
+
+      - name: Phase 1 deny-list check (D-21)
+        # Defense-in-depth: ensure forbidden packages haven't slipped into package.json.
+        run: |
+          node -e "const p=require('./package.json'); ['temperaments','mathjs'].forEach(k=>{if((p.dependencies||{})[k]||(p.devDependencies||{})[k]){console.error('FORBIDDEN dep present:',k); process.exit(1)}})"
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Configure Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    # D-03: deploy only on push to main, never on PRs.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
