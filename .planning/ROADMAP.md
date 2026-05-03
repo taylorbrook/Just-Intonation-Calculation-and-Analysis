@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans
   - [x] 01-01-PLAN.md — Bootstrap Framework scaffold, package.json with D-13 scripts, .nvmrc, .gitignore, README (BOOT-01)
   - [x] 01-02-PLAN.md — Configure TypeScript (D-16 strict), Vitest (D-07 colocated), ESLint 9 flat (D-12), Prettier; stub kernel module + test (BOOT-02, BOOT-03)
-  - [ ] 01-03-PLAN.md — Install xen-dev stack (xen-dev-utils, sw-synth, ji-lattice, sonic-weave) + exact-pin fraction.js@5.3.4; write D-14 hello page (BOOT-04)
+  - [x] 01-03-PLAN.md — Install xen-dev stack (xen-dev-utils, sw-synth, ji-lattice, sonic-weave) + exact-pin fraction.js@5.3.4; write D-14 hello page (BOOT-04)
   - [ ] 01-04-PLAN.md — GitHub Actions workflow per D-02/D-03/D-05 wiring CI gates + Pages deploy on push to main (BOOT-01, BOOT-02, BOOT-03, BOOT-05)
 
 ### Phase 2: Math Kernel + Composition Anchor (MVP)
