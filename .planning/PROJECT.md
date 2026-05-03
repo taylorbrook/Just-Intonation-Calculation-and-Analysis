@@ -12,7 +12,7 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Static-site build, self-hosted, publishable, git-versioned source — *Validated in Phase 1 (Bootstrap & Build): Observable Framework 1.13.4 builds to `dist/`; GitHub Pages workflow deploys on push to main; full source under git.*
 
 ### Active
 
@@ -27,7 +27,6 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 - [ ] Scala `.scl` and `.kbm` export
 - [ ] In-browser audio playback of intervals/scales (Web Audio)
 - [ ] Markdown research notes interleaved with reactive calculator cells
-- [ ] Static-site build, self-hosted, publishable, git-versioned source
 - [ ] End-to-end coverage of the in-progress composition's tuning needs
 
 ### Out of Scope
@@ -85,4 +84,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-02 after initialization*
+*Last updated: 2026-05-03 after Phase 1 (Bootstrap & Build) completion*
