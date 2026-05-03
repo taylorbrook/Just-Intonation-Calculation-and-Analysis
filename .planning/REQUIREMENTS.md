@@ -7,7 +7,7 @@
 
 ### BOOT — Bootstrap & Build
 
-- [ ] **BOOT-01**: Observable Framework project scaffolded; static-site build is deployable
+- [x] **BOOT-01**: Observable Framework project scaffolded; static-site build is deployable
 - [ ] **BOOT-02**: TypeScript with `tsc --noEmit` running in CI (Framework transpiles but doesn't type-check)
 - [ ] **BOOT-03**: Vitest configured and running for kernel unit tests
 - [ ] **BOOT-04**: xenharmonic-devs stack installed and resolved (`xen-dev-utils`, `sw-synth`, `ji-lattice`, `sonic-weave`, `fraction.js` v5)
@@ -106,7 +106,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BOOT-01 | Phase 1 | Pending |
+| BOOT-01 | Phase 1 | Complete |
 | BOOT-02 | Phase 1 | Pending |
 | BOOT-03 | Phase 1 | Pending |
 | BOOT-04 | Phase 1 | Pending |
