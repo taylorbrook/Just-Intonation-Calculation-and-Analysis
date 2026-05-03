@@ -12,7 +12,7 @@ A research notebook + JI calculator built on Observable Framework. Five phases f
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Bootstrap & Build** - Observable Framework scaffold, TS+Vitest, xen-dev stack installed, deployment target wired
+- [x] **Phase 1: Bootstrap & Build** - Observable Framework scaffold, TS+Vitest, xen-dev stack installed, deployment target wired
 - [ ] **Phase 2: Math Kernel + Composition Anchor (MVP)** - Pure JI kernel, Scala I/O, audio playback, notes surface, composition page end-to-end
 - [ ] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified
 - [ ] **Phase 4: Analysis & Sharing** - EDO ↔ JI mapping, MOS construction, scale comparison, persistent URLs
@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 01-01-PLAN.md — Bootstrap Framework scaffold, package.json with D-13 scripts, .nvmrc, .gitignore, README (BOOT-01)
   - [x] 01-02-PLAN.md — Configure TypeScript (D-16 strict), Vitest (D-07 colocated), ESLint 9 flat (D-12), Prettier; stub kernel module + test (BOOT-02, BOOT-03)
   - [x] 01-03-PLAN.md — Install xen-dev stack (xen-dev-utils, sw-synth, ji-lattice, sonic-weave) + exact-pin fraction.js@5.3.4; write D-14 hello page (BOOT-04)
-  - [ ] 01-04-PLAN.md — GitHub Actions workflow per D-02/D-03/D-05 wiring CI gates + Pages deploy on push to main (BOOT-01, BOOT-02, BOOT-03, BOOT-05)
+  - [x] 01-04-PLAN.md — GitHub Actions workflow per D-02/D-03/D-05 wiring CI gates + Pages deploy on push to main (BOOT-01, BOOT-02, BOOT-03, BOOT-05)
 
 ### Phase 2: Math Kernel + Composition Anchor (MVP)
 **Goal**: The full kernel-MVP — pure `Interval`/`Scale` math, Scala `.scl` round-trip I/O, Web Audio playback with proper lifecycle, the Markdown+widgets notes surface, and a composition dashboard page that exercises every kernel feature end-to-end. This phase is the architectural proof; if the composition page works, the kernel works.
@@ -80,7 +80,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Bootstrap & Build | 1/4 | In Progress|  |
+| 1. Bootstrap & Build | 4/4 | Complete | 2026-05-03 |
 | 2. Math Kernel + Composition Anchor (MVP) | 0/TBD | Not started | - |
 | 3. Visualization + Mobile Audio Audit | 0/TBD | Not started | - |
 | 4. Analysis & Sharing | 0/TBD | Not started | - |

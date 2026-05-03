@@ -11,7 +11,7 @@
 - [x] **BOOT-02**: TypeScript with `tsc --noEmit` running in CI (Framework transpiles but doesn't type-check)
 - [x] **BOOT-03**: Vitest configured and running for kernel unit tests
 - [x] **BOOT-04**: xenharmonic-devs stack installed and resolved (`xen-dev-utils`, `sw-synth`, `ji-lattice`, `sonic-weave`, `fraction.js` v5)
-- [ ] **BOOT-05**: Concrete static-site deployment target chosen and wired (e.g. Cloudflare Pages)
+- [x] **BOOT-05**: Concrete static-site deployment target chosen and wired (e.g. Cloudflare Pages)
 
 ### MATH — JI Math Kernel
 
@@ -110,7 +110,7 @@
 | BOOT-02 | Phase 1 | Complete |
 | BOOT-03 | Phase 1 | Complete |
 | BOOT-04 | Phase 1 | Complete |
-| BOOT-05 | Phase 1 | Pending |
+| BOOT-05 | Phase 1 | Complete |
 | MATH-01 | Phase 2 | Pending |
 | MATH-02 | Phase 2 | Pending |
 | MATH-03 | Phase 2 | Pending |
