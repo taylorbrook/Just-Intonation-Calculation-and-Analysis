@@ -52,9 +52,7 @@ export class Scale {
         `Scale.rotate: degree ${String(degree)} out of range (length ${String(this.intervals.length)})`,
       );
     }
-    const reduced = this.intervals.map((iv) =>
-      iv.div(tonic).octaveReduce(this.period),
-    );
+    const reduced = this.intervals.map((iv) => iv.div(tonic).octaveReduce(this.period));
     const sorted = [...reduced].sort((a, b) => a.cents - b.cents);
     return new Scale(sorted, this.period);
   }
@@ -134,9 +132,7 @@ export class Scale {
  */
 export function jiSubsetOfEdo(edoSteps: number, primeLimit: number): Scale {
   if (edoSteps < 1) {
-    throw new RangeError(
-      `jiSubsetOfEdo: edoSteps must be >= 1 (got ${String(edoSteps)})`,
-    );
+    throw new RangeError(`jiSubsetOfEdo: edoSteps must be >= 1 (got ${String(edoSteps)})`);
   }
 
   // Find the index of the largest prime <= primeLimit.
@@ -147,9 +143,7 @@ export function jiSubsetOfEdo(edoSteps: number, primeLimit: number): Scale {
     limitIndex = i;
   }
   if (limitIndex < 0) {
-    throw new RangeError(
-      `jiSubsetOfEdo: primeLimit ${String(primeLimit)} below 2`,
-    );
+    throw new RangeError(`jiSubsetOfEdo: primeLimit ${String(primeLimit)} below 2`);
   }
 
   const intervals: Interval[] = [];

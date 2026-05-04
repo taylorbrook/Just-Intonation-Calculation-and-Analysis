@@ -6,11 +6,7 @@ import { primeLimit } from "../monzo.js";
 describe("Scale", () => {
   describe("construction", () => {
     it("constructs from an Interval[] and exposes intervals + period", () => {
-      const s = new Scale([
-        new Interval("1/1"),
-        new Interval("3/2"),
-        new Interval("2/1"),
-      ]);
+      const s = new Scale([new Interval("1/1"), new Interval("3/2"), new Interval("2/1")]);
       expect(s.intervals.length).toBe(3);
       expect(s.period.equals(new Interval("2/1"))).toBe(true);
     });
@@ -20,10 +16,7 @@ describe("Scale", () => {
     });
 
     it("accepts an explicit period override (D-14 default = last)", () => {
-      const s = new Scale(
-        [new Interval("1/1"), new Interval("2/1")],
-        new Interval("3/1"),
-      );
+      const s = new Scale([new Interval("1/1"), new Interval("2/1")], new Interval("3/1"));
       expect(s.period.equals(new Interval("3/1"))).toBe(true);
     });
 
@@ -110,10 +103,7 @@ describe("Scale", () => {
     });
 
     it("is period-aware — reduces 9/1 by tritave 3/1 to 1/1 (Pitfall #13)", () => {
-      const s = new Scale(
-        [new Interval("9/1"), new Interval("3/1")],
-        new Interval("3/1"),
-      );
+      const s = new Scale([new Interval("9/1"), new Interval("3/1")], new Interval("3/1"));
       const r = s.reduce();
       // 9/1 reduced into [1, 3) is 1/1 (since 9 = 3^2). With dedupe + period-pinning: [1/1, 3/1]
       expect(r.intervals.length).toBe(2);
@@ -129,11 +119,7 @@ describe("Scale", () => {
 
   describe("dedupe", () => {
     it("removes exact rational duplicates, preserving first occurrence", () => {
-      const s = new Scale([
-        new Interval("3/2"),
-        new Interval("3/2"),
-        new Interval("2/1"),
-      ]);
+      const s = new Scale([new Interval("3/2"), new Interval("3/2"), new Interval("2/1")]);
       const d = s.dedupe();
       expect(d.intervals.length).toBe(2);
       expect(d.intervals[0]?.equals(new Interval("3/2"))).toBe(true);
@@ -155,11 +141,7 @@ describe("Scale", () => {
 
   describe("transpose (SCALE-04)", () => {
     it("multiplies every interval AND the period by the given Interval", () => {
-      const s = new Scale([
-        new Interval("1/1"),
-        new Interval("3/2"),
-        new Interval("2/1"),
-      ]);
+      const s = new Scale([new Interval("1/1"), new Interval("3/2"), new Interval("2/1")]);
       const t = s.transpose(new Interval("3/2"));
       expect(t.intervals[0]?.equals(new Interval("3/2"))).toBe(true);
       expect(t.intervals[1]?.equals(new Interval("9/4"))).toBe(true);
