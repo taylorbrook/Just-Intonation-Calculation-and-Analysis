@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 02-01-PLAN.md (foundation: katex + vitest glob + R-01 + fixtures)"
-last_updated: "2026-05-04T17:27:39.552Z"
+stopped_at: Completed 02-02-PLAN.md (Interval kernel + monzo/cents helpers + 16 named commas)
+last_updated: "2026-05-04T17:37:11.650Z"
 last_activity: 2026-05-04
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 11
-  completed_plans: 5
-  percent: 45
+  completed_plans: 6
+  percent: 55
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 ## Current Position
 
 Phase: 02 (math-kernel-composition-anchor-mvp) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-05-04
 
-Progress: [█████░░░░░] 45%
+Progress: [██████░░░░] 55%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [█████░░░░░] 45%
 | Phase 01-bootstrap-build P03 | 3min | 2 tasks | 4 files |
 | Phase 01-bootstrap-build P01-04 | 6min | 2 tasks | 1 files |
 | Phase 02-math-kernel-composition-anchor-mvp P01 | 4min | 2 tasks | 27 files |
+| Phase 02-math-kernel-composition-anchor-mvp PP02 | 6min | 2 tasks tasks | 9 files files |
 
 ## Accumulated Context
 
@@ -85,6 +86,12 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 02 Plan 01]: Honored R-01 — eslint.config.js no-restricted-imports rule blocks Fraction from xen-dev-utils repo-wide (kept active in test files; no kernel test legitimately needs that import)
 - [Phase ?]: [Phase 02 Plan 01]: Honored Phase 1 D-07 extension — vitest.config.ts include glob now covers src/lib/__tests__/, src/audio/__tests__/, and src/__tests__/
 - [Phase ?]: [Phase 02 Plan 01]: Sourced 3 golden archive .scl files from live Huygens-Fokker scales.zip; renamed slendro_av.scl→slendro.scl and young-lm_piano.scl→young_lm.scl; per-file source + license documented in golden/LICENSE.md
+- [Phase ?]: [Phase 02 Plan 02]: Honored R-01 at source — src/lib/interval.ts imports Fraction from fraction.js directly
+- [Phase ?]: [Phase 02 Plan 02]: Honored D-24 immutability — Interval.mul/div/inv/octaveReduce return new instances, verified with referential-inequality test assertions
+- [Phase ?]: [Phase 02 Plan 02]: Honored Pitfall #13 — Interval.octaveReduce(period?) accepts arbitrary periods (default 2/1; tested with 9/1 reduced by 3/1 → 1/1)
+- [Phase ?]: [Phase 02 Plan 02]: Honored Pitfall #6 + D-21 — 16 hand-verified commas keyed on canonical monzo; Mercator's comma 25-digit ratio round-trips exactly through BigInt path (live R-01 proof)
+- [Phase ?]: [Phase 02 Plan 02]: Honored Pitfall #5 — 8 INVENTORY rows added; every new export has Source + Notes
+- [Phase ?]: [Phase 02 Plan 02]: Curated commas table — dropped 4 unverified candidates from planner draft, substituted verified replacements (harmonic seventh comma 49/48, jubilisma 50/49, breedsma 2401/2400); fixed rastma sign and Mercator direction
 
 ### Pending Todos
 
@@ -104,6 +111,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-04T17:27:39.547Z
-Stopped at: Completed 02-01-PLAN.md (foundation: katex + vitest glob + R-01 + fixtures)
+Last session: 2026-05-04T17:37:11.645Z
+Stopped at: Completed 02-02-PLAN.md (Interval kernel + monzo/cents helpers + 16 named commas)
 Resume file: 

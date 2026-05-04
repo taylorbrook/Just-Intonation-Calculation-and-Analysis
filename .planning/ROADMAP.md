@@ -52,7 +52,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - Wave 4: 02-06 (consumes everything from waves 1–3)
   - Wave 5: 02-07 (dashboard + theory page integration)
   - [x] 02-01-PLAN.md — Wave 1 — KaTeX wiring + Vitest test glob extension + R-01 ESLint rule + Phase-1 stub deletion + .scl fixture corpus (NOTES-02, IO-05)
-  - [ ] 02-02-PLAN.md — Wave 1 — Math kernel: Interval (BigInt-backed Fraction), monzo helpers, cents projections, named-commas table (MATH-01..06)
+  - [x] 02-02-PLAN.md — Wave 1 — Math kernel: Interval (BigInt-backed Fraction), monzo helpers, cents projections, named-commas table (MATH-01..06)
   - [ ] 02-03-PLAN.md — Wave 2 — Scale model: rotate, reduce (period-aware), dedupe, transpose, degreeToFreq, jiSubsetOfEdo (SCALE-02..05)
   - [ ] 02-04-PLAN.md — Wave 3 — Scala I/O: parseScala (D-12 shared body parser), parseScl, writeScl, scalaToCsv + 21-fixture test corpus (SCALE-01, IO-01/02/04/05) — depends on 02-03 (imports `Scale`)
   - [ ] 02-05-PLAN.md — Wave 2 — Audio: createSynth lifecycle wrapper over sw-synth (lazy AudioContext, voice tracking, polyphony cap, ADSR, dispose) (AUDIO-01..05)
@@ -93,6 +93,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Bootstrap & Build | 4/4 | Complete | 2026-05-03 |
-| 2. Math Kernel + Composition Anchor (MVP) | 0/TBD | Not started | - |
+| 2. Math Kernel + Composition Anchor (MVP) | 2/7 | In Progress | - |
 | 3. Visualization + Mobile Audio Audit | 0/TBD | Not started | - |
 | 4. Analysis & Sharing | 0/TBD | Not started | - |

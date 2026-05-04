@@ -15,12 +15,12 @@
 
 ### MATH — JI Math Kernel
 
-- [ ] **MATH-01**: Arbitrary-precision `Interval` (BigInt-backed Fraction) — any ratio (e.g. `81/79`) round-trips exactly with no prime-limit ceiling
-- [ ] **MATH-02**: Lazy monzo (prime-factor vector) computation from any `Interval`
-- [ ] **MATH-03**: Cents conversion + signed cent-deviation-from-12tet display (display projection only — not source of truth in kernel)
-- [ ] **MATH-04**: Interval arithmetic — multiply, divide, invert, octave-reduce, complement-to-octave (preserves exact rationals)
-- [ ] **MATH-05**: Complexity metrics — Tenney height, Benedetti height, prime-limit, odd-limit
-- [ ] **MATH-06**: Named-comma identification by canonical monzo (lookup table; never cents-within-epsilon)
+- [x] **MATH-01**: Arbitrary-precision `Interval` (BigInt-backed Fraction) — any ratio (e.g. `81/79`) round-trips exactly with no prime-limit ceiling
+- [x] **MATH-02**: Lazy monzo (prime-factor vector) computation from any `Interval`
+- [x] **MATH-03**: Cents conversion + signed cent-deviation-from-12tet display (display projection only — not source of truth in kernel)
+- [x] **MATH-04**: Interval arithmetic — multiply, divide, invert, octave-reduce, complement-to-octave (preserves exact rationals)
+- [x] **MATH-05**: Complexity metrics — Tenney height, Benedetti height, prime-limit, odd-limit
+- [x] **MATH-06**: Named-comma identification by canonical monzo (lookup table; never cents-within-epsilon)
 
 ### SCALE — Scale Construction
 
@@ -111,12 +111,12 @@
 | BOOT-03 | Phase 1 | Complete |
 | BOOT-04 | Phase 1 | Complete |
 | BOOT-05 | Phase 1 | Complete |
-| MATH-01 | Phase 2 | Pending |
-| MATH-02 | Phase 2 | Pending |
-| MATH-03 | Phase 2 | Pending |
-| MATH-04 | Phase 2 | Pending |
-| MATH-05 | Phase 2 | Pending |
-| MATH-06 | Phase 2 | Pending |
+| MATH-01 | Phase 2 | Complete |
+| MATH-02 | Phase 2 | Complete |
+| MATH-03 | Phase 2 | Complete |
+| MATH-04 | Phase 2 | Complete |
+| MATH-05 | Phase 2 | Complete |
+| MATH-06 | Phase 2 | Complete |
 | SCALE-01 | Phase 2 | Pending |
 | SCALE-02 | Phase 2 | Pending |
 | SCALE-03 | Phase 2 | Pending |
