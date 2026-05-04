@@ -20,6 +20,7 @@
 
 import { Interval } from "./interval.js";
 // R-01: NEVER import Fraction from xen-dev-utils — see eslint.config.js + INVENTORY.md.
+import { Fraction } from "fraction.js";
 import { approximatePrimeLimit, PRIMES } from "xen-dev-utils";
 
 export class Scale {
@@ -34,7 +35,13 @@ export class Scale {
     Object.freeze(copy);
     this.intervals = copy;
     // Default period: last interval (D-14). Length checked above, so `!` is safe.
-    this.period = period ?? copy[copy.length - 1]!;
+    const p = period ?? copy[copy.length - 1]!;
+    // CR-01: reject period <= 1/1 at construction so Scale.reduce/rotate can't
+    // hand a malformed period to Interval.octaveReduce and hang the tab.
+    if (p.fraction.compare(new Fraction(1n, 1n)) <= 0) {
+      throw new RangeError(`Scale: period must be > 1/1 (got ${p.fraction.toFraction()})`);
+    }
+    this.period = p;
   }
 
   /**

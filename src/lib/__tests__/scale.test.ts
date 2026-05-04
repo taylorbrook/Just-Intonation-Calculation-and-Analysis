@@ -24,6 +24,18 @@ describe("Scale", () => {
       const s = new Scale([new Interval("1/1"), new Interval("2/1")]);
       expect(Object.isFrozen(s.intervals)).toBe(true);
     });
+
+    // CR-01: a malformed period <= 1/1 must be rejected at construction,
+    // before reduce()/rotate() can hand it to Interval.octaveReduce and hang.
+    it("throws RangeError when explicit period === 1/1", () => {
+      expect(
+        () => new Scale([new Interval("1/1"), new Interval("2/1")], new Interval("1/1")),
+      ).toThrowError(RangeError);
+    });
+
+    it("throws RangeError when default period (last interval) === 1/1", () => {
+      expect(() => new Scale([new Interval("1/1")])).toThrowError(RangeError);
+    });
   });
 
   describe("rotate (SCALE-03)", () => {
