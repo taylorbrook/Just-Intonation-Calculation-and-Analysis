@@ -230,6 +230,16 @@ describe("parseScl (full file)", () => {
     const huge = "x".repeat(1_000_001);
     expect(() => parseScl(huge)).toThrowError(/too large|1 ?MB|size/i);
   });
+
+  // CR-03: a 1 MB UTF-8 byte cap must not be defeated by non-ASCII input.
+  // 333_334 CJK chars at 3 UTF-8 bytes each = 1_000_002 bytes, but
+  // string.length is only 333_334 — well under the old code-unit cap.
+  it("rejects files larger than 1MB by UTF-8 byte count, not code-unit count (CR-03)", () => {
+    const cjk = "三".repeat(333_334);
+    expect(cjk.length).toBeLessThan(1_000_000);
+    expect(() => parseScl(cjk)).toThrowError(/too large|1 ?MB/i);
+    expect(() => parseScala(cjk)).toThrowError(/too large|1 ?MB/i);
+  });
 });
 
 // ---------------------------------------------------------------------------

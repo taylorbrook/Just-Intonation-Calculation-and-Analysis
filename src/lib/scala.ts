@@ -43,14 +43,31 @@ const MAX_MONZO_LENGTH = 32;
 const MAX_MONZO_MAGNITUDE = 1024;
 
 /**
+ * CR-03: the trust-boundary cap is documented in bytes, but the previous guard
+ * compared `string.length` (UTF-16 code units), letting a 3 MB UTF-8 file made
+ * of 3-byte CJK chars slip past with `length === 1_000_000`. Measure real
+ * UTF-8 bytes here.
+ *
+ * Cheap upper bound: every UTF-16 code unit costs at most 3 UTF-8 bytes
+ * (BMP code points are 1-3 bytes; a surrogate pair = 2 code units = 4 UTF-8
+ * bytes = 2 bytes/code-unit). So `s.length * 3` is a safe over-estimate. Fall
+ * back to TextEncoder only when the cheap bound clears the cap, keeping the
+ * common-case (small scales) allocation-free.
+ */
+function utf8ByteLength(s: string): number {
+  if (s.length * 3 <= MAX_INPUT_BYTES) return s.length * 3;
+  return new TextEncoder().encode(s).byteLength;
+}
+
+/**
  * Parse the body (pitch lines only — no description / count header) of a Scala
  * file or text-input. Auto-prepends 1/1 (D-13). Comment lines (`!`-prefixed)
  * and empty lines are skipped. Used by both parseScl (internal) and the
  * dashboard text-input (Plan 07) per D-12.
  */
 export function parseScala(body: string): Interval[] {
-  if (body.length > MAX_INPUT_BYTES) {
-    throw new Error(`parseScala: input too large (${String(body.length)} bytes; max 1MB)`);
+  if (utf8ByteLength(body) > MAX_INPUT_BYTES) {
+    throw new Error(`parseScala: input too large (max 1MB UTF-8)`);
   }
   const intervals: Interval[] = [new Interval("1/1")];
   const lines = normalizeLines(body);
@@ -73,8 +90,8 @@ export interface ParsedScl {
  * mismatch and negative-ratio / multi-slash inputs with clear errors.
  */
 export function parseScl(file: string): ParsedScl {
-  if (file.length > MAX_INPUT_BYTES) {
-    throw new Error(`parseScl: input too large (${String(file.length)} bytes; max 1MB)`);
+  if (utf8ByteLength(file) > MAX_INPUT_BYTES) {
+    throw new Error(`parseScl: input too large (max 1MB UTF-8)`);
   }
   const lines = normalizeLines(file);
   const nonComment: string[] = [];
