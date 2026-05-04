@@ -1,0 +1,51 @@
+/* scale-table.css — 4-column scale table with optional copy button.
+ *
+ * Theme tokens only — never hard-coded hex (UI-SPEC).
+ */
+
+.scale-table {
+  margin-block: 16px;
+}
+
+.scale-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--monospace);
+  font-size: 14px;
+}
+
+.scale-table thead th {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  color: var(--theme-foreground-alt);
+  border-bottom: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+}
+
+.scale-table tbody td {
+  padding: 4px 12px;
+  color: var(--theme-foreground);
+  border-bottom: 1px solid color-mix(in oklab, currentColor 6%, transparent);
+}
+
+.scale-table__copy {
+  margin-top: 8px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 6px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+  cursor: pointer;
+}
+
+.scale-table__copy:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}

@@ -1,0 +1,37 @@
+/* play-buttons.css — shared styles for `playInterval` and `playScale` widgets.
+ *
+ * UI-SPEC color rule: accent (`--theme-blue`) reserved for play / arpeggiate /
+ * drone-active / .scl-export buttons + focus rings. Background uses theme tokens
+ * so the widget respects user theme switches and dark mode.
+ *
+ * Glyphs (▶, ⏵⏵) are typographic — `font-variant-emoji: text` keeps Apple's
+ * emoji renderer from substituting a colored emoji glyph for the play arrow.
+ */
+
+.play-btn {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 6px 12px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 6px;
+  background: var(--theme-background);
+  color: var(--theme-blue);
+  cursor: pointer;
+  font-variant-emoji: text;
+}
+
+.play-btn:hover {
+  background: color-mix(in oklab, var(--theme-blue) 8%, var(--theme-background));
+}
+
+.play-btn:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.play-btn--scale {
+  /* Reserved variant — same visual as base for now; lets pages target the
+     scale-arpeggiate button specifically without restyling the inline play. */
+}

@@ -1,0 +1,23 @@
+/* ratio-pill.css — inline ratio + cents annotation for prose.
+ *
+ * Inline-flex with baseline alignment so the cents annotation drops to the
+ * baseline of the prose line, not the top of the monospace `<code>`.
+ */
+
+.ratio-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 0 4px;
+}
+
+.ratio-pill__ratio {
+  font-family: var(--monospace);
+  font-size: 0.95em;
+}
+
+.ratio-pill__cents {
+  font-family: var(--monospace);
+  font-size: 0.85em;
+  color: var(--theme-foreground-alt);
+}
