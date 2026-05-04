@@ -53,13 +53,13 @@
 - [x] **NOTES-02**: KaTeX math typesetting in prose
 - [x] **NOTES-03**: Inline widget pattern — `<PlayInterval>`, `<ScaleTable>`, etc. embeddable mid-paragraph via Markdown `${...}` interpolation
 - [x] **NOTES-04**: Reusable `src/lib/` (pure kernel) and `src/components/` (DOM factories) — no kernel-DOM bleed; documented in `src/lib/INVENTORY.md`
-- [ ] **NOTES-05**: At least one additional general theory page proves the architecture supports >1 page
+- [x] **NOTES-05**: At least one additional general theory page proves the architecture supports >1 page
 
 ### COMP — Composition Anchor
 
-- [ ] **COMP-01**: In-progress piece's pitch material lives in `src/lib/pieces/<piece>.ts` as single source of truth
-- [ ] **COMP-02**: Composition dashboard page — full end-to-end usage of kernel for the piece (design scale, see ratios/cents, audition, export `.scl`)
-- [ ] **COMP-03**: CI test asserts the piece module's scale parses and exports correctly (catches kernel-vs-composition drift)
+- [x] **COMP-01**: In-progress piece's pitch material lives in `src/lib/pieces/<piece>.ts` as single source of truth
+- [x] **COMP-02**: Composition dashboard page — full end-to-end usage of kernel for the piece (design scale, see ratios/cents, audition, export `.scl`)
+- [x] **COMP-03**: CI test asserts the piece module's scale parses and exports correctly (catches kernel-vs-composition drift)
 
 ### VIZ — Visualization
 
@@ -137,10 +137,10 @@
 | NOTES-02 | Phase 2 | Complete |
 | NOTES-03 | Phase 2 | Complete |
 | NOTES-04 | Phase 2 | Complete |
-| NOTES-05 | Phase 2 | Pending |
-| COMP-01 | Phase 2 | Pending |
-| COMP-02 | Phase 2 | Pending |
-| COMP-03 | Phase 2 | Pending |
+| NOTES-05 | Phase 2 | Complete |
+| COMP-01 | Phase 2 | Complete |
+| COMP-02 | Phase 2 | Complete |
+| COMP-03 | Phase 2 | Complete |
 | VIZ-01 | Phase 3 | Pending |
 | VIZ-02 | Phase 3 | Pending |
 | VIZ-03 | Phase 3 | Pending |

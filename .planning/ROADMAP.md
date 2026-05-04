@@ -13,7 +13,7 @@ A research notebook + JI calculator built on Observable Framework. Five phases f
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Bootstrap & Build** - Observable Framework scaffold, TS+Vitest, xen-dev stack installed, deployment target wired
-- [ ] **Phase 2: Math Kernel + Composition Anchor (MVP)** - Pure JI kernel, Scala I/O, audio playback, notes surface, composition page end-to-end
+- [x] **Phase 2: Math Kernel + Composition Anchor (MVP)** - Pure JI kernel, Scala I/O, audio playback, notes surface, composition page end-to-end (completed 2026-05-04)
 - [ ] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified
 - [ ] **Phase 4: Analysis & Sharing** - EDO ↔ JI mapping, MOS construction, scale comparison, persistent URLs
 
@@ -57,7 +57,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 02-04-PLAN.md — Wave 3 — Scala I/O: parseScala (D-12 shared body parser), parseScl, writeScl, scalaToCsv + 21-fixture test corpus (SCALE-01, IO-01/02/04/05) — depends on 02-03 (imports `Scale`)
   - [x] 02-05-PLAN.md — Wave 2 — Audio: createSynth lifecycle wrapper over sw-synth (lazy AudioContext, voice tracking, polyphony cap, ADSR, dispose) (AUDIO-01..05)
   - [x] 02-06-PLAN.md — Wave 4 — Components: 6 DOM-factory widgets (playInterval/playScale/scaleTable/ratioPill/audioPanel/sclIo) + colocated CSS + INVENTORY consolidation (NOTES-01..04)
-  - [ ] 02-07-PLAN.md — Wave 5 — Dashboard at src/index.md + syntonic-comma theory page + COMP-03 integration test (NOTES-01..05, COMP-01..03)
+  - [x] 02-07-PLAN.md — Wave 5 — Dashboard at src/index.md + syntonic-comma theory page + COMP-03 integration test (NOTES-01..05, COMP-01..03)
 **UI hint**: yes
 
 ### Phase 3: Visualization + Mobile Audio Audit
@@ -93,6 +93,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Bootstrap & Build | 4/4 | Complete | 2026-05-03 |
-| 2. Math Kernel + Composition Anchor (MVP) | 4/7 | In Progress | - |
+| 2. Math Kernel + Composition Anchor (MVP) | 7/7 | Complete   | 2026-05-04 |
 | 3. Visualization + Mobile Audio Audit | 0/TBD | Not started | - |
 | 4. Analysis & Sharing | 0/TBD | Not started | - |
