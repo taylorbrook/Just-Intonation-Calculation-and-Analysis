@@ -1,0 +1,84 @@
+/* scl-io.css — Scala .scl import/export controls.
+ *
+ * The native file <input type="file"> is hidden visually; the styled
+ * "Import .scl…" button drives it via .click(). Status region uses the
+ * muted foreground-alt tone so successful announcements don't shout.
+ */
+
+.scl-io {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scl-io h2 {
+  margin: 0 0 8px 0;
+}
+
+.scl-io__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scl-io__filename-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.scl-io__filename {
+  font-family: var(--monospace);
+  font-size: 14px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+  min-width: 220px;
+}
+
+.scl-io__filename:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.scl-io__filename-ext {
+  font-family: var(--monospace);
+  font-size: 14px;
+  color: var(--theme-foreground-alt);
+}
+
+.scl-io__import {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 6px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+  cursor: pointer;
+}
+
+.scl-io__import:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.scl-io__status {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+/* Hide the native file input — the styled importBtn drives it. */
+.scl-io input[type="file"] {
+  display: none;
+}

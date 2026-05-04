@@ -1,0 +1,52 @@
+/* audio-panel.css — dashboard audition controls.
+ *
+ * Theme tokens only. The drone-active state uses a 12% blue tint on the
+ * background — accent color is reserved for active-affordance signaling per
+ * UI-SPEC.
+ */
+
+.audio-panel {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.audio-panel h2 {
+  margin: 0 0 8px 0;
+}
+
+.audio-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.audio-panel__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.audio-panel__select {
+  font-family: var(--monospace);
+  font-size: 14px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.audio-panel__select:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.audio-panel__drone[aria-pressed="true"] {
+  background: color-mix(in oklab, var(--theme-blue) 12%, var(--theme-background));
+}
