@@ -309,6 +309,28 @@ describe("writeScl (serializer, D-13)", () => {
       expect(parsed.intervals[i]!.equals(scale.intervals[i]!)).toBe(true);
     }
   });
+
+  // CR-02: writeScl must sanitize descriptions so user-typed content can't break
+  // the round-trip invariant or shift the .scl line layout.
+  it("sanitizes newlines in description (CR-02)", () => {
+    const scale = new Scale([new Interval("1/1"), new Interval("2/1")]);
+    const out = writeScl(scale, "line1\nline2");
+    expect(() => parseScl(out)).not.toThrow();
+    expect(parseScl(out).description).toBe("line1 line2");
+  });
+
+  it("sanitizes CRLF in description (CR-02)", () => {
+    const scale = new Scale([new Interval("1/1"), new Interval("2/1")]);
+    const out = writeScl(scale, "a\r\nb");
+    expect(parseScl(out).description).toBe("a b");
+  });
+
+  it("defangs description starting with ! (CR-02)", () => {
+    const scale = new Scale([new Interval("1/1"), new Interval("2/1")]);
+    const out = writeScl(scale, "!leading-bang");
+    expect(() => parseScl(out)).not.toThrow();
+    expect(parseScl(out).description).toBe("!leading-bang");
+  });
 });
 
 // ---------------------------------------------------------------------------
