@@ -1,0 +1,4 @@
+! F14-large-numerator.scl
+Large numerator - exact 2^31 boundary tests BigInt path
+ 1
+ 2147483648/2147483647

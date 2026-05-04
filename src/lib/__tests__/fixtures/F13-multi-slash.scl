@@ -1,0 +1,4 @@
+! F13-multi-slash.scl
+Multi-slash ratio - parser MUST error
+ 1
+ 2/3/4

@@ -1,0 +1,11 @@
+! leading comment 1
+! leading comment 2
+Comments everywhere
+! comment between description and count
+ 3
+! comment between count and first pitch
+ 5/4
+! comment between pitches
+ 3/2
+ 2/1
+! trailing comment

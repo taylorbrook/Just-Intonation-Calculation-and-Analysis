@@ -1,0 +1,4 @@
+! F12-negative-ratio.scl
+Negative ratio - parser MUST error
+ 1
+ -5/4
