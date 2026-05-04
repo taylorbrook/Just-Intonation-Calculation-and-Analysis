@@ -51,7 +51,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - Wave 3: 02-04 (needs Scale from 02-03)
   - Wave 4: 02-06 (consumes everything from waves 1–3)
   - Wave 5: 02-07 (dashboard + theory page integration)
-  - [ ] 02-01-PLAN.md — Wave 1 — KaTeX wiring + Vitest test glob extension + R-01 ESLint rule + Phase-1 stub deletion + .scl fixture corpus (NOTES-02, IO-05)
+  - [x] 02-01-PLAN.md — Wave 1 — KaTeX wiring + Vitest test glob extension + R-01 ESLint rule + Phase-1 stub deletion + .scl fixture corpus (NOTES-02, IO-05)
   - [ ] 02-02-PLAN.md — Wave 1 — Math kernel: Interval (BigInt-backed Fraction), monzo helpers, cents projections, named-commas table (MATH-01..06)
   - [ ] 02-03-PLAN.md — Wave 2 — Scale model: rotate, reduce (period-aware), dedupe, transpose, degreeToFreq, jiSubsetOfEdo (SCALE-02..05)
   - [ ] 02-04-PLAN.md — Wave 3 — Scala I/O: parseScala (D-12 shared body parser), parseScl, writeScl, scalaToCsv + 21-fixture test corpus (SCALE-01, IO-01/02/04/05) — depends on 02-03 (imports `Scale`)

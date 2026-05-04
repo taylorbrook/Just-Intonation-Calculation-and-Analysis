@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-05-04T15:44:58.035Z"
-last_activity: 2026-05-04 -- Phase 02 planning complete
+stopped_at: "Completed 02-01-PLAN.md (foundation: katex + vitest glob + R-01 + fixtures)"
+last_updated: "2026-05-04T17:27:39.552Z"
+last_activity: 2026-05-04
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 11
-  completed_plans: 4
-  percent: 36
+  completed_plans: 5
+  percent: 45
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-02)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Phase 01 — bootstrap-build
+**Current focus:** Phase 02 — math-kernel-composition-anchor-mvp
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (math-kernel-composition-anchor-mvp) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-05-04 -- Phase 02 planning complete
+Last activity: 2026-05-04
 
-Progress: [██████████] 100%
+Progress: [█████░░░░░] 45%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100%
 | Phase 01-bootstrap-build P02 | 3min | 2 tasks | 11 files |
 | Phase 01-bootstrap-build P03 | 3min | 2 tasks | 4 files |
 | Phase 01-bootstrap-build P01-04 | 6min | 2 tasks | 1 files |
+| Phase 02-math-kernel-composition-anchor-mvp P01 | 4min | 2 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,10 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 01]: Honored D-02/D-03/D-05: single GitHub Actions workflow chains npm ci → 4 gates → deny-list → build → configure-pages → upload-artifact → deploy-pages on push to main; PRs run gates + build only; no observable deploy invocation
 - [Phase ?]: [Phase 01]: Honored security_constraints: only first-party actions/* (checkout@v4, setup-node@v4, configure-pages@v5, upload-pages-artifact@v3, deploy-pages@v4); minimum-needed permissions (contents:read, pages:write, id-token:write); concurrency:{group:pages, cancel-in-progress:false}
 - [Phase ?]: [Phase 01]: Honored D-18 + D-21: setup-node reads node-version-file: .nvmrc (Node 20 single-source-of-truth); in-CI deny-list step rejects temperaments / mathjs in package.json (defense-in-depth alongside Plan 03 local check)
+- [Phase ?]: [Phase 02 Plan 01]: Honored D-23 — KaTeX 0.16.45 CSS head-injected via SRI-pinned CDN; no auto-render JS (KaTeX JS lazy-loads on first tex cell)
+- [Phase ?]: [Phase 02 Plan 01]: Honored R-01 — eslint.config.js no-restricted-imports rule blocks Fraction from xen-dev-utils repo-wide (kept active in test files; no kernel test legitimately needs that import)
+- [Phase ?]: [Phase 02 Plan 01]: Honored Phase 1 D-07 extension — vitest.config.ts include glob now covers src/lib/__tests__/, src/audio/__tests__/, and src/__tests__/
+- [Phase ?]: [Phase 02 Plan 01]: Sourced 3 golden archive .scl files from live Huygens-Fokker scales.zip; renamed slendro_av.scl→slendro.scl and young-lm_piano.scl→young_lm.scl; per-file source + license documented in golden/LICENSE.md
 
 ### Pending Todos
 
@@ -99,6 +104,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-04T14:47:25.961Z
-Stopped at: Phase 2 UI-SPEC approved
-Resume file: .planning/phases/02-math-kernel-composition-anchor-mvp/02-UI-SPEC.md
+Last session: 2026-05-04T17:27:39.547Z
+Stopped at: Completed 02-01-PLAN.md (foundation: katex + vitest glob + R-01 + fixtures)
+Resume file: 

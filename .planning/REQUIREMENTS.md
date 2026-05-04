@@ -36,7 +36,7 @@
 - [ ] **IO-02**: Serialize `Scale` to `.scl`
 - [ ] **IO-03**: Parse and serialize `.kbm` keyboard mappings (`KbmMapping` keeps `referenceKey`/`referenceHz`/`middleNote` as named fields)
 - [ ] **IO-04**: Copy ratios + cent-deviation-from-12tet table to clipboard
-- [ ] **IO-05**: Round-trip golden tests against Huygens-Fokker `.scl` archive samples
+- [x] **IO-05**: Round-trip golden tests against Huygens-Fokker `.scl` archive samples
 
 ### AUDIO — Web Audio Playback
 
@@ -50,7 +50,7 @@
 ### NOTES — Research-Notes Surface
 
 - [ ] **NOTES-01**: Markdown prose pages with reactive JS cells (Framework baseline)
-- [ ] **NOTES-02**: KaTeX math typesetting in prose
+- [x] **NOTES-02**: KaTeX math typesetting in prose
 - [ ] **NOTES-03**: Inline widget pattern — `<PlayInterval>`, `<ScaleTable>`, etc. embeddable mid-paragraph via Markdown `${...}` interpolation
 - [ ] **NOTES-04**: Reusable `src/lib/` (pure kernel) and `src/components/` (DOM factories) — no kernel-DOM bleed; documented in `src/lib/INVENTORY.md`
 - [ ] **NOTES-05**: At least one additional general theory page proves the architecture supports >1 page
@@ -126,7 +126,7 @@
 | IO-02 | Phase 2 | Pending |
 | IO-03 | Phase 3 | Pending |
 | IO-04 | Phase 2 | Pending |
-| IO-05 | Phase 2 | Pending |
+| IO-05 | Phase 2 | Complete |
 | AUDIO-01 | Phase 2 | Pending |
 | AUDIO-02 | Phase 2 | Pending |
 | AUDIO-03 | Phase 2 | Pending |
@@ -134,7 +134,7 @@
 | AUDIO-05 | Phase 2 | Pending |
 | AUDIO-06 | Phase 3 | Pending |
 | NOTES-01 | Phase 2 | Pending |
-| NOTES-02 | Phase 2 | Pending |
+| NOTES-02 | Phase 2 | Complete |
 | NOTES-03 | Phase 2 | Pending |
 | NOTES-04 | Phase 2 | Pending |
 | NOTES-05 | Phase 2 | Pending |
