@@ -77,9 +77,14 @@ export class Interval {
    */
   octaveReduce(period?: Interval): Interval {
     const p = period ?? new Interval("2/1");
+    const one = new Fraction(1n, 1n);
+    if (p.fraction.compare(one) <= 0) {
+      throw new RangeError(
+        `Interval.octaveReduce: period must be > 1/1 (got ${p.fraction.toFraction()})`,
+      );
+    }
     let f = this.fraction;
     const pf = p.fraction;
-    const one = new Fraction(1n, 1n);
     // Reduce f into [1, p) by dividing/multiplying by p as needed.
     while (f.compare(one) < 0) f = f.mul(pf);
     while (f.compare(pf) >= 0) f = f.div(pf);

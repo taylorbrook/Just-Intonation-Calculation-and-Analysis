@@ -82,4 +82,13 @@ describe("Interval", () => {
     const reduced = a.octaveReduce();
     expect(reduced).not.toBe(a);
   });
+
+  // CR-01: octaveReduce must reject period <= 1/1 (would otherwise infinite-loop).
+  it("octaveReduce throws RangeError when period === 1/1", () => {
+    expect(() => new Interval("9/4").octaveReduce(new Interval("1/1"))).toThrowError(RangeError);
+  });
+
+  it("octaveReduce throws RangeError when period < 1/1", () => {
+    expect(() => new Interval("9/4").octaveReduce(new Interval("1/2"))).toThrowError(RangeError);
+  });
 });
