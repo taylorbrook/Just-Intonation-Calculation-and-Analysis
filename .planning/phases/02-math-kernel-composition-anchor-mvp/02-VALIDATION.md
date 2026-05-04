@@ -38,12 +38,13 @@ created: 2026-05-03
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 2-01-01 | 01 | 1 | MATH-01..06 | — | N/A | unit | `npm test -- --run src/lib/__tests__/interval.test.ts` | ❌ W0 | ⬜ pending |
-| 2-02-01 | 02 | 1 | SCALE-01..05 | — | N/A | unit | `npm test -- --run src/lib/__tests__/scale.test.ts` | ❌ W0 | ⬜ pending |
-| 2-03-01 | 03 | 1 | IO-01,02,04,05 | — | N/A | unit + golden | `npm test -- --run src/lib/__tests__/scala.test.ts` | ❌ W0 | ⬜ pending |
-| 2-04-01 | 04 | 2 | AUDIO-01..05 | — | N/A | unit (mocked AC) | `npm test -- --run src/audio/__tests__/synth.test.ts` | ❌ W0 | ⬜ pending |
-| 2-05-01 | 05 | 2 | NOTES-01..05 | — | N/A | smoke | `npm run build && grep -r ratioPill src/dist` | ❌ W0 | ⬜ pending |
-| 2-06-01 | 06 | 3 | COMP-01..03 | — | N/A | integration | `npm test -- --run src/__tests__/dashboard-seed.test.ts` | ❌ W0 | ⬜ pending |
+| 2-01-01 | 01 | 1 | NOTES-02, IO-05 | T-02-01..03 | KaTeX SRI-pinned; R-01 ESLint rule installed; .scl fixture corpus on disk | infra + fixtures | `npm run lint:types && grep -q "katex@0.16.45" observablehq.config.ts && grep -q "no-restricted-imports" eslint.config.js` | ❌ W0 | ⬜ pending |
+| 2-02-01 | 02 | 1 | MATH-01..06 | T-02-04..06 | BigInt-backed Fraction (R-01); period-aware octaveReduce; commas keyed on canonical monzo (Pitfall #1/#6) | unit (TDD) | `npm test -- --run src/lib/__tests__/interval.test.ts src/lib/__tests__/monzo.test.ts src/lib/__tests__/cents.test.ts src/lib/__tests__/commas.test.ts` | ❌ W0 | ⬜ pending |
+| 2-03-01 | 03 | 2 | SCALE-02..05 | — | Scale immutable (D-24); period-aware reduce (Pitfall #13); jiSubsetOfEdo round-trips through string to recover BigInt Fraction (R-01) | unit (TDD) | `npm test -- --run src/lib/__tests__/scale.test.ts` | ❌ W0 | ⬜ pending |
+| 2-04-01 | 04 | 3 | SCALE-01, IO-01, IO-02, IO-04, IO-05 | T-02-10..16 | parseScala auto-prepends 1/1 (D-13); writeScl never emits unison; 1MB input cap; negative-ratio + multi-slash rejected (Pitfall #6); BOM + CRLF normalized; 21-fixture round-trip golden | unit + golden (TDD) | `npm test -- --run src/lib/__tests__/scala.test.ts` | ❌ W0 | ⬜ pending |
+| 2-05-01 | 05 | 2 | AUDIO-01..05 | — | Lazy AudioContext (Pitfall #2); voice tracking via noteOff callbacks; polyphony cap clamped [1,64]; Hz clamped [20,20000]; dispose terminal | unit (mocked AC) | `npm test -- --run src/audio/__tests__/synth.test.ts` | ❌ W0 | ⬜ pending |
+| 2-06-01 | 06 | 4 | NOTES-01..04 | T-02-22..26 | Three-layer discipline (no sw-synth in components); textContent for all dynamic cells (XSS); aria-pressed + aria-live=polite; INVENTORY consolidation for Plans 03/04/05/06 | smoke (typecheck + grep) | `npm run lint:types && npm run lint && npm test -- --run` | ❌ W0 | ⬜ pending |
+| 2-07-01 | 07 | 5 | NOTES-01..05, COMP-01..03 | T-02-27..30 | Cell-owned synth (Pattern 4 / Pitfall #2); seed scale lives in src/index.md (D-01); KaTeX renders on theory page (D-23); seed round-trips through .scl (COMP-03 reframed) | integration + manual smoke | `npm run ci && npm test -- --run src/__tests__/dashboard-seed.test.ts` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
