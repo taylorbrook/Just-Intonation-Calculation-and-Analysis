@@ -49,10 +49,10 @@
 
 ### NOTES — Research-Notes Surface
 
-- [ ] **NOTES-01**: Markdown prose pages with reactive JS cells (Framework baseline)
+- [x] **NOTES-01**: Markdown prose pages with reactive JS cells (Framework baseline)
 - [x] **NOTES-02**: KaTeX math typesetting in prose
-- [ ] **NOTES-03**: Inline widget pattern — `<PlayInterval>`, `<ScaleTable>`, etc. embeddable mid-paragraph via Markdown `${...}` interpolation
-- [ ] **NOTES-04**: Reusable `src/lib/` (pure kernel) and `src/components/` (DOM factories) — no kernel-DOM bleed; documented in `src/lib/INVENTORY.md`
+- [x] **NOTES-03**: Inline widget pattern — `<PlayInterval>`, `<ScaleTable>`, etc. embeddable mid-paragraph via Markdown `${...}` interpolation
+- [x] **NOTES-04**: Reusable `src/lib/` (pure kernel) and `src/components/` (DOM factories) — no kernel-DOM bleed; documented in `src/lib/INVENTORY.md`
 - [ ] **NOTES-05**: At least one additional general theory page proves the architecture supports >1 page
 
 ### COMP — Composition Anchor
@@ -133,10 +133,10 @@
 | AUDIO-04 | Phase 2 | Complete |
 | AUDIO-05 | Phase 2 | Complete |
 | AUDIO-06 | Phase 3 | Pending |
-| NOTES-01 | Phase 2 | Pending |
+| NOTES-01 | Phase 2 | Complete |
 | NOTES-02 | Phase 2 | Complete |
-| NOTES-03 | Phase 2 | Pending |
-| NOTES-04 | Phase 2 | Pending |
+| NOTES-03 | Phase 2 | Complete |
+| NOTES-04 | Phase 2 | Complete |
 | NOTES-05 | Phase 2 | Pending |
 | COMP-01 | Phase 2 | Pending |
 | COMP-02 | Phase 2 | Pending |

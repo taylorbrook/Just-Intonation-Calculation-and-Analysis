@@ -56,7 +56,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 02-03-PLAN.md — Wave 2 — Scale model: rotate, reduce (period-aware), dedupe, transpose, degreeToFreq, jiSubsetOfEdo (SCALE-02..05)
   - [x] 02-04-PLAN.md — Wave 3 — Scala I/O: parseScala (D-12 shared body parser), parseScl, writeScl, scalaToCsv + 21-fixture test corpus (SCALE-01, IO-01/02/04/05) — depends on 02-03 (imports `Scale`)
   - [x] 02-05-PLAN.md — Wave 2 — Audio: createSynth lifecycle wrapper over sw-synth (lazy AudioContext, voice tracking, polyphony cap, ADSR, dispose) (AUDIO-01..05)
-  - [ ] 02-06-PLAN.md — Wave 4 — Components: 6 DOM-factory widgets (playInterval/playScale/scaleTable/ratioPill/audioPanel/sclIo) + colocated CSS + INVENTORY consolidation (NOTES-01..04)
+  - [x] 02-06-PLAN.md — Wave 4 — Components: 6 DOM-factory widgets (playInterval/playScale/scaleTable/ratioPill/audioPanel/sclIo) + colocated CSS + INVENTORY consolidation (NOTES-01..04)
   - [ ] 02-07-PLAN.md — Wave 5 — Dashboard at src/index.md + syntonic-comma theory page + COMP-03 integration test (NOTES-01..05, COMP-01..03)
 **UI hint**: yes
 

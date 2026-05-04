@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-04-PLAN.md (Scala .scl parser/serializer + clipboard payload — SCALE-01, IO-01..05); Wave 2 complete
-last_updated: "2026-05-04T18:04:05.814Z"
+stopped_at: Completed 02-06-PLAN.md (v1 widget set + INVENTORY consolidation — NOTES-01..04)
+last_updated: "2026-05-04T18:16:33.330Z"
 last_activity: 2026-05-04
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 10
+  percent: 91
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 ## Current Position
 
 Phase: 02 (math-kernel-composition-anchor-mvp) — EXECUTING
-Plan: 5 of 7 (Wave 2 — Plan 04 still pending; Plan 05 completed out of order)
+Plan: 6 of 7 (Wave 2 — Plan 04 still pending; Plan 05 completed out of order)
 Status: Ready to execute
 Last activity: 2026-05-04
 
-Progress: [████████░░] 82%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [████████░░] 82%
 | Phase 02-math-kernel-composition-anchor-mvp P03 | 4min | 1 tasks | 2 files |
 | Phase 02-math-kernel-composition-anchor-mvp P05 | 3min | 1 tasks | 2 files |
 | Phase 02-math-kernel-composition-anchor-mvp P04 | 5min | 1 tasks | 2 files |
+| Phase 02-math-kernel-composition-anchor-mvp P06 | 5min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,11 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 02]: Plan 04: Added formatRatio helper because fraction.js' toFraction() drops '/1' for whole-number ratios — writeScl/scalaToCsv read iv.fraction.n/.d (BigInt) directly to emit explicit n/d form
 - [Phase ?]: [Phase 02]: Plan 04: Honored R-01 + T-02-10/T-02-11 — only centsToValue imported from xen-dev-utils (NOT Fraction); 1MB input cap; monzo length cap 32; per-component magnitude cap ±1024
 - [Phase ?]: [Phase 02]: Plan 04: Wave-2 file-ownership — INVENTORY.md NOT modified; Plan 06 (Wave 3) will consolidate parseScala/parseScl/writeScl/scalaToCsv rows alongside Plans 03/05 to avoid merge conflicts
+- [Phase ?]: [Phase 02]: Plan 06: Honored D-09 + ARCHITECTURE Pattern 2 — six widgets as plain (data, ...rest, opts?) => HTMLElement factories; SynthHandle passed in by caller (no global synth registry); three-layer discipline preserved (no sw-synth direct imports in components)
+- [Phase ?]: [Phase 02]: Plan 06: Honored D-06/D-07/D-08/D-10/D-22 — 4-column scaleTable (Degree/Ratio/Cents/¢ from 12-TET) with cents at 0.1¢ default per Pitfall #16; audioPanel layout interval-selector + arpeggiate + drone toggle (aria-pressed, Pitfall #9 stop-callback); baseHz default 440; sclIo filename default scale-{N}-tone-{YYYY-MM-DD}
+- [Phase ?]: [Phase 02]: Plan 06: Wave-3 INVENTORY consolidation — appended four sections (Scale, Scala I/O, Audio, Components) with 12 new symbol rows; Plans 03/04/05 deferred their rows to avoid Wave-2 merge conflicts
+- [Phase ?]: [Phase 02]: Plan 06: Defense-in-depth XSS — all dynamic cell values, status messages, option labels rendered via createElement+textContent; only static <th> row in scaleTable uses innerHTML (no interpolated values); T-02-22, T-02-23, T-02-14 mitigated
+- [Phase ?]: [Phase 02]: Plan 06: Deferred CSS-import-from-.ts question to Plan 07 — Framework's esbuild.transform passes 'import "./foo.css"' through unchanged, which fails at runtime; kept per plan instruction since plan acknowledged this as a Plan 07 smoke-test concern; recommended migration to per-page style: frontmatter or <link> head injection
 
 ### Pending Todos
 
@@ -123,7 +129,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-04T18:04:05.808Z
-Stopped at: Completed 02-04-PLAN.md (Scala .scl parser/serializer + clipboard payload — SCALE-01, IO-01..05); Wave 2 complete
+Last session: 2026-05-04T18:16:33.325Z
+Stopped at: Completed 02-06-PLAN.md (v1 widget set + INVENTORY consolidation — NOTES-01..04)
 Resume file: 
-None
