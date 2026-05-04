@@ -40,14 +40,14 @@ describe("parseScala (body parser, D-12)", () => {
     const out = parseScala("! comment\n9/8\n2/1");
     expect(out).toHaveLength(3);
     expect(out[1]!.fraction.toFraction()).toBe("9/8");
-    expect(out[2]!.fraction.toFraction()).toBe("2/1");
+    expect(out[2]!.equals(new Interval("2/1"))).toBe(true);
   });
 
   it("skips mid-body `!` comment lines", () => {
     const out = parseScala("9/8\n! mid-comment\n2/1");
     expect(out).toHaveLength(3);
     expect(out[1]!.fraction.toFraction()).toBe("9/8");
-    expect(out[2]!.fraction.toFraction()).toBe("2/1");
+    expect(out[2]!.equals(new Interval("2/1"))).toBe(true);
   });
 
   it("parses monzo bra-ket [-2 0 1> as 5/4 (D-15)", () => {
@@ -157,7 +157,7 @@ describe("parseScl (full file)", () => {
     expect(intervals).toHaveLength(4);
     expect(intervals[1]!.fraction.toFraction()).toBe("5/4");
     expect(intervals[2]!.fraction.toFraction()).toBe("3/2");
-    expect(intervals[3]!.fraction.toFraction()).toBe("2/1");
+    expect(intervals[3]!.equals(new Interval("2/1"))).toBe(true);
   });
 
   it("F08 Bohlen-Pierce: ends in 3/1 (non-octave period, Pitfall #13)", () => {
@@ -171,7 +171,7 @@ describe("parseScl (full file)", () => {
     expect(intervals).toHaveLength(4);
     expect(intervals[1]!.fraction.toFraction()).toBe("5/4");
     expect(intervals[2]!.fraction.toFraction()).toBe("3/2");
-    expect(intervals[3]!.fraction.toFraction()).toBe("2/1");
+    expect(intervals[3]!.equals(new Interval("2/1"))).toBe(true);
   });
 
   it("F10 empty description: parses with description === ''", () => {
@@ -179,7 +179,9 @@ describe("parseScl (full file)", () => {
     expect(description).toBe("");
     expect(intervals).toHaveLength(3);
     expect(intervals[1]!.fraction.toFraction()).toBe("3/2");
-    expect(intervals[2]!.fraction.toFraction()).toBe("2/1");
+    // fraction.js' toFraction() returns "2" (no /1) for whole-number ratios;
+    // verify by Fraction equality instead.
+    expect(intervals[2]!.equals(new Interval("2/1"))).toBe(true);
   });
 
   it("F11 mismatched pitch count: throws with mention of count or expected", () => {
@@ -236,11 +238,7 @@ describe("parseScl (full file)", () => {
 
 describe("writeScl (serializer, D-13)", () => {
   it("strips the unison line when serializing (D-13)", () => {
-    const scale = new Scale([
-      new Interval("1/1"),
-      new Interval("9/8"),
-      new Interval("2/1"),
-    ]);
+    const scale = new Scale([new Interval("1/1"), new Interval("9/8"), new Interval("2/1")]);
     const out = writeScl(scale, "test scale");
     expect(out).toContain("test scale");
     // Pitch count is 2 (NOT 3 — unison excluded)
@@ -251,7 +249,13 @@ describe("writeScl (serializer, D-13)", () => {
     // — here the description doesn't contain it, so a strict check is fine.
     const pitchLines = out
       .split("\n")
-      .filter((l) => !l.startsWith("!") && !/^\s*\d+\s*$/.test(l) && l.trim() !== "" && l.trim() !== "test scale");
+      .filter(
+        (l) =>
+          !l.startsWith("!") &&
+          !/^\s*\d+\s*$/.test(l) &&
+          l.trim() !== "" &&
+          l.trim() !== "test scale",
+      );
     for (const line of pitchLines) {
       expect(line.trim()).not.toBe("1/1");
     }
@@ -338,11 +342,7 @@ describe("round-trip golden (IO-05)", () => {
 
 describe("scalaToCsv (IO-04 data path)", () => {
   it("emits a header row and one row per interval", () => {
-    const scale = new Scale([
-      new Interval("1/1"),
-      new Interval("3/2"),
-      new Interval("2/1"),
-    ]);
+    const scale = new Scale([new Interval("1/1"), new Interval("3/2"), new Interval("2/1")]);
     const csv = scalaToCsv(scale, 440);
     const lines = csv.split("\n");
     expect(lines).toHaveLength(4); // header + 3 intervals
