@@ -30,7 +30,25 @@ const mockSynthInstance: MockSynthInstance = {
 
 const mockSynthCtor = vi.fn(() => mockSynthInstance);
 
+// Mock both the bare specifier (post-vitest-alias) and the npm: form (pre-alias)
+// so the mock catches whichever one the resolver resolves first. Plan 07 changed
+// synth.ts from `from "sw-synth"` to `from "npm:sw-synth"` to avoid Framework's
+// build-time ERR_PACKAGE_PATH_NOT_EXPORTED on sw-synth@0.4.0; the vitest alias in
+// vitest.config.ts maps `npm:sw-synth` → `sw-synth`, but vi.mock is hoisted by
+// vitest to the top of the file (before any non-vi declarations) so we duplicate
+// the inline factory rather than referencing a shared `const`.
 vi.mock("sw-synth", () => ({
+  Synth: mockSynthCtor,
+  defaultParams: (): MockVoiceParams => ({
+    type: "sine",
+    audioDelay: 0,
+    attackTime: 0.01,
+    decayTime: 0.05,
+    sustainLevel: 0.5,
+    releaseTime: 0.5,
+  }),
+}));
+vi.mock("npm:sw-synth", () => ({
   Synth: mockSynthCtor,
   defaultParams: (): MockVoiceParams => ({
     type: "sine",

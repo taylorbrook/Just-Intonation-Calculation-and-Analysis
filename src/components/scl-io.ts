@@ -30,7 +30,8 @@
  */
 import { Scale } from "../lib/scale.js";
 import { parseScl, writeScl } from "../lib/scala.js";
-import "./scl-io.css";
+// CSS shipped via per-page `style:` frontmatter (src/styles.css). See
+// play-interval.ts for the Plan-06-deferred rationale.
 
 export interface SclIoOpts {
   /**

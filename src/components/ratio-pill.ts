@@ -12,7 +12,8 @@
  * ARCHITECTURE Pattern 2 factory. Three-layer discipline: type-only import.
  */
 import type { Interval } from "../lib/interval.js";
-import "./ratio-pill.css";
+// CSS shipped via per-page `style:` frontmatter (src/styles.css). See
+// play-interval.ts for the Plan-06-deferred rationale.
 
 export interface RatioPillOpts {
   /** Default true. Set false to render just the ratio. */

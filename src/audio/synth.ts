@@ -20,7 +20,13 @@
  * on `number` Hz values; ratio→Hz projection happens at the call site.
  */
 
-import { Synth as SwSynth, defaultParams, type OscillatorVoiceParams } from "sw-synth";
+// `npm:` prefix routes through Framework's jsDelivr resolver, bypassing Node's
+// CJS loader. sw-synth@0.4.0 ships `"type": "module"` without an `"exports"`
+// field — Node's loader throws ERR_PACKAGE_PATH_NOT_EXPORTED when Framework's
+// build resolver tries to require.resolve() it. The vitest config aliases
+// `npm:sw-synth` back to the local install so unit tests still resolve.
+// (Plan 07 deviation — Rule 3 blocking issue.)
+import { Synth as SwSynth, defaultParams, type OscillatorVoiceParams } from "npm:sw-synth";
 
 // ----- Public surface (PATTERNS lines 313-329) -----
 

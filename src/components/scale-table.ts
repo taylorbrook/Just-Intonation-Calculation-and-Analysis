@@ -22,7 +22,8 @@
  */
 import type { Scale } from "../lib/scale.js";
 import { scalaToCsv } from "../lib/scala.js";
-import "./scale-table.css";
+// CSS shipped via per-page `style:` frontmatter (src/styles.css). See
+// play-interval.ts for the Plan-06-deferred rationale.
 
 export interface ScaleTableOpts {
   copyButton?: boolean;

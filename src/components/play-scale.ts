@@ -11,7 +11,8 @@
  */
 import type { Scale } from "../lib/scale.js";
 import type { SynthHandle } from "../audio/synth.js";
-import "./play-buttons.css";
+// CSS shipped via per-page `style:` frontmatter (src/styles.css). See
+// play-interval.ts for the Plan-06-deferred rationale.
 
 export interface PlayScaleOpts {
   baseHz?: number;

@@ -1,0 +1,45 @@
+/*
+ * styles.css — combined widget styles for Phase 2 dashboard + theory pages.
+ *
+ * Loaded via the per-page `style:` frontmatter (`style: ./styles.css` in
+ * src/index.md, `style: ../styles.css` in src/pages/*.md).
+ *
+ * Why one combined file (vs. per-module `import "./foo.css"` inside .ts files):
+ *   Observable Framework uses esbuild.transform (a syntactic transform) on
+ *   markdown TS blocks — it does NOT bundle. A bare `import "./foo.css"` in a
+ *   .ts module passes through unchanged into the emitted JS, so the browser
+ *   would attempt to fetch the .css URL and parse the response as a JS module,
+ *   which fails on Content-Type mismatch. The fix is to attach CSS via
+ *   Framework's own page-level `style:` frontmatter, which it knows how to
+ *   serve as a real <link rel="stylesheet">. (See Plan 06 SUMMARY Deferred
+ *   Issues.)
+ *
+ * @import is the simplest aggregation — Framework copies-through @import URLs
+ * via Rollup; the browser resolves each @import as a real CSS sub-request.
+ *
+ * All theme tokens (var(--theme-blue), var(--monospace), etc.) come from
+ * Framework's default.css which is auto-loaded — UI-SPEC color rule.
+ */
+
+@import "./components/play-buttons.css";
+@import "./components/scale-table.css";
+@import "./components/ratio-pill.css";
+@import "./components/audio-panel.css";
+@import "./components/scl-io.css";
+
+/* Page-level helpers for the dashboard layout (D-05 vertical rhythm). */
+.dashboard-helper {
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  margin-block: 4px 16px;
+}
+
+.dashboard-error {
+  color: var(--theme-red);
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--theme-red);
+  background: color-mix(in oklab, var(--theme-red) 6%, var(--theme-background));
+  margin-block: 12px;
+}

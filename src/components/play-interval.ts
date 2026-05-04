@@ -16,7 +16,10 @@
  */
 import type { Interval } from "../lib/interval.js";
 import type { SynthHandle } from "../audio/synth.js";
-import "./play-buttons.css";
+// CSS is shipped via the per-page `style:` frontmatter (src/styles.css), NOT
+// via per-module `import "./*.css"` — Framework's esbuild.transform passes
+// CSS imports through unchanged, so the browser would fetch them as JS modules
+// and reject on Content-Type mismatch. See SUMMARY of Plan 06 (Deferred Issues).
 
 export interface PlayIntervalOpts {
   baseHz?: number;

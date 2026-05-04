@@ -19,7 +19,12 @@
     "exactOptionalPropertyTypes": true,
 
     "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "npm:*": ["node_modules/*"]
+    }
   },
   "include": ["src/**/*.ts", "observablehq.config.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", ".observablehq"]
