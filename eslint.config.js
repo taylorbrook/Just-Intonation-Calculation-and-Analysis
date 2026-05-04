@@ -39,4 +39,26 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-expressions": "off",
     },
   },
+  {
+    // R-01 (Phase 2 RESEARCH): ban importing `Fraction` from xen-dev-utils.
+    // The xen-dev-utils Fraction is Number-backed and silently loses precision
+    // for large numerators; Phase 2 requires the BigInt-backed Fraction from
+    // fraction.js@5.3.4. See src/lib/INVENTORY.md and 02-RESEARCH.md §Risks → R-01.
+    files: ["src/**/*.ts", "src/**/*.js"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "xen-dev-utils",
+              importNames: ["Fraction"],
+              message:
+                "Use the BigInt-backed `Fraction` from `fraction.js` instead. See INVENTORY.md and 02-RESEARCH.md R-01.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );
