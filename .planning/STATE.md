@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: ready_to_plan
 stopped_at: Completed 02-06-PLAN.md (v1 widget set + INVENTORY consolidation — NOTES-01..04)
-last_updated: "2026-05-04T20:05:00.000Z"
-last_activity: 2026-05-04 - Completed quick task 260504-i3v: fix CR-01 (octaveReduce period <= 1/1)
+last_updated: "2026-05-04T22:25:00.000Z"
+last_activity: 2026-05-04 - Completed quick task 260504-lb6: fix CR-02 + CR-03 (writeScl sanitation + UTF-8 byte cap)
 progress:
   total_phases: 4
   completed_phases: 3
@@ -130,6 +130,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260504-i3v | fix CR-01: Interval.octaveReduce infinite loop on period <= 1/1 | 2026-05-04 | e288037 | [260504-i3v-fix-cr-01-interval-octavereduce-infinite](./quick/260504-i3v-fix-cr-01-interval-octavereduce-infinite/) |
+| 260504-lb6 | fix CR-02 + CR-03: writeScl description sanitation + parseScl UTF-8 byte cap | 2026-05-04 | 2c44907 | [260504-lb6-fix-cr-02-cr-03-writescl-description-san](./quick/260504-lb6-fix-cr-02-cr-03-writescl-description-san/) |
 
 ## Deferred Items
 
