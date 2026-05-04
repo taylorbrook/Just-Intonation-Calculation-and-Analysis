@@ -24,7 +24,7 @@
 
 ### SCALE — Scale Construction
 
-- [ ] **SCALE-01**: Build `Scale` from text input accepting mixed ratios / cents / monzos
+- [x] **SCALE-01**: Build `Scale` from text input accepting mixed ratios / cents / monzos
 - [x] **SCALE-02**: Sort, deduplicate, octave-reduce a scale (period-aware, not just `2/1`)
 - [x] **SCALE-03**: Mode rotation (rotate scale degrees)
 - [x] **SCALE-04**: Transpose scale by interval
@@ -32,10 +32,10 @@
 
 ### IO — Import / Export
 
-- [ ] **IO-01**: Parse Scala `.scl` files — handles ratios, cents, comments, implicit `1/1`, period-by-`.`-detection
-- [ ] **IO-02**: Serialize `Scale` to `.scl`
+- [x] **IO-01**: Parse Scala `.scl` files — handles ratios, cents, comments, implicit `1/1`, period-by-`.`-detection
+- [x] **IO-02**: Serialize `Scale` to `.scl`
 - [ ] **IO-03**: Parse and serialize `.kbm` keyboard mappings (`KbmMapping` keeps `referenceKey`/`referenceHz`/`middleNote` as named fields)
-- [ ] **IO-04**: Copy ratios + cent-deviation-from-12tet table to clipboard
+- [x] **IO-04**: Copy ratios + cent-deviation-from-12tet table to clipboard
 - [x] **IO-05**: Round-trip golden tests against Huygens-Fokker `.scl` archive samples
 
 ### AUDIO — Web Audio Playback
@@ -117,15 +117,15 @@
 | MATH-04 | Phase 2 | Complete |
 | MATH-05 | Phase 2 | Complete |
 | MATH-06 | Phase 2 | Complete |
-| SCALE-01 | Phase 2 | Pending |
+| SCALE-01 | Phase 2 | Complete |
 | SCALE-02 | Phase 2 | Complete |
 | SCALE-03 | Phase 2 | Complete |
 | SCALE-04 | Phase 2 | Complete |
 | SCALE-05 | Phase 2 | Complete |
-| IO-01 | Phase 2 | Pending |
-| IO-02 | Phase 2 | Pending |
+| IO-01 | Phase 2 | Complete |
+| IO-02 | Phase 2 | Complete |
 | IO-03 | Phase 3 | Pending |
-| IO-04 | Phase 2 | Pending |
+| IO-04 | Phase 2 | Complete |
 | IO-05 | Phase 2 | Complete |
 | AUDIO-01 | Phase 2 | Complete |
 | AUDIO-02 | Phase 2 | Complete |
