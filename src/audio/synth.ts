@@ -1,0 +1,240 @@
+/**
+ * Cell-owned synth lifecycle wrapper around `sw-synth` (ARCHITECTURE Pattern 4).
+ *
+ * Lazy AudioContext: the AudioContext is NOT created at module load time and NOT
+ * created at `createSynth()` call time — it is created on the first `playNote` /
+ * `playArpeggio` / `startDrone` call. This satisfies the browser user-gesture
+ * requirement and prevents AudioContext leaks under hot-reload (Pitfall #2).
+ *
+ * Voice tracking: every `noteOn` returns a `noteOff` callback (sw-synth contract).
+ * For one-shot notes we wrap that release in a setTimeout-based timer; for drones
+ * we return the release callback to the caller. `activeVoices` is a live counter
+ * exposed for tests + dev assertions (Pitfall #2 leak-counter pattern).
+ *
+ * Dispose is TERMINAL: after `dispose()`, all method calls are no-ops. The cell
+ * pattern (`createSynth()` inside its own cell, `invalidation.then(synth.dispose)`)
+ * ensures a fresh handle is created on cell re-evaluation.
+ *
+ * Three-layer discipline: this module MAY import from `sw-synth`; it MUST NOT
+ * import from `src/lib/` (math kernel) or `src/components/` (UI). Audio operates
+ * on `number` Hz values; ratio→Hz projection happens at the call site.
+ */
+
+import { Synth as SwSynth, defaultParams, type OscillatorVoiceParams } from "sw-synth";
+
+// ----- Public surface (PATTERNS lines 313-329) -----
+
+export interface SynthHandle {
+  /** Play a single note for `dur` seconds. Returns a noteOff callback. */
+  playNote(hz: number, dur?: number): () => void;
+  /** Play a chord (simultaneous). */
+  playNotes(freqs: number[], dur?: number): void;
+  /** Play arpeggio with `stepSec` between note onsets. */
+  playArpeggio(freqs: number[], stepSec?: number): void;
+  /** Start a sustained drone. Returns a stop callback. */
+  startDrone(hz: number): () => void;
+  /** Stop everything immediately. */
+  panic(): void;
+  /** Number of currently-playing voices (for dev assertions). */
+  readonly activeVoices: number;
+  /** Tear down the AudioContext and all voices. Terminal. */
+  dispose(): void;
+}
+
+export interface CreateSynthOpts {
+  master?: number;
+  maxPolyphony?: number;
+  voiceParams?: Partial<OscillatorVoiceParams>;
+}
+
+// ----- Constants -----
+
+const DEFAULT_NOTE_DUR = 1.5; // D-18
+const DEFAULT_ARP_STEP = 0.45; // D-18
+const ARP_NOTE_RATIO = 0.95; // D-18: noteLen = stepSec * 0.95
+
+// Defense-in-depth bounds (threat model — T-02-17, T-02-18, T-02-19).
+const MIN_HZ = 20;
+const MAX_HZ = 20_000;
+const MIN_POLYPHONY = 1;
+const MAX_POLYPHONY = 64;
+const MAX_ARPEGGIO_LEN = 256;
+
+// D-16 ADSR defaults — no clicks/pops.
+const D16_ATTACK = 0.005;
+const D16_DECAY = 0.03;
+const D16_SUSTAIN = 0.7;
+const D16_RELEASE = 0.15;
+
+const isPlayableHz = (hz: number): boolean => Number.isFinite(hz) && hz >= MIN_HZ && hz <= MAX_HZ;
+
+const clampPolyphony = (n: number): number => {
+  if (!Number.isFinite(n)) return 16;
+  return Math.min(MAX_POLYPHONY, Math.max(MIN_POLYPHONY, Math.floor(n)));
+};
+
+// Resolve the AudioContext constructor at call time.
+// In production: `window.AudioContext` (or `webkitAudioContext` for older Safari).
+// In tests: globalThis.window is mocked with an `AudioContext` constructor stub.
+type AnyCtxCtor = new (options?: AudioContextOptions) => AudioContext;
+
+const resolveAudioCtxCtor = (): AnyCtxCtor | null => {
+  const win = (
+    globalThis as unknown as {
+      window?: {
+        AudioContext?: AnyCtxCtor;
+        webkitAudioContext?: AnyCtxCtor;
+      };
+    }
+  ).window;
+  if (win?.AudioContext) return win.AudioContext;
+  if (win?.webkitAudioContext) return win.webkitAudioContext;
+  const direct = (globalThis as unknown as { AudioContext?: AnyCtxCtor }).AudioContext;
+  return direct ?? null;
+};
+
+export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
+  let ctx: AudioContext | null = null;
+  let master: GainNode | null = null;
+  let synth: SwSynth | null = null;
+  let activeVoices = 0;
+  let disposed = false;
+  let arpeggioTruncationWarned = false;
+
+  /**
+   * Lazy AudioContext + Synth construction.
+   * Returns true if synth+ctx are ready, false otherwise (disposed, or no Web Audio
+   * available in this environment).
+   */
+  const ensure = (): boolean => {
+    if (disposed) return false;
+    if (ctx && synth) return true;
+    const Ctx = resolveAudioCtxCtor();
+    if (!Ctx) return false;
+    ctx = new Ctx({ latencyHint: "interactive" });
+    master = ctx.createGain();
+    master.gain.value = opts.master ?? 0.2;
+    master.connect(ctx.destination);
+    synth = new SwSynth(ctx, master);
+    synth.maxPolyphony = clampPolyphony(opts.maxPolyphony ?? 16);
+    synth.voiceParams = {
+      ...defaultParams(),
+      attackTime: D16_ATTACK,
+      decayTime: D16_DECAY,
+      sustainLevel: D16_SUSTAIN,
+      releaseTime: D16_RELEASE,
+      ...opts.voiceParams,
+    };
+    return true;
+  };
+
+  /**
+   * Internal one-shot note. Returns a release callback that cancels the
+   * pending timer and triggers the underlying noteOff. Idempotent.
+   */
+  const playNoteImpl = (hz: number, dur: number): (() => void) => {
+    if (!isPlayableHz(hz)) return () => {};
+    if (!ensure() || !synth) return () => {};
+    const off = synth.noteOn(hz, 0.7);
+    activeVoices++;
+    let released = false;
+    const release = (): void => {
+      if (released) return;
+      released = true;
+      off();
+      activeVoices = Math.max(0, activeVoices - 1);
+    };
+    const timer: ReturnType<typeof setTimeout> = setTimeout(release, dur * 1000);
+    return () => {
+      clearTimeout(timer);
+      release();
+    };
+  };
+
+  return {
+    playNote(hz, dur = DEFAULT_NOTE_DUR) {
+      if (disposed) return () => {};
+      return playNoteImpl(hz, dur);
+    },
+
+    playNotes(freqs, dur = DEFAULT_NOTE_DUR) {
+      if (disposed) return;
+      if (!ensure()) return;
+      for (const hz of freqs) playNoteImpl(hz, dur);
+    },
+
+    playArpeggio(freqs, stepSec = DEFAULT_ARP_STEP) {
+      if (disposed) return;
+      if (!ensure()) return;
+      let scheduled = freqs;
+      if (scheduled.length > MAX_ARPEGGIO_LEN) {
+        scheduled = scheduled.slice(0, MAX_ARPEGGIO_LEN);
+        if (!arpeggioTruncationWarned) {
+          arpeggioTruncationWarned = true;
+          console.warn(
+            `[audio/synth] arpeggio truncated to ${MAX_ARPEGGIO_LEN} notes ` +
+              `(input length ${freqs.length}); subsequent oversize calls will not warn again.`,
+          );
+        }
+      }
+      const noteLen = stepSec * ARP_NOTE_RATIO;
+      scheduled.forEach((hz, i) => {
+        if (i === 0) {
+          playNoteImpl(hz, noteLen);
+        } else {
+          setTimeout(
+            () => {
+              playNoteImpl(hz, noteLen);
+            },
+            i * stepSec * 1000,
+          );
+        }
+      });
+    },
+
+    startDrone(hz) {
+      if (disposed) return () => {};
+      if (!isPlayableHz(hz)) return () => {};
+      if (!ensure() || !synth) return () => {};
+      const off = synth.noteOn(hz, 0.5);
+      activeVoices++;
+      let released = false;
+      return () => {
+        if (released) return;
+        released = true;
+        off();
+        activeVoices = Math.max(0, activeVoices - 1);
+      };
+    },
+
+    panic() {
+      if (disposed) return;
+      if (synth) synth.allNotesOff();
+      activeVoices = 0;
+    },
+
+    get activeVoices() {
+      return activeVoices;
+    },
+
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      try {
+        synth?.allNotesOff();
+      } catch {
+        /* swallow — dispose is terminal */
+      }
+      try {
+        master?.disconnect();
+      } catch {
+        /* swallow */
+      }
+      ctx?.close().catch(() => {});
+      ctx = null;
+      master = null;
+      synth = null;
+      activeVoices = 0;
+    },
+  };
+}
