@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: math-kernel-composition-anchor-mvp
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-04
+reviewed_at: 2026-05-04
 ---
 
 # Phase 2 — UI Design Contract
