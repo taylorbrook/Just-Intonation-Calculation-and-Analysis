@@ -40,11 +40,11 @@
 
 ### AUDIO — Web Audio Playback
 
-- [ ] **AUDIO-01**: Lazy `AudioContext` wrapped in `createSynth()` factory; disposed via Framework `invalidation` (no leaks under hot-reload)
-- [ ] **AUDIO-02**: Click-to-play interval with ADSR envelope (no clicks / pops)
-- [ ] **AUDIO-03**: Arpeggio audition for full scale
-- [ ] **AUDIO-04**: Drone + interval-over-drone playback
-- [ ] **AUDIO-05**: Polyphony cap with voice tracking — no orphaned voices
+- [x] **AUDIO-01**: Lazy `AudioContext` wrapped in `createSynth()` factory; disposed via Framework `invalidation` (no leaks under hot-reload)
+- [x] **AUDIO-02**: Click-to-play interval with ADSR envelope (no clicks / pops)
+- [x] **AUDIO-03**: Arpeggio audition for full scale
+- [x] **AUDIO-04**: Drone + interval-over-drone playback
+- [x] **AUDIO-05**: Polyphony cap with voice tracking — no orphaned voices
 - [ ] **AUDIO-06**: Mobile Safari audio verified working (autoplay-policy + AudioContext quirks)
 
 ### NOTES — Research-Notes Surface
@@ -127,11 +127,11 @@
 | IO-03 | Phase 3 | Pending |
 | IO-04 | Phase 2 | Pending |
 | IO-05 | Phase 2 | Complete |
-| AUDIO-01 | Phase 2 | Pending |
-| AUDIO-02 | Phase 2 | Pending |
-| AUDIO-03 | Phase 2 | Pending |
-| AUDIO-04 | Phase 2 | Pending |
-| AUDIO-05 | Phase 2 | Pending |
+| AUDIO-01 | Phase 2 | Complete |
+| AUDIO-02 | Phase 2 | Complete |
+| AUDIO-03 | Phase 2 | Complete |
+| AUDIO-04 | Phase 2 | Complete |
+| AUDIO-05 | Phase 2 | Complete |
 | AUDIO-06 | Phase 3 | Pending |
 | NOTES-01 | Phase 2 | Pending |
 | NOTES-02 | Phase 2 | Complete |
