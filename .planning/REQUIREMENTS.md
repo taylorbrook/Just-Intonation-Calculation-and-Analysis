@@ -25,10 +25,10 @@
 ### SCALE — Scale Construction
 
 - [ ] **SCALE-01**: Build `Scale` from text input accepting mixed ratios / cents / monzos
-- [ ] **SCALE-02**: Sort, deduplicate, octave-reduce a scale (period-aware, not just `2/1`)
-- [ ] **SCALE-03**: Mode rotation (rotate scale degrees)
-- [ ] **SCALE-04**: Transpose scale by interval
-- [ ] **SCALE-05**: Construct JI subset of an EDO
+- [x] **SCALE-02**: Sort, deduplicate, octave-reduce a scale (period-aware, not just `2/1`)
+- [x] **SCALE-03**: Mode rotation (rotate scale degrees)
+- [x] **SCALE-04**: Transpose scale by interval
+- [x] **SCALE-05**: Construct JI subset of an EDO
 
 ### IO — Import / Export
 
@@ -118,10 +118,10 @@
 | MATH-05 | Phase 2 | Complete |
 | MATH-06 | Phase 2 | Complete |
 | SCALE-01 | Phase 2 | Pending |
-| SCALE-02 | Phase 2 | Pending |
-| SCALE-03 | Phase 2 | Pending |
-| SCALE-04 | Phase 2 | Pending |
-| SCALE-05 | Phase 2 | Pending |
+| SCALE-02 | Phase 2 | Complete |
+| SCALE-03 | Phase 2 | Complete |
+| SCALE-04 | Phase 2 | Complete |
+| SCALE-05 | Phase 2 | Complete |
 | IO-01 | Phase 2 | Pending |
 | IO-02 | Phase 2 | Pending |
 | IO-03 | Phase 3 | Pending |
