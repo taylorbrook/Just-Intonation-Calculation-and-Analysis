@@ -18,9 +18,15 @@ export default defineConfig({
   //
   //   Removing this alias when sw-synth ships an "exports" field upstream is
   //   safe — see https://github.com/xenharmonic-devs/sw-synth/issues/?
+  //
+  //   Plan 03-06 added the same workaround for `npm:ji-lattice` (consumed by
+  //   src/components/lattice.ts). ji-lattice@0.3.2 has the same missing-
+  //   "exports" field shape; once index.md imports lattice.ts, Framework's
+  //   build resolver hits the same ERR_PACKAGE_PATH_NOT_EXPORTED. Same fix.
   resolve: {
     alias: {
       "npm:sw-synth": "sw-synth",
+      "npm:ji-lattice": "ji-lattice",
     },
   },
   test: {

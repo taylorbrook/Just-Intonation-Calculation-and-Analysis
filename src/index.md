@@ -14,6 +14,10 @@ import { createSynth } from "./audio/synth.js";
 import { scaleTable } from "./components/scale-table.js";
 import { audioPanel } from "./components/audio-panel.js";
 import { sclIo } from "./components/scl-io.js";
+import { lattice } from "./components/lattice.js";
+import { tonalityDiamond } from "./components/tonality-diamond.js";
+import { keyboard } from "./components/keyboard.js";
+import { kbmToFrequencies, type KbmMapping } from "./lib/kbm.js";
 ```
 
 ```ts
@@ -21,8 +25,22 @@ import { sclIo } from "./components/scl-io.js";
 // MUST NOT depend on any other cell, otherwise edits to the scale text would
 // tear down the AudioContext on every keystroke. The lazy createSynth() does
 // not create the context until the first playNote / startDrone call.
+//
+// Phase 3: Esc keydown + activeVoices polling are bound HERE (Pitfall #11) so
+// they don't re-bind on every textarea edit. invalidation.then() consolidates
+// all cleanups in one place.
 const synth = createSynth();
-invalidation.then(() => synth.dispose());
+const onKey = (e) => { if (e.key === "Escape") synth.panic(); };
+document.addEventListener("keydown", onKey);
+const audioActive = Mutable(false);
+const activeVoicesInterval = setInterval(() => {
+  audioActive.value = synth.activeVoices > 0;
+}, 100);
+invalidation.then(() => {
+  document.removeEventListener("keydown", onKey);
+  clearInterval(activeVoicesInterval);
+  synth.dispose();
+});
 ```
 
 ```ts
@@ -76,18 +94,75 @@ if (parseError) {
 ```
 
 ```ts
-if (scale) display(audioPanel(scale, synth, baseHz));
+// Phase 3 (D-11/D-13): imported .kbm state lives at the page level. sclIo's
+// onImportKbm callback writes here; useBaseHzOverride toggle and effectiveBaseHz
+// derivation read from here.
+const importedKbm = Mutable(null);
+```
+
+```ts
+// Phase 3 (D-13): "Use baseHz instead" toggle surfaces only after a .kbm has
+// been imported. Default OFF = use the imported .kbm.
+const useBaseHzOverride = importedKbm
+  ? view(Inputs.toggle({ label: "Use baseHz instead of imported .kbm", value: false }))
+  : false;
+```
+
+```ts
+// Phase 3 (D-13/D-24): single source of truth for the audition reference Hz.
+// When a .kbm is imported and the override is OFF, derive Hz of 1/1 from the
+// kbm's middleNote via kbmToFrequencies (Plan 02 — single math path; no inline
+// Math.pow re-implementation here). Otherwise fall back to the user's baseHz.
+const effectiveBaseHz = (importedKbm && !useBaseHzOverride)
+  ? (kbmToFrequencies(scale, importedKbm).get(importedKbm.middleNote) ?? baseHz)
+  : baseHz;
+```
+
+```ts
+if (scale) display(audioPanel(scale, synth, effectiveBaseHz));
 ```
 
 ```ts
 if (scale) {
   display(sclIo(scale, {
-    onImport: () => {
-      // v1: imported scales are not yet wired back into the textarea (persistence
-      // is Phase 4 ANAL-04). The import success message in sclIo's status
-      // region is the user-visible feedback for now.
-    },
+    baseHz,
+    // Phase 2 inheritance: imported scales are not yet wired back into the
+    // textarea (persistence is Phase 4 ANAL-04). The status-region message in
+    // sclIo is the user-visible feedback for now.
+    onImport: () => {},
+    // Phase 3 (D-11/D-13): kbm import path writes to the page-level Mutable,
+    // which drives the override toggle visibility and effectiveBaseHz.
+    onImportKbm: (kbm) => { importedKbm.value = kbm; },
   }));
+}
+```
+
+```ts
+// Phase 3 (D-01/D-02 — full-bleed vertical viz stack, document order).
+if (scale) display(lattice(scale, synth, { baseHz: effectiveBaseHz }));
+```
+
+```ts
+if (scale) display(tonalityDiamond(scale, synth, { baseHz: effectiveBaseHz }));
+```
+
+```ts
+if (scale) display(keyboard(scale, synth, effectiveBaseHz));
+```
+
+```ts
+// Phase 3 (D-16): floating Stop button, visible only when audioActive is true
+// (driven by the activeVoices polling in the synth cell). Esc keyboard
+// shortcut is bound globally in the synth cell (Pitfall #11).
+{
+  const btn = document.createElement("button");
+  btn.className = "stop-all-audio";
+  btn.type = "button";
+  btn.textContent = "Stop all audio (Esc)";
+  btn.setAttribute("aria-label", "Stop all audio. Keyboard shortcut: Escape.");
+  btn.style.display = audioActive ? "inline-flex" : "none";
+  btn.addEventListener("click", () => synth.panic());
+  display(btn);
 }
 ```
 

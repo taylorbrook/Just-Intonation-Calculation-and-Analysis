@@ -23,7 +23,13 @@ import type { Scale } from "../lib/scale.js";
 import type { Interval } from "../lib/interval.js";
 import type { SynthHandle } from "../audio/synth.js";
 import * as d3 from "d3";
-import { spanLattice, kraigGrady9, type Vertex, type Edge } from "ji-lattice";
+// `npm:` prefix routes through Framework's jsDelivr resolver, bypassing Node's
+// CJS loader. ji-lattice@0.3.2 ships `"type": "module"` without an `"exports"`
+// field — Framework's build resolver throws ERR_PACKAGE_PATH_NOT_EXPORTED when
+// a markdown page imports a TS module that itself imports `ji-lattice` bare.
+// The vitest config aliases `npm:ji-lattice` back to the local install so unit
+// tests still resolve. Same pattern as `npm:sw-synth` in src/audio/synth.ts.
+import { spanLattice, kraigGrady9, type Vertex, type Edge } from "npm:ji-lattice";
 import { PRIMES } from "../lib/monzo.js";
 
 // ─── Public surface ─────────────────────────────────────────────────────────
@@ -175,7 +181,10 @@ export function lattice(scale: Scale, synth: SynthHandle, opts: LatticeOpts = {}
   const svg = d3
     .create("svg")
     .attr("class", "viz lattice")
-    .attr("viewBox", `${String(-width / 2)} ${String(-height / 2)} ${String(width)} ${String(height)}`)
+    .attr(
+      "viewBox",
+      `${String(-width / 2)} ${String(-height / 2)} ${String(width)} ${String(height)}`,
+    )
     .attr("preserveAspectRatio", "xMidYMid meet")
     .attr("width", width)
     .attr("height", height);

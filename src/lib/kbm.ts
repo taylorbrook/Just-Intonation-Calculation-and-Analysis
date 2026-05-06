@@ -138,9 +138,7 @@ export function parseKbm(text: string): KbmMapping {
 
   const tokens = stripCommentsAndBlanks(normalizeLines(text));
   if (tokens.length < 7) {
-    throw new Error(
-      `parseKbm: too few fields (expected at least 7, got ${String(tokens.length)})`,
-    );
+    throw new Error(`parseKbm: too few fields (expected at least 7, got ${String(tokens.length)})`);
   }
 
   // noUncheckedIndexedAccess: bind through locals + undefined-guard before use.
@@ -199,9 +197,7 @@ export function parseKbm(text: string): KbmMapping {
     );
   }
   if (!Number.isFinite(referenceHz) || referenceHz <= 0) {
-    throw new Error(
-      `parseKbm: referenceHz must be > 0 (got ${String(referenceHz)})`,
-    );
+    throw new Error(`parseKbm: referenceHz must be > 0 (got ${String(referenceHz)})`);
   }
   if (formalOctave < 0 || formalOctave > MAX_FORMAL_OCTAVE) {
     throw new Error(

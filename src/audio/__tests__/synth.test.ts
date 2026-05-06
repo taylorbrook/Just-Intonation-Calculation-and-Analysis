@@ -441,7 +441,7 @@ describe("AUDIO-06 — mobile Safari fixes", () => {
   });
 
   afterEach(() => {
-    (globalThis as unknown as { document?: unknown }).document = originalDoc as Document;
+    (globalThis as unknown as { document?: unknown }).document = originalDoc;
     // navigator is getter-only on the Node 20 globalThis — use defineProperty
     // to restore it the same way `setNavigatorStub` installed it.
     Object.defineProperty(globalThis, "navigator", {
