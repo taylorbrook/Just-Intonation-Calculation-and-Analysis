@@ -34,6 +34,13 @@ findings:
   warning: 7
   total: 9
 status: issues_found
+fixes_applied:
+  - id: BL-01
+    commit: b7ae27e
+    fixed_at: 2026-05-06
+  - id: BL-02
+    commit: 6a87c42
+    fixed_at: 2026-05-06
 ---
 
 # Phase 4: Code Review Report
@@ -81,6 +88,7 @@ is implicit and hard to verify by reading the cell alone (informational).
 
 ### BL-01: scaleA shape mismatch with BUILTIN_B_SCALES — first row meaningless, common-subset undercounted
 
+**Status:** fixed in `b7ae27e` (2026-05-06) — normalized scaleB to match scaleA's leading-1/1 shape (BUILTIN_B_SCALES presets prepend 1/1, paste/.scl handlers drop the .slice(1)). Tests 9b, 9c added as regression guards.
 **File:** `src/components/scale-compare.ts:75-120`, `src/components/scale-compare.ts:135-164`, `src/pages/analysis.md:106`
 **Classification:** BLOCKER
 **Issue:** Production scaleA is constructed as `new Scale(parseScala(scaleText))` (analysis.md line 106). `parseScala` auto-prepends `1/1` per D-13, so the seed scale produces 8 intervals: `[1/1, 9/8, 5/4, 21/16, 3/2, 27/16, 7/4, 2/1]`. Every entry in `BUILTIN_B_SCALES` is hand-coded with NO leading `1/1` (7 intervals for `pythagorean-7` / `5-limit-7`, 12 for `12tet`, etc.), and both the paste handler (line 435) and the .scl import handler (line 456) explicitly do `intervals.slice(1)` to "drop the auto-prepended 1/1 so scaleB matches the same shape as the presets." The result is that the alignment table's first row always shows A° 1 = `1/1` (0¢) aligned to B's nearest-cents interval (e.g. `9/8` at 203.91¢ for `pythagorean-7`, or 100¢ for `12tet`), with |Δ¢| ≈ 100–204. The common-subset count is also undercounted because none of the presets contain `1/1` even though scaleA always does.
@@ -118,6 +126,7 @@ Add a regression test that constructs scaleA via `new Scale(parseScala(seedText)
 
 ### BL-02: align() picks first-cents-nearest B, can miss exact BigInt match later in list
 
+**Status:** fixed in `6a87c42` (2026-05-06) — replaced single-pass cents-nearest with two-pass (BigInt-equal first, cents-nearest fallback). Test 9d added as deterministic regression guard, exploiting BigInt-Number precision drift to construct a failing case for the OLD algorithm.
 **File:** `src/components/scale-compare.ts:135-164`
 **Classification:** BLOCKER
 **Issue:** `align()` finds the nearest-cents B interval for each A interval, then uses `aIv.equals(best)` to flag exact matches. When two B intervals are equidistant in cents (or the inexact-but-closer one comes earlier in `b.intervals`), the loop's `if (d < bestDist)` (strict less-than) keeps the FIRST tied candidate. If a later B interval is BigInt-equal to A but tied or epsilon-farther in float cents, it is silently passed over and the row is reported as a non-match.
