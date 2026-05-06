@@ -1,45 +1,42 @@
 ---
 phase: 03-visualization-mobile-audio-audit
-verified: 2026-05-05T09:35:00Z
-status: gaps_found
-score: 3/5 must-haves verified
+verified: 2026-05-06T10:37:00Z
+status: human_needed
+score: 5/5 must-haves verified
 overrides_applied: 0
-gaps:
-  - truth: "User can view a tonality diamond at any odd-limit (7, 11, 13, 21, 31, 81) without hardcoded constants"
-    status: partial
-    reason: "Diamond renders and the odd-limit is configurable (no hardcoded constants), but the SVG layout is geometrically broken at odd-limit >= 5 — multiple cells render at the same (x, y) and visually overlap. CR-01 from 03-REVIEW.md is unfixed; programmatic reproduction confirmed only 9 unique positions out of 16 cells at oddLimit=7."
-    artifacts:
-      - path: "src/components/tonality-diamond.ts"
-        issue: "Lines 196-200: layout uses rankOf.get(d.numerator) / rankOf.get(d.denominator) where d.numerator and d.denominator are the OCTAVE-REDUCED ratio's n/d. The rankOf map only contains odd integers in [1, oddLimit]; reduced numerators/denominators frequently are even (4, 6, 8, 12) and miss the lookup, falling back to ?? 0 which collapses all such cells onto the row=0 / col=0 axes."
-      - path: "src/lib/diamond.ts"
-        issue: "DiamondCell interface lines 31-40 stores only the reduced numerator/denominator and ratio; it does NOT preserve the original (i, j) odd-integer pair. The component cannot reconstruct the rank position without that pair."
-    missing:
-      - "Add `i: number` and `j: number` fields to DiamondCell interface in src/lib/diamond.ts; populate from the enumeration loop variables in enumerateDiamond."
-      - "Update src/components/tonality-diamond.ts:196-197 to use rankOf.get(d.i) / rankOf.get(d.j) for layout."
-      - "Add a regression test in src/components/__tests__/tonality-diamond.test.ts asserting that no two cells share the same `transform` attribute (modulo the (i,i)→1/1 diagonal which the rhombus geometry collapses by design)."
-
-  - truth: "User can open the composition page on iPhone Safari, tap a play button, and hear the interval (mute switch and autoplay-policy quirks documented)"
-    status: partial
-    reason: "Mobile audio code-path mitigations are landed (audioSession.type='playback', synchronous ctx.resume, visibilitychange listener with cleanup, webkitAudioContext fallback preserved). Human-verify checkpoint reportedly passed on Safari macOS RDM (per Plan 06 SUMMARY, dated 2026-05-06). But two correctness gaps in the audio-stop surface remain: (a) the floating Stop button + Esc handler do NOT cancel a running arpeggio's queued setTimeout calls — panic() only triggers synth.allNotesOff() and zeroes activeVoices; pending arpeggio notes continue to fire after panic; (b) the human-verify smoke-test exercised lattice/diamond/keyboard but did not test 'arpeggio + panic' — the most user-visible audio-stop affordance is unverified. Additionally, the mobile-audit.md footer placeholders ({user}, {YYYY-MM-DD}) were never filled in even though SUMMARY claims human approval on 2026-05-06."
-    artifacts:
-      - path: "src/audio/synth.ts"
-        issue: "Lines 237-264: playArpeggio schedules setTimeout calls for notes i >= 1 but never tracks the timer handles. panic() (lines 281-285) and dispose() (lines 291-317) do not clearTimeout these pending calls. After Esc/Stop, arpeggio notes continue firing on cadence even though the user has visibly requested 'stop all audio'."
-      - path: ".planning/phases/03-visualization-mobile-audio-audit/mobile-audit.md"
-        issue: "Lines 190-191: 'Verified by: {user, after running smoke-test checklist}' and 'Verification date: {YYYY-MM-DD}' placeholders never populated. SUMMARY for Plan 06 claims human-verify approved on 2026-05-06, but the canonical record in mobile-audit.md is unsigned."
-    missing:
-      - "Track arpeggio timers in a Set<ReturnType<typeof setTimeout>>; clear the set in both panic() and dispose() (CR-02 fix recipe in 03-REVIEW.md provides verbatim code)."
-      - "Add a regression test asserting that calling panic() during a long arpeggio cancels pending notes — easiest via vi.useFakeTimers + assertion that no further synth.noteOn calls occur after panic."
-      - "Fill in the Verified by / Verification date placeholders in mobile-audit.md to reflect the 2026-05-06 RDM approval (or re-run the smoke-test now and sign with today's date)."
-      - "Add 'arpeggio playing + Esc/Stop button stops it' as a smoke-test item in mobile-audit.md Section 1 (currently only present in implicit form)."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 3/5
+  gaps_closed:
+    - "User can view a tonality diamond at any odd-limit (7, 11, 13, 21, 31, 81) without hardcoded constants — CR-01 fixed; layout uses rankOf.get(d.i)/rankOf.get(d.j); load-bearing regression test asserts 16 unique transforms at oddLimit=7."
+    - "User can open the composition page on iPhone Safari, tap a play button, and hear the interval (mute switch and autoplay-policy quirks documented) — CR-02 fixed; arpTimers Set tracked; cleared by panic() and dispose(); load-bearing regression test asserts panic-during-arpeggio cancels pending notes."
+    - "mobile-audit.md footer signed for the 2026-05-06 RDM walk."
+  gaps_remaining: []
+  regressions: []
+human_verification:
+  - test: "Walk the new 'Esc/Stop cancels a running arpeggio mid-flight' bullet on Safari macOS RDM (iPhone preset)"
+    expected: "Starting the 7-note seed-scale arpeggio, then pressing Esc OR clicking the floating Stop button mid-flight cancels all remaining notes immediately. Sign the 'Post-CR-02 regression follow-up' footer block in mobile-audit.md once verified."
+    why_human: "The CR-02 fix is verified by the synth.test.ts unit-level regression test (panic clears arpTimers, no further noteOn calls fire). But the canonical mobile-audit record still has a {pending} sign-off block intentionally left for a physical-device walk on the fixed build. The fix was deliberately NOT covered by the original 2026-05-06 sign-off because the behavior was broken on that date. Tick the new bullet and fill in the {pending} footer values."
 ---
 
-# Phase 3: Visualization + Mobile Audio Audit Verification Report
+# Phase 3: Visualization + Mobile Audio Audit Verification Report (Re-verification)
 
 **Phase Goal:** Add the visual layer — D3-backed lattice with configurable prime basis, configurable-odd-limit tonality diamond, scale-on-keyboard SVG — plus the `.kbm` I/O that pairs with `.scl`, and verify mobile Safari audio actually works (the long-deferred quirk audit). After this phase, the kernel has a complete visual surface and audio is portable.
 
-**Verified:** 2026-05-05T09:35:00Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-05-06T10:37:00Z
+**Status:** human_needed
+**Re-verification:** Yes — after gap-closure plan 03-07
+
+## Re-Verification Summary
+
+The previous verification on 2026-05-05 reported `gaps_found` (3/5 truths verified) with three concrete gaps:
+1. **CR-01 (BLOCKER)** — DiamondCell did not preserve original (i, j); SVG layout collapsed cells onto axes.
+2. **CR-02 (WARNING)** — Esc/Stop did not cancel pending arpeggio notes; queued setTimeout closures fired after panic.
+3. **mobile-audit.md footer placeholders** — `{user}` / `{YYYY-MM-DD}` never filled despite Plan 06 SUMMARY claiming approval.
+
+Plan 03-07 closed all three gaps with surgical edits and **two new load-bearing regression tests**. All quality gates remain green (179 tests pass, lint:types clean, static build produces dist/index.html). The post-fix code review (03-REVIEW.md) reports 0 blockers, 2 warnings (deferred to polish phase), 2 info-level notes.
+
+**One remaining human-verification item:** the mobile-audit.md footer carries a deliberate `{pending}` "Post-CR-02 regression follow-up" sign-off block. The original 2026-05-06 RDM walk verified the originally-walked behaviors but could not have verified the new "Esc/Stop cancels arpeggio mid-flight" smoke-test bullet (which targets behavior that was BROKEN on 2026-05-06). The unit-level regression test for CR-02 is sufficient evidence that the code-path works; but the user-visible affordance still warrants a re-walk on RDM/iPhone preset before the canonical record is closed.
 
 ## Goal Achievement
 
@@ -47,59 +44,49 @@ gaps:
 
 | #   | Truth                                                                                                                                                                       | Status      | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1   | User can render any Scale as a 2D lattice with a chosen prime basis and pan/zoom the SVG                                                                                    | ✓ VERIFIED  | `src/components/lattice.ts` exports `lattice(scale, synth, opts?)`; uses `spanLattice + kraigGrady9` from `npm:ji-lattice` and `d3.zoom` (scaleExtent [0.25, 8]); `deriveLatticeBasis` derives from scale primes minus 2; opts.basis overrides; `lattice.css` has `touch-action: none` for d3-zoom; 4/4 lattice tests pass; wired into `src/index.md` line 142.                                                                |
-| 2   | User can view a tonality diamond at any odd-limit (7, 11, 13, 21, 31, 81) without hardcoded constants                                                                       | ✗ FAILED    | `src/components/tonality-diamond.ts` exists and exports `tonalityDiamond + DiamondOpts + deriveDiamondOddLimit`; auto-derives odd-limit from scale (no hardcoded constants in the math); 4/4 component tests pass. **BUT** the SVG layout uses `rankOf.get(d.numerator)` against octave-reduced ratios — programmatic reproduction at oddLimit=7 produces only 9 unique cell positions for 16 enumerated cells (CR-01 unfixed). |
-| 3   | User can see a scale's pitches mapped onto a piano-keyboard SVG with cents-offset labels                                                                                    | ✓ VERIFIED  | `src/components/keyboard.ts` exports `keyboard(scale, synth, baseHz, opts?)`; renders N keys for N intervals; signed cents-from-12tet at 0.1¢ via `formatSignedCents`; period-boundary marker; pointerdown→playNote sustain via release callback; pointerleave/cancel/up all release; 5/5 tests pass; wired into `src/index.md` line 150.                                                                                       |
-| 4   | User can export and re-import a .kbm keyboard mapping where referenceKey ≠ middleNote (the three named fields are explicit, never conflated)                                | ✓ VERIFIED  | `src/lib/kbm.ts` exports `KbmMapping` interface with three named fields; `parseKbm`, `writeKbm`, `kbmToFrequencies`, `defaultKbmFor`; round-trip golden test passes against `mid-60-ref-69.kbm` (middleNote=60, referenceKey=69, refHz=440 → MIDI 60 ≈ 261.6256 Hz); 11/11 kbm tests pass; sclIo handles both formats with auto-detection; `Download .kbm` button present; importedKbm wired into effectiveBaseHz.            |
-| 5   | User can open the composition page on iPhone Safari, tap a play button, and hear the interval (mute switch and autoplay-policy quirks documented)                           | ✗ FAILED    | Code mitigations landed (audioSession='playback', sync ctx.resume, visibilitychange bind/unbind, webkitAudioContext fallback); 29 synth tests pass including AUDIO-06 mobile-Safari describe block; mobile-audit.md exists with 5 sections + checklist. **BUT** Esc/Stop does NOT cancel a running arpeggio (CR-02 unfixed); mobile-audit.md "Verified by" / "Verification date" footer never filled in.                       |
+| 1   | User can render any Scale as a 2D lattice with a chosen prime basis and pan/zoom the SVG                                                                                    | ✓ VERIFIED  | Carried forward from prior verification. `src/components/lattice.ts` exports `lattice(scale, synth, opts?)`; uses `spanLattice + kraigGrady9` from `npm:ji-lattice` and `d3.zoom` (scaleExtent [0.25, 8]); `deriveLatticeBasis` derives from scale primes minus 2; opts.basis overrides; `lattice.css` has `touch-action: none`; 4 lattice tests pass; wired into `src/index.md:142`.                                              |
+| 2   | User can view a tonality diamond at any odd-limit (7, 11, 13, 21, 31, 81) without hardcoded constants                                                                       | ✓ VERIFIED  | **CR-01 fixed.** `DiamondCell.i` / `DiamondCell.j` non-optional fields now preserve the original odd-integer pair (`src/lib/diamond.ts:40-42, 88-95`). Layout uses `rankOf.get(d.i)` / `rankOf.get(d.j)` (`tonality-diamond.ts:202-203`); broken `rankOf.get(d.numerator)` / `d.denominator` lookup is removed entirely. Regression test at `tonality-diamond.test.ts:49-96` asserts 16 unique transforms at oddLimit=7; passes. |
+| 3   | User can see a scale's pitches mapped onto a piano-keyboard SVG with cents-offset labels                                                                                    | ✓ VERIFIED  | Carried forward. `src/components/keyboard.ts` exports `keyboard(scale, synth, baseHz, opts?)`; signed cents-from-12tet at 0.1¢; period-boundary marker; pointerdown→playNote sustain; pointerleave/cancel/up release; 5 keyboard tests pass; wired into `src/index.md:150`.                                                                                                                                                  |
+| 4   | User can export and re-import a .kbm keyboard mapping where referenceKey ≠ middleNote (the three named fields are explicit, never conflated)                                | ✓ VERIFIED  | Carried forward. `src/lib/kbm.ts` exports `KbmMapping` with three named fields; `parseKbm`, `writeKbm`, `kbmToFrequencies`, `defaultKbmFor`; round-trip golden test (`mid-60-ref-69.kbm`) passes (260.6256 Hz at MIDI 60); 11 kbm tests pass; sclIo handles both formats with auto-detection; `Download .kbm` button present.                                                                                                  |
+| 5   | User can open the composition page on iPhone Safari, tap a play button, and hear the interval (mute switch and autoplay-policy quirks documented)                           | ✓ VERIFIED  | **CR-02 fixed.** `arpTimers = new Set<ReturnType<typeof setTimeout>>()` declared in createSynth closure (`synth.ts:125`); `playArpeggio` adds + self-removes (`synth.ts:265-272`); `panic()` clears all pending timers BEFORE `synth.allNotesOff()` (`synth.ts:297-298`); `dispose()` clears them as the first teardown step (`synth.ts:314-315`). Regression test asserts noteOn call count is pinned at 2 after panic-during-5-note-arpeggio; passes. mobile-audit.md footer signed `Verified by: Taylor Brook` / `Verification date: 2026-05-06` for the original RDM walk. (Note: a separate `{pending}` follow-up sign-off block awaits a physical re-walk for the new arpeggio+Esc smoke-test bullet — see human_verification below; this is a documentation-trail nicety, not a code defect.) |
 
-**Score:** 3/5 truths verified
+**Score:** 5/5 truths verified
 
 ### Required Artifacts
 
 | Artifact                                  | Expected                                          | Status      | Details                                                                                                                                                  |
 | ----------------------------------------- | ------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/components/lattice.ts`               | lattice + LatticeOpts + deriveLatticeBasis        | ✓ VERIFIED  | 327 lines; exports all 3; uses d3.zoom + spanLattice + kraigGrady9; theme-token classes (axis-3/5/7/default); empty-state for octave-only scales.       |
-| `src/components/lattice.css`              | Theme-token-only styles + touch-action: none     | ✓ VERIFIED  | 20 theme-token references; `touch-action: none` present; axis-3/5/7 prime variants present.                                                              |
-| `src/components/tonality-diamond.ts`      | tonalityDiamond + DiamondOpts + deriveDiamondOddLimit | ⚠ STUB-LIKE | 274 lines; exists, exports all 3, tests pass, but the layout `rankOf.get(d.numerator)` is geometrically broken at oddLimit >= 5 — see CR-01 above.    |
-| `src/components/tonality-diamond.css`     | Theme-token-only + touch-action: none            | ✓ VERIFIED  | 15 theme-token references; touch-action: none present; axis variants present.                                                                            |
-| `src/components/keyboard.ts`              | keyboard + KeyboardOpts                           | ✓ VERIFIED  | 188 lines; exports both; pointerdown/up/leave/cancel sustain; signed cents formatter; period boundary marker; uses synth.playNote (NOT playNotes).      |
-| `src/components/keyboard.css`             | Theme-token-only + touch-action: manipulation    | ✓ VERIFIED  | 9 theme-token references; touch-action: manipulation present.                                                                                             |
-| `src/lib/kbm.ts`                          | KbmMapping + parseKbm + writeKbm + kbmToFrequencies + defaultKbmFor | ✓ VERIFIED | 365 lines; all 5 exports present; defense-in-depth caps; three-named-fields discipline enforced; unison-prepend defensive; 11 kbm tests pass.        |
-| `src/lib/diamond.ts`                      | DiamondCell + enumerateDiamond                    | ⚠ INCOMPLETE | 82 lines; exports both; 3 tests pass. **BUT** DiamondCell does NOT carry the original (i, j) odd-integer pair — only the reduced numerator/denominator. This is the upstream cause of CR-01.  |
-| `src/audio/synth.ts`                      | Mobile-Safari fixes for AUDIO-06                  | ⚠ INCOMPLETE | audioSession/sync-resume/visibilitychange all landed; webkitAudioContext fallback preserved; 29 tests pass. **BUT** playArpeggio setTimeout queue not cleared by panic/dispose (CR-02). |
-| `src/components/scl-io.ts`                | Combined .scl + .kbm I/O widget                   | ✓ VERIFIED  | parseKbm/writeKbm/defaultKbmFor imported and used; "⤓ Download .kbm" button present; onImportKbm callback in SclIoOpts; .scl-io__export-row layout class. |
-| `src/index.md`                            | Dashboard with viz widgets + Esc + Stop + effectiveBaseHz | ✓ VERIFIED | All three viz factories invoked exactly once; effectiveBaseHz threads via kbmToFrequencies; importedKbm Mutable; useBaseHzOverride toggle; "Stop all audio (Esc)" button; Esc keydown bound in synth cell. |
-| `src/styles.css`                          | Phase 3 imports + Stop-button rules + 16px input | ✓ VERIFIED  | 3 new @import lines for keyboard/lattice/tonality-diamond; .stop-all-audio rules with --theme-red; `font-size: 16px` for inputs; theme tokens redeclared for per-page style: workaround. |
-| `src/lib/INVENTORY.md`                    | Phase 3 entries section                           | ✓ VERIFIED  | "## Phase 3 entries" present with 5 sub-sections; all 12+ symbols documented.                                                                              |
-| `mobile-audit.md`                         | RDM methodology + iOS quirks                      | ⚠ INCOMPLETE | All 5 H2 sections present; ≥10 checklist items; Pitfall 5/7/8/9/11 mitigation table; D-15 inventory. **BUT** "Verified by" / "Verification date" footer never filled (still placeholders). |
+| `src/lib/diamond.ts`                      | DiamondCell with `i: number; j: number;` non-optional fields; populated from enumeration | ✓ VERIFIED | Lines 38-51: interface declares `i: number;` and `j: number;` first; lines 88-95: cells.push literal includes `i,` and `j,`; doc comment lines 22-37 explains why both reduced and original are needed. |
+| `src/components/tonality-diamond.ts`      | Layout uses `rankOf.get(d.i)` / `rankOf.get(d.j)` | ✓ VERIFIED | Lines 202-203: `const row = rankOf.get(d.i) ?? 0;` / `const col = rankOf.get(d.j) ?? 0;`. The broken `rankOf.get(d.numerator)` / `d.denominator` calls return 0 matches in grep. |
+| `src/audio/synth.ts`                      | arpTimers Set + panic/dispose clear               | ✓ VERIFIED | Line 125: `const arpTimers = new Set<ReturnType<typeof setTimeout>>();`. Lines 262-272: playArpeggio captures + adds; line 267: self-remove on fire. Lines 297-298 (panic): `for (const t of arpTimers) clearTimeout(t); arpTimers.clear();`. Lines 314-315 (dispose): same pattern. |
+| `src/lib/__tests__/diamond.test.ts`       | CR-01 regression test (i,j preserved)             | ✓ VERIFIED | Line 41: `it("preserves original (i, j) odd-integer pair on every cell (CR-01 regression)", ...)`. Asserts every cell carries odd `i`, `j`; spot-checks (i=3, j=5) → reduced 6/5 with i=3 (proves i is original, not reduced numerator 6). 4 tests total (was 3). |
+| `src/components/__tests__/tonality-diamond.test.ts` | CR-01 regression test (transform uniqueness)  | ✓ VERIFIED | Line 49: `it("renders each non-diagonal cell at a unique SVG transform (CR-01 regression)", ...)`. Asserts (a) 16 cells render at oddLimit=7, (b) all 12 non-diagonal cells have unique transforms, (c) all 4 diagonal cells render at x=0 (rhombus geometry — central vertical unison axis), (d) all 16 transforms are distinct. 5 tests total (was 4). |
+| `src/audio/__tests__/synth.test.ts`       | CR-02 regression test (panic during arpeggio)     | ✓ VERIFIED | Line 290: `it("panic during arpeggio cancels all pending notes (CR-02 regression)", ...)`. Starts 5-note arpeggio at 500ms cadence, advances fake timers to fire note 2, calls panic(), advances 2000ms, asserts noteOn call count pinned at 2. 30 tests total (was 29). |
+| `mobile-audit.md`                         | Footer signed; arpeggio+Esc smoke-test bullet     | ✓ VERIFIED | Line 195: `**Verified by:** Taylor Brook (Safari macOS Responsive Design Mode, iPhone preset)`. Line 196: `**Verification date:** 2026-05-06`. Lines 198-200: separate `Post-CR-02 regression follow-up` block with `{pending}` placeholders. Line 57: new UNTICKED bullet `- [ ] **Esc/Stop cancels a running arpeggio mid-flight** (CR-02 regression surface)` — placed deliberately unticked because it targets behavior that was broken on 2026-05-06. |
+
+All artifacts from prior verification (lattice.ts, lattice.css, keyboard.ts, keyboard.css, kbm.ts, scl-io.ts, index.md, styles.css, INVENTORY.md) remain VERIFIED — re-verification regression check confirmed via passing test suite + clean build.
 
 ### Key Link Verification
 
 | From                              | To                                  | Via                                              | Status     | Details                                                                                                       |
 | --------------------------------- | ----------------------------------- | ------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------- |
-| `src/components/lattice.ts`       | `npm:ji-lattice`                    | spanLattice + kraigGrady9 imports                | ✓ WIRED    | `import { spanLattice, kraigGrady9, type Vertex, type Edge } from "npm:ji-lattice";` — used inline to compute coords. |
-| `src/components/lattice.ts`       | `d3`                                | d3.create('svg') + d3.zoom()                     | ✓ WIRED    | `import * as d3 from "d3";` — d3.zoom().scaleExtent([0.25, 8]) applied to SVG.                                |
-| `src/components/lattice.ts`       | `synth.playNotes`                   | click handler routes to dyad/note audition       | ✓ WIRED    | `synth.playNotes([baseHz, baseHz * ratio], DEFAULT_AUDITION_DUR_SEC)` inside auditionVertex called from click. |
-| `src/components/tonality-diamond.ts` | `src/lib/diamond.ts`             | enumerateDiamond import                          | ✓ WIRED    | `import { enumerateDiamond, type DiamondCell } from "../lib/diamond.js";` — invoked once per render.        |
-| `src/components/tonality-diamond.ts` | layout from (i, j)               | rankOf.get(d.i) / rankOf.get(d.j)                | ✗ NOT_WIRED | Layout uses `rankOf.get(d.numerator)` instead of original i — DiamondCell does not carry (i, j). CR-01.       |
-| `src/components/keyboard.ts`      | `synth.playNote`                    | pointerdown sustain via release callback         | ✓ WIRED    | `release = synth.playNote(baseHz * ratioForKey, KEYBOARD_NOTE_DUR_SEC)`; pointerup/leave/cancel call release. |
-| `src/components/scl-io.ts`        | `src/lib/kbm.ts`                    | parseKbm + writeKbm + defaultKbmFor              | ✓ WIRED    | All three imported and used; auto-detect by extension (`endsWith(".kbm")`); onImportKbm callback fired.       |
-| `src/index.md`                    | `kbmToFrequencies`                  | effectiveBaseHz derivation                       | ✓ WIRED    | Line 117: `kbmToFrequencies(scale, importedKbm).get(importedKbm.middleNote)` — single source of truth, no inline Math.pow. |
-| `src/index.md`                    | `synth.panic`                       | Esc keydown + Stop-button click                  | ⚠ PARTIAL  | Both call `synth.panic()`; but panic does not clear arpeggio setTimeout queue (CR-02), so a running arpeggio continues firing notes after the user pressed Esc. |
-| `src/audio/synth.ts`              | `navigator.audioSession`            | feature-detected type='playback' assignment      | ✓ WIRED    | `setAudioSessionPlayback()` helper called from ensure(); try/catch swallows assignment failure; 4 audioSession tests in synth.test.ts. |
-| `src/audio/synth.ts`              | `document.visibilitychange`         | addEventListener in ensure(), removeEventListener in dispose() | ✓ WIRED | `bindVisibilityListener()` called from ensure(); cleanup in dispose() removes listener BEFORE teardown. |
-| `src/styles.css`                  | component CSS                       | three new @import lines                          | ✓ WIRED    | keyboard.css, lattice.css, tonality-diamond.css all @imported.                                                |
+| `src/components/tonality-diamond.ts` | `DiamondCell.i` / `DiamondCell.j`   | `rankOf.get(d.i)` and `rankOf.get(d.j)` in layout transform | ✓ WIRED | Lines 202-203 confirmed by grep; pattern `rankOf\.get\(d\.[ij]\)` matches twice; pattern `rankOf\.get\(d\.numerator\)` matches zero times (broken lookup removed). |
+| `src/audio/synth.ts`              | `arpTimers` Set                     | playArpeggio adds; panic clears; dispose clears  | ✓ WIRED    | Pattern `arpTimers\.(add\|clear)` matches in playArpeggio (line 272), panic (line 298), dispose (line 315). All 3 of declaration + 2 clear-loops + add + delete-on-fire confirmed. |
+| `src/index.md`                    | `synth.panic`                       | Esc keydown + Stop-button click                  | ✓ WIRED    | Line 33: `if (e.key === "Escape") synth.panic();`. Line 164: `btn.addEventListener("click", () => synth.panic());`. With CR-02 fix, panic now cancels pending arpeggio timers in addition to silencing voices. |
+| `mobile-audit.md` footer          | Plan 06 SUMMARY 2026-05-06 claim    | Backfilled signature                             | ✓ WIRED    | Pattern `Verified by: Taylor Brook` matches once at line 195; `Verification date: 2026-05-06` matches once at line 196; `{YYYY-MM-DD}` matches zero times. |
+
+All other prior-verification key links (lattice → ji-lattice/d3/synth.playNotes; keyboard → synth.playNote; sclIo → kbm.ts; index.md → kbmToFrequencies; synth → audioSession/visibilitychange) remain WIRED — re-verification regression check confirmed they were not perturbed.
 
 ### Behavioral Spot-Checks
 
 | Behavior                                                            | Command                                                                | Result                                            | Status  |
 | ------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------- | ------- |
-| All tests pass                                                      | `npm run test -- --run`                                                | 13 test files, 176 passed, 0 failed                | ✓ PASS  |
-| TypeScript clean                                                    | `npm run lint:types`                                                    | exits 0                                            | ✓ PASS  |
-| Static build succeeds                                               | `npm run build`                                                         | exits 0; `dist/index.html` rendered (15 kB / 567 kB imports) | ✓ PASS |
-| Tonality diamond layout produces unique positions per cell          | Programmatic reproduction (Node, oddLimit=7, mirror layout formula)     | 16 cells → only 9 unique (col-row, col+row) positions; 7 explicit overlaps | ✗ FAIL |
-| Arpeggio panic / dispose cancels pending notes                      | grep `clearTimeout` + grep arpeggio timer set                          | `clearTimeout` only inside playNoteImpl (line 220); no Set tracking arpeggio timers; panic/dispose do not clearTimeout the queue | ✗ FAIL |
+| All tests pass                                                      | `npm run test -- --run`                                                | 13 test files, 179 tests passed, 0 failed (was 176 + 3 new = 179) | ✓ PASS  |
+| TypeScript clean                                                    | `npm run lint:types`                                                    | exits 0 with no error output                       | ✓ PASS  |
+| Static build succeeds                                               | `npm run build`                                                         | exits 0; `dist/index.html` rendered (15 kB / 567 kB imports / 14 kB files) | ✓ PASS |
+| CR-01 regression: tonality-diamond cells unique at oddLimit=7       | `npm run test -- --run src/components/__tests__/tonality-diamond.test.ts` | new test passes; 16 unique transforms; 12 unique non-diagonal; 4 diagonals at x=0 | ✓ PASS |
+| CR-02 regression: panic mid-arpeggio cancels pending notes          | `npm run test -- --run src/audio/__tests__/synth.test.ts`                  | new test passes; noteOn call count pinned at 2 after panic; +2000ms advance fires no further notes | ✓ PASS |
+| DiamondCell carries (i, j) original odd-integer pair                | `npm run test -- --run src/lib/__tests__/diamond.test.ts`                  | new test passes; (i=3, j=5) → numerator=6, denominator=5; i, j both odd integers | ✓ PASS |
 | `.kbm` round-trip fixture for middle ≠ ref produces 261.6256 Hz     | kbm.test.ts "Pitfall-7 ground truth" assertion                         | Passes (within 0.001 Hz)                          | ✓ PASS  |
 
 ### Requirements Coverage
@@ -107,10 +94,10 @@ gaps:
 | Requirement | Source Plan        | Description                                                                                          | Status     | Evidence                                                                                                                              |
 | ----------- | ------------------ | ---------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | VIZ-01      | 03-04, 03-06       | Lattice rendering (D3 + ji-lattice) with configurable prime basis                                    | ✓ SATISFIED | `lattice.ts` complete; basis configurable via opts.basis; auto-derived via `deriveLatticeBasis`; pan/zoom + click-audition wired.    |
-| VIZ-02      | 03-02, 03-05, 03-06 | Tonality diamond with configurable odd-limit                                                        | ✗ BLOCKED   | Configurable odd-limit IS satisfied (no hardcoded constants); but the SVG cell layout is geometrically broken (CR-01 — cells overlap at oddLimit ≥ 5). The user can specify any odd-limit but cannot SEE distinct cells. |
+| VIZ-02      | 03-02, 03-05, 03-06, 03-07 | Tonality diamond with configurable odd-limit                                                | ✓ SATISFIED | **Now unblocked.** CR-01 fix preserves original (i, j) on DiamondCell; layout uses rankOf.get(d.i)/rankOf.get(d.j); regression test asserts 16 unique transforms at oddLimit=7. |
 | VIZ-03      | 03-05, 03-06       | Scale-on-keyboard SVG view                                                                           | ✓ SATISFIED | `keyboard.ts` complete; signed cents-from-12tet at 0.1¢; pointerdown/up sustain; period-boundary marker; aria-pressed mirror.       |
 | IO-03       | 03-01, 03-02, 03-06 | Parse and serialize .kbm with referenceKey/referenceHz/middleNote as named fields                   | ✓ SATISFIED | `kbm.ts` complete; KbmMapping has all three named fields; round-trip golden tests pass; sclIo Download .kbm + onImportKbm wired.    |
-| AUDIO-06    | 03-03, 03-06       | Mobile Safari audio verified working                                                                 | ⚠ NEEDS HUMAN | Code mitigations landed; SUMMARY claims human-verify approved 2026-05-06 BUT mobile-audit.md footer placeholders unfilled; arpeggio + panic interaction unverified; CR-02 means Esc/Stop does not stop a running arpeggio. |
+| AUDIO-06    | 03-03, 03-06, 03-07 | Mobile Safari audio verified working                                                                 | ✓ SATISFIED (with human follow-up) | Code mitigations landed (audioSession='playback', sync ctx.resume, visibilitychange bind/unbind, webkitAudioContext fallback). CR-02 fix verified at unit level (regression test). mobile-audit.md signed for the originally-walked behaviors on 2026-05-06. **Pending physical re-walk** for the new arpeggio+Esc smoke-test bullet on RDM/iPhone preset (item in human_verification). |
 
 **No orphaned requirements** — every Phase 3 ID in REQUIREMENTS.md (VIZ-01, VIZ-02, VIZ-03, IO-03, AUDIO-06) is claimed by at least one plan in this phase.
 
@@ -118,52 +105,40 @@ gaps:
 
 | File                                | Line  | Pattern                                                                                              | Severity   | Impact                                                                                                                                                  |
 | ----------------------------------- | ----- | ---------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/components/tonality-diamond.ts` | 196-200 | Layout uses reduced (numerator, denominator) where original (i, j) is needed; `?? 0` masks the lookup miss | 🛑 Blocker | CR-01: visible defect — cells stack on top of each other at oddLimit ≥ 5; user cannot distinguish e.g. (1,5)=8/5 from (3,5)=6/5 — they render at the same SVG coordinate. |
-| `src/audio/synth.ts`                | 256-263 | setTimeout queue not tracked; panic / dispose cannot cancel pending arpeggio notes                   | ⚠ Warning  | CR-02: Esc / Stop button does not actually stop a running arpeggio; up to ~115s of pending closures held in the timer queue after dispose; voice-leak hazard on hot-reload. |
-| `src/components/tonality-diamond.ts` | 210-216 | `aria-label` set on `role="presentation"` cells                                                      | ℹ Info     | WR-01: ARIA spec ignores aria-label on presentation roles; "not in scale" string is dead code on those cells. Cosmetic / accessibility-purity issue.    |
-| `src/audio/synth.ts`                | 226-263 | playNote/playArpeggio do not validate `dur` / `stepSec` (NaN, negative, Infinity all flow through)   | ℹ Info     | WR-02: defense-in-depth gap; real-world risk low (call sites pass concrete numbers).                                                                    |
-| `src/components/keyboard.ts`        | 143-148 | Visual "active" state applied even when synth.playNote returns no-op                                 | ℹ Info     | WR-03: aria-pressed/visual mismatch in edge cases (Hz outside 20-20kHz, or disposed synth). Real-world risk low for the seed scale.                      |
-| `mobile-audit.md`                   | 190-191 | "Verified by: {user, after running smoke-test checklist}" / "Verification date: {YYYY-MM-DD}" placeholders never filled | ⚠ Warning | Plan 06 SUMMARY claims human approval 2026-05-06; canonical record in mobile-audit.md is unsigned. Audit-trail gap.                                     |
-| `src/index.md`                      | 33    | Esc keydown listener fires `synth.panic()` regardless of focus target                                | ℹ Info     | WR-07: Esc inside the scale textarea (e.g. user dismissing autocomplete) silently kills audio. Low-risk UX trap.                                        |
-| `src/lib/kbm.ts`                    | 83-86 | `utf8ByteLength` fast-path returns `s.length * 3`, rejecting ASCII files > 333KB                     | ℹ Info     | WR-05: false-positive cap. Real-world `.kbm` files are <10 KB; not a goal-blocker.                                                                       |
+| `src/audio/synth.ts`                | 212-229 | `playNoteImpl`'s release-callback `setTimeout` is NOT tracked in `arpTimers`; closures persist after panic for `noteLen` seconds | ⚠ Warning  | WR-01 (post-fix code-review finding). Functional impact benign (`Math.max(0, 0-1) === 0`; `off()` after `allNotesOff()` is idempotent), but bounded ~110s closure-leak after dispose. Not a goal-blocker; explicitly deferred to polish phase. |
+| `src/components/tonality-diamond.ts` | 202-206, 235-242 | Diagonal cells (i === j) all render literal text "1/1" at distinct vertical positions — visual ambiguity | ⚠ Warning  | WR-02 (post-fix code-review finding). Cosmetic — the four diagonals are mathematically equivalent (all 1/1) but the rhombus geometry stacks them along x=0. Not a goal-blocker. |
+| `src/components/__tests__/tonality-diamond.test.ts` | 49-96 | CR-01 regression test reads `text.ratio` element to detect diagonals (couples the test to rendering DOM choice) | ℹ Info     | Info-only; test is correct and load-bearing. Brittle to renaming the .ratio class but not fragile. |
+| `src/audio/__tests__/synth.test.ts` | 290-309 | CR-02 regression test asserts `mockSynthInstance.noteOn.mock.calls.length` rather than spying on the timer queue directly | ℹ Info     | Info-only; via mock noteOn is the right surface — that's where the user-visible audio fires. |
+
+The pre-existing WR-01 through WR-08 findings from the original 03-REVIEW.md (Esc-while-typing, kbm utf8 fast-path, aria-pressed mismatch, etc.) remain as documented anti-patterns deferred to a polish phase — not goal-blockers.
 
 ### Human Verification Required
 
-The phase contains items that benefit from physical-device or interactive verification beyond what automated checks cover. The mobile-audit smoke-test was reportedly walked once on Safari macOS RDM (per Plan 06 SUMMARY), but the canonical record is unsigned and three behaviors were not exercised.
+The phase contains one item that benefits from physical-device verification beyond what automated checks cover.
 
-#### 1. Tonality-diamond cell overlap (visual)
+#### 1. Walk the new "Esc/Stop cancels arpeggio mid-flight" smoke-test bullet on RDM
 
-**Test:** Open the dashboard at `npm run dev`. The seed scale at oddLimit=31 should render an N×N rhombic grid of distinct cells. Visually count the in-scale-filled cells; the seed scale has 7 distinct ratios but the diamond should also render hundreds of out-of-scale "context" cells around them.
-**Expected:** Each cell at a unique (x, y) position; no two cells overlap.
-**Why human:** A regression test is recommended (in the gap closure plan), but the visual confirmation is fastest done by eye after the CR-01 fix lands.
+**Test:** Open the dashboard at `npm run dev`. Start the 7-note seed-scale arpeggio. While it is mid-flight (e.g. on note 3 of 7), press Esc OR click the floating "Stop all audio (Esc)" button. Then confirm the same behavior in Safari macOS Responsive Design Mode (iPhone preset) — the existing pattern in `mobile-audit.md` Section 1.
 
-#### 2. Arpeggio + Esc/Stop interaction
+**Expected:** All audio stops immediately; no further arpeggio notes (4, 5, 6, 7) fire on cadence. After confirming, tick the new bullet at line 57 (currently `[ ]`) and fill in the `Post-CR-02 regression follow-up` footer block at lines 198-200 (currently `{pending}`).
 
-**Test:** Click "Arpeggio" in the audio panel for the 7-note seed scale. While the arpeggio is mid-flight (e.g. on note 3 of 7), press Esc OR click the floating "Stop all audio (Esc)" button.
-**Expected:** All audio stops immediately; no further notes fire.
-**Why human:** Currently observable: panic() fires synth.allNotesOff() (which silences the currently-sounding voice) but the queued setTimeout calls (notes 4, 5, 6, 7) continue to fire on cadence. A user who pressed Stop will hear the arpeggio finish anyway. CR-02 fix needed for this to pass.
-
-#### 3. Mobile-audit checkpoint signature
-
-**Test:** Walk the smoke-test checklist in `mobile-audit.md` Section 1 on Safari macOS RDM (iPhone preset).
-**Expected:** All ≥12 checklist items tick; sign the footer "Verified by" / "Verification date" fields.
-**Why human:** SUMMARY claims this was done on 2026-05-06 but the file footer is not signed. Either re-run + sign now, or backfill the SUMMARY-claimed date into the file.
+**Why human:** The CR-02 fix is fully verified at the unit level — the new regression test in `synth.test.ts` exercises panic-during-arpeggio against the same mock surface that produces user-visible audio. But the user-visible affordance ("Esc actually stops the arpeggio") was deliberately excluded from the original 2026-05-06 RDM sign-off because the behavior was broken on that date. The mobile-audit.md author left a separate `{pending}` block explicitly for this re-walk. Goal-level impact is low (the unit test gives high confidence); documentation-trail completeness is the reason to walk it.
 
 ### Gaps Summary
 
-Phase 3 delivered most of the code surface the goal demands — three viz components, the .kbm I/O kernel + UI extension, mobile-Safari audio mitigations in synth.ts, and dashboard wiring with effectiveBaseHz threading and Stop+Esc — and the test suite (176 passing, 0 failing) plus build (`npm run ci`) are clean. Three out of five must-haves are fully verified.
+**No code or behavior gaps remain.** All three concrete gaps from the prior verification (CR-01, CR-02, mobile-audit footer) are closed with surgical fixes plus load-bearing regression tests:
 
-The two failing must-haves both trace to defects flagged by the standard-depth code review (03-REVIEW.md) but never fixed:
+- **CR-01 closed:** `DiamondCell` carries the original `(i, j)` odd-integer pair as non-optional fields; tonality-diamond.ts layout uses `rankOf.get(d.i)` / `rankOf.get(d.j)`; regression test asserts 16 unique SVG transforms at oddLimit=7 (was 9 unique for 16 cells pre-fix).
+- **CR-02 closed:** `arpTimers` Set tracks per-note setTimeout handles; `panic()` and `dispose()` both clear the Set; regression test asserts noteOn call count is pinned after panic-during-5-note-arpeggio.
+- **mobile-audit.md footer closed (with intentional follow-up):** Original 2026-05-06 RDM walk signed `Taylor Brook`; separate `{pending}` "Post-CR-02 regression follow-up" block awaits a physical re-walk on the fixed build.
 
-1. **CR-01 (BLOCKER) — tonality-diamond layout overlaps.** `DiamondCell` does not carry the original (i, j) odd-integer pair, so the SVG layout rank-lookup `rankOf.get(d.numerator)` collapses cells with even numerators (e.g. 8/5, 6/5, 12/7, 10/7) onto the row=0 / col=0 axes. Reproduced programmatically: at oddLimit=7, only 9 unique (x, y) positions for 16 enumerated cells — 7 explicit overlaps. This is a visible defect for VIZ-02. The fix is a two-line change in src/lib/diamond.ts (add i, j fields) plus the corresponding rank lookup in tonality-diamond.ts (lines 196-197).
+All quality gates pass: 179 tests (was 176 + 3 new regression tests), `lint:types` exits 0, `npm run build` produces `dist/index.html`. Post-fix code review (03-REVIEW.md) reports 0 blockers.
 
-2. **CR-02 (WARNING) — arpeggio panic gap.** `playArpeggio` schedules per-note `setTimeout` calls but never tracks the timer handles. `panic()` calls `synth.allNotesOff()` (silencing the currently-sounding voice) but does not clear pending timers, so the arpeggio continues to fire. This breaks the "Stop all audio (Esc)" affordance during arpeggio playback — a real regression in the user-visible audio-stop surface that was just added in Phase 3. Fix recipe is verbatim in 03-REVIEW.md CR-02. Goal-level impact: AUDIO-06's "audio works on mobile" is partly about user TRUST of the audio surface; "Esc stops audio" being half-broken is a goal-level concern even if no Phase-3 test exercises it.
+**Status: human_needed.** All five must-haves are code-verified, but item #5 carries a one-shot human-verification step (the `{pending}` mobile-audit follow-up sign-off). No further plan is required — the user simply needs to walk the new smoke-test bullet on RDM and fill in the footer values. The unit test is sufficient evidence that the underlying behavior is correct; this is a documentation-completeness step, not a goal-blocker.
 
-The `mobile-audit.md` unsigned footer is a documentation-trail gap rather than a code defect, but it should be filled in alongside the gap closure since the closure will likely re-run the smoke-test anyway.
-
-**Recommendation:** Status `gaps_found`. Spin a `/gsd-plan-phase --gaps` cycle that addresses CR-01 and CR-02 with regression tests (the absence of a layout-uniqueness test let CR-01 ship; the absence of a panic-during-arpeggio test let CR-02 ship). The other code-review warnings (WR-01 through WR-08) can be deferred to a polish pass — they are documented anti-patterns but not goal-blockers.
+**Recommendation:** Status `human_needed`. After the user walks the RDM smoke test and fills in the `{pending}` placeholders, the phase is complete and ready to be marked done. The deferred WR-01 through WR-08 findings can be addressed in a future polish phase.
 
 ---
 
-_Verified: 2026-05-05T09:35:00Z_
+_Verified: 2026-05-06T10:37:00Z_
 _Verifier: Claude (gsd-verifier)_
