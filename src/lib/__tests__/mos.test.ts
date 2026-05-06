@@ -16,7 +16,13 @@ describe("buildMos", () => {
       "2/1",
     ];
     expect(scale.intervals.length).toBe(expectedDiatonic.length);
-    expect(scale.intervals.map((iv) => iv.fraction.toFraction())).toEqual(expectedDiatonic);
+    // Stringify via n/d directly — fraction.js' Fraction.toFraction() drops "/1"
+    // for whole-number ratios (so "2/1" round-trips as "2"), which breaks naive
+    // string-equality assertions. The BigInt-level Interval.equals check below
+    // is the load-bearing assertion (Pitfall #1: NEVER cents-tolerance).
+    expect(
+      scale.intervals.map((iv) => `${String(iv.fraction.n)}/${String(iv.fraction.d)}`),
+    ).toEqual(expectedDiatonic);
     // BigInt-level equality (Pitfall #1: NEVER cents-tolerance)
     expectedDiatonic.forEach((s, i) => {
       const iv = scale.intervals[i];
