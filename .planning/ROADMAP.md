@@ -94,7 +94,17 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can construct a MOS scale by specifying generator + period and have it appear with the same `Scale` API as any hand-built scale
   3. User can place two scales side-by-side and see degree-by-degree cents, common subset, and max deviation
   4. User can share a URL whose hash encodes a scale, and the recipient lands on a page seeded with that exact scale
-**Plans**: TBD
+**Plans**: 7 plans across 3 waves
+  - Wave 1 (parallel): 04-01 (edo.ts), 04-02 (mos.ts), 04-03 (url.ts) — three pure-lib kernels, independent
+  - Wave 2 (parallel): 04-04 (edo-jit-table + edo-ji-table components), 04-05 (mos-builder component), 04-06 (scale-compare component) — components consume Wave 1 libs
+  - Wave 3: 04-07 (analysis.md page + dashboard hash wiring + INVENTORY + 2 human checkpoints)
+  - [ ] 04-01-PLAN.md — Wave 1 — src/lib/edo.ts (bestEdosForScale, bestJiInEdo, oddLimitApproximation) + tests (ANAL-01)
+  - [ ] 04-02-PLAN.md — Wave 1 — src/lib/mos.ts (buildMos, nearestMosSize) + tests, hand-rolled per D-11 (ANAL-02)
+  - [ ] 04-03-PLAN.md — Wave 1 — src/lib/url.ts (encodeScaleToHash, decodeHashToScale) + tests (ANAL-04)
+  - [ ] 04-04-PLAN.md — Wave 2 — edoJitTable + edoJiTable components + colocated CSS + smoke tests (ANAL-01)
+  - [ ] 04-05-PLAN.md — Wave 2 — mosBuilder component + colocated CSS + smoke tests (ANAL-02)
+  - [ ] 04-06-PLAN.md — Wave 2 — scaleCompare component (three B-sources + alignment + lollipop) + smoke tests (ANAL-03)
+  - [ ] 04-07-PLAN.md — Wave 3 — src/pages/analysis.md page + dashboard hash auto-update + Analyze button + INVENTORY consolidation + 2 human-verify checkpoints (ANAL-01, ANAL-02, ANAL-03, ANAL-04)
 **UI hint**: yes
 
 ## Progress
@@ -107,4 +117,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Bootstrap & Build | 4/4 | Complete | 2026-05-03 |
 | 2. Math Kernel + Composition Anchor (MVP) | 7/7 | Complete   | 2026-05-04 |
 | 3. Visualization + Mobile Audio Audit | 6/6 | Gaps found (3/5 must-haves) | - |
-| 4. Analysis & Sharing | 0/TBD | Not started | - |
+| 4. Analysis & Sharing | 0/7 | Not started | - |
