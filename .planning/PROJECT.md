@@ -13,6 +13,8 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 ### Validated
 
 - [x] Static-site build, self-hosted, publishable, git-versioned source — *Validated in Phase 1 (Bootstrap & Build): Observable Framework 1.13.4 builds to `dist/`; GitHub Pages workflow deploys on push to main; full source under git.*
+- [x] Lattice + tonality diamond visualizations for arbitrary prime sets — *Validated in Phase 3 (Visualization + Mobile Audio Audit): D3 + ji-lattice 2D lattice with auto-derived prime basis + pan/zoom; configurable-odd-limit tonality diamond (CR-01 fix preserves original (i, j) pair so cells render at unique positions).*
+- [x] Scala `.scl` and `.kbm` export — *Validated in Phase 3: parseKbm/writeKbm/kbmToFrequencies/defaultKbmFor with three named fields (referenceKey ≠ middleNote); sclIo widget round-trips both formats with auto-detection.*
 
 ### Active
 
@@ -21,10 +23,8 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 - [ ] Arbitrary JI ratio arithmetic — any numerator/denominator (e.g., `81/79`), no prime-limit ceiling
 - [ ] Monzo (prime-factor vector) representation and arithmetic
 - [ ] Cents conversion + cent-deviation-from-12tet display
-- [ ] Lattice + tonality diamond visualizations for arbitrary prime sets
 - [ ] Temperament conversion (EDOs, regular-temperament mappings, comma analysis)
 - [ ] Scale-building primitives (generators, modes, JI subsets)
-- [ ] Scala `.scl` and `.kbm` export
 - [ ] In-browser audio playback of intervals/scales (Web Audio)
 - [ ] Markdown research notes interleaved with reactive calculator cells
 - [ ] End-to-end coverage of the in-progress composition's tuning needs
@@ -84,4 +84,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-04 after Phase 2 (Math Kernel + Composition Anchor MVP) completion — kernel/audio/IO/dashboard all working end-to-end; 28/28 phase requirements satisfied; 136/136 tests green.*
+*Last updated: 2026-05-06 after Phase 3 (Visualization + Mobile Audio Audit) completion — lattice + tonality diamond + scale-on-keyboard rendering, .kbm I/O, mobile-Safari audio quirks audited and mitigated; 5/5 phase truths verified after gap-closure plan 03-07 (CR-01 diamond layout + CR-02 arpeggio panic + mobile-audit footer); 179/179 tests green.*
