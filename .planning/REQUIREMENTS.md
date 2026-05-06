@@ -34,7 +34,7 @@
 
 - [x] **IO-01**: Parse Scala `.scl` files — handles ratios, cents, comments, implicit `1/1`, period-by-`.`-detection
 - [x] **IO-02**: Serialize `Scale` to `.scl`
-- [ ] **IO-03**: Parse and serialize `.kbm` keyboard mappings (`KbmMapping` keeps `referenceKey`/`referenceHz`/`middleNote` as named fields)
+- [x] **IO-03**: Parse and serialize `.kbm` keyboard mappings (`KbmMapping` keeps `referenceKey`/`referenceHz`/`middleNote` as named fields)
 - [x] **IO-04**: Copy ratios + cent-deviation-from-12tet table to clipboard
 - [x] **IO-05**: Round-trip golden tests against Huygens-Fokker `.scl` archive samples
 
@@ -45,7 +45,7 @@
 - [x] **AUDIO-03**: Arpeggio audition for full scale
 - [x] **AUDIO-04**: Drone + interval-over-drone playback
 - [x] **AUDIO-05**: Polyphony cap with voice tracking — no orphaned voices
-- [ ] **AUDIO-06**: Mobile Safari audio verified working (autoplay-policy + AudioContext quirks)
+- [x] **AUDIO-06**: Mobile Safari audio verified working (autoplay-policy + AudioContext quirks)
 
 ### NOTES — Research-Notes Surface
 
@@ -63,9 +63,9 @@
 
 ### VIZ — Visualization
 
-- [ ] **VIZ-01**: Lattice rendering (D3 + `ji-lattice`) with configurable prime basis
-- [ ] **VIZ-02**: Tonality diamond with configurable odd-limit
-- [ ] **VIZ-03**: Scale-on-keyboard SVG view
+- [x] **VIZ-01**: Lattice rendering (D3 + `ji-lattice`) with configurable prime basis
+- [x] **VIZ-02**: Tonality diamond with configurable odd-limit
+- [x] **VIZ-03**: Scale-on-keyboard SVG view
 
 ### ANAL — Analysis
 
@@ -124,7 +124,7 @@
 | SCALE-05 | Phase 2 | Complete |
 | IO-01 | Phase 2 | Complete |
 | IO-02 | Phase 2 | Complete |
-| IO-03 | Phase 3 | Pending |
+| IO-03 | Phase 3 | Complete |
 | IO-04 | Phase 2 | Complete |
 | IO-05 | Phase 2 | Complete |
 | AUDIO-01 | Phase 2 | Complete |
@@ -132,7 +132,7 @@
 | AUDIO-03 | Phase 2 | Complete |
 | AUDIO-04 | Phase 2 | Complete |
 | AUDIO-05 | Phase 2 | Complete |
-| AUDIO-06 | Phase 3 | Pending |
+| AUDIO-06 | Phase 3 | Complete |
 | NOTES-01 | Phase 2 | Complete |
 | NOTES-02 | Phase 2 | Complete |
 | NOTES-03 | Phase 2 | Complete |
@@ -141,9 +141,9 @@
 | COMP-01 | Phase 2 | Complete |
 | COMP-02 | Phase 2 | Complete |
 | COMP-03 | Phase 2 | Complete |
-| VIZ-01 | Phase 3 | Pending |
-| VIZ-02 | Phase 3 | Pending |
-| VIZ-03 | Phase 3 | Pending |
+| VIZ-01 | Phase 3 | Complete |
+| VIZ-02 | Phase 3 | Complete |
+| VIZ-03 | Phase 3 | Complete |
 | ANAL-01 | Phase 4 | Pending |
 | ANAL-02 | Phase 4 | Pending |
 | ANAL-03 | Phase 4 | Pending |

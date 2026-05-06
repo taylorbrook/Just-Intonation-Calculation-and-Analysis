@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Bootstrap & Build** - Observable Framework scaffold, TS+Vitest, xen-dev stack installed, deployment target wired
 - [x] **Phase 2: Math Kernel + Composition Anchor (MVP)** - Pure JI kernel, Scala I/O, audio playback, notes surface, composition page end-to-end (completed 2026-05-04)
-- [ ] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified
+- [x] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified (completed 2026-05-06)
 - [ ] **Phase 4: Analysis & Sharing** - EDO ↔ JI mapping, MOS construction, scale comparison, persistent URLs
 
 ## Phase Details
@@ -80,7 +80,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 03-03-PLAN.md — synth.ts mobile-Safari fixes: navigator.audioSession.type='playback', sync ctx.resume(), visibilitychange listener with cleanup (AUDIO-06)
   - [x] 03-04-PLAN.md — lattice.ts component: D3 + ji-lattice 2D viz + d3.zoom + click-to-audition + deriveLatticeBasis (VIZ-01)
   - [x] 03-05-PLAN.md — tonality-diamond.ts + keyboard.ts components: hand-laid SVG + d3.zoom (diamond) + pointerdown/up sustain (keyboard) (VIZ-02, VIZ-03)
-  - [ ] 03-06-PLAN.md — Integration: extend sclIo (.scl + .kbm), wire dashboard cells (Esc + Stop + effectiveBaseHz + viz widgets), styles.css updates, INVENTORY.md, mobile-audit.md, human-verify on Safari RDM (VIZ-01, VIZ-02, VIZ-03, IO-03, AUDIO-06)
+  - [x] 03-06-PLAN.md — Integration: extend sclIo (.scl + .kbm), wire dashboard cells (Esc + Stop + effectiveBaseHz + viz widgets), styles.css updates, INVENTORY.md, mobile-audit.md, human-verify on Safari RDM (VIZ-01, VIZ-02, VIZ-03, IO-03, AUDIO-06)
 **UI hint**: yes
 
 ### Phase 4: Analysis & Sharing
@@ -104,5 +104,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Bootstrap & Build | 4/4 | Complete | 2026-05-03 |
 | 2. Math Kernel + Composition Anchor (MVP) | 7/7 | Complete   | 2026-05-04 |
-| 3. Visualization + Mobile Audio Audit | 0/6 | Not started | - |
+| 3. Visualization + Mobile Audio Audit | 6/6 | Complete | 2026-05-06 |
 | 4. Analysis & Sharing | 0/TBD | Not started | - |
