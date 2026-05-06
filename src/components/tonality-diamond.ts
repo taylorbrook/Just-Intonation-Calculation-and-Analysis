@@ -11,9 +11,10 @@
  * D-22 — in-scale cells filled by dominant prime's color; out-of-scale outlined.
  *         Tooltip via SVG <title>: "ratio | cents | prime-limit | in-scale?".
  *
- * Three-layer discipline (Pitfall #2 / D-08): never allocates AudioContext —
- * the SynthHandle is supplied by the caller. R-01: PRIMES + oddLimit imported
- * via src/lib/monzo.ts (NEVER directly from xen-dev-utils).
+ * Three-layer discipline (Pitfall #2 / D-08): the audio context is owned by
+ * the caller via the SynthHandle abstraction; this widget never instantiates
+ * Web-Audio surface itself. R-01: PRIMES + oddLimit imported via
+ * src/lib/monzo.ts (NEVER directly from xen-dev-utils).
  */
 import type { Scale } from "../lib/scale.js";
 import type { SynthHandle } from "../audio/synth.js";
