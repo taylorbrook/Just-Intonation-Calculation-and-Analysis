@@ -48,10 +48,12 @@
   outline-offset: 2px;
 }
 
-.scl-io__filename-ext {
-  font-family: var(--monospace);
-  font-size: 14px;
-  color: var(--theme-foreground-alt);
+/* Phase 3 (UI-SPEC line 162): two side-by-side export buttons (.scl + .kbm).
+ * Wraps under the filename input on narrow widths via flex-wrap. */
+.scl-io__export-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .scl-io__import {
