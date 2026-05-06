@@ -18,10 +18,15 @@ vi.mock("npm:@observablehq/plot", () => ({
 import { scaleCompare, BUILTIN_B_SCALES, disposeScaleCompare } from "../scale-compare.js";
 import { Scale } from "../../lib/scale.js";
 import { Interval } from "../../lib/interval.js";
+import { parseScala } from "../../lib/scala.js";
 import { makeStubSynth } from "./test-utils.js";
 
+// BL-01 shape: scaleA always leads with 1/1 to match production wiring
+// (`new Scale(parseScala(text))` auto-prepends 1/1 per D-13). The presets in
+// BUILTIN_B_SCALES also lead with 1/1 since BL-01.
 const seedA = (): Scale =>
   new Scale([
+    new Interval("1/1"),
     new Interval("9/8"),
     new Interval("5/4"),
     new Interval("21/16"),
@@ -34,6 +39,7 @@ const seedA = (): Scale =>
 const pythagorean7 = (): Scale =>
   new Scale(
     [
+      new Interval("1/1"),
       new Interval("9/8"),
       new Interval("81/64"),
       new Interval("4/3"),
@@ -100,10 +106,12 @@ describe("BUILTIN_B_SCALES preset list (Tests 3, 4, 5, 6, 7)", () => {
     }
   });
 
-  it("Test 5: pythagorean-7 has 7 intervals and starts with 9/8 (BigInt-equal)", () => {
+  it("Test 5: pythagorean-7 has 8 intervals (1/1 + 7 pitches) and degree 2 = 9/8 (BL-01 shape)", () => {
     const py = BUILTIN_B_SCALES["pythagorean-7"]!();
-    expect(py.intervals.length).toBe(7);
-    expect(py.intervals[0]!.equals(new Interval("9/8"))).toBe(true);
+    // BL-01: presets lead with 1/1 to match parseScala-built scaleA.
+    expect(py.intervals.length).toBe(8);
+    expect(py.intervals[0]!.equals(new Interval("1/1"))).toBe(true);
+    expect(py.intervals[1]!.equals(new Interval("9/8"))).toBe(true);
   });
 
   it("Test 6: 5-limit-7 contains 5/4 (BigInt-equal — D-32, NOT cents tolerance)", () => {
@@ -112,10 +120,12 @@ describe("BUILTIN_B_SCALES preset list (Tests 3, 4, 5, 6, 7)", () => {
     expect(has54).toBe(true);
   });
 
-  it("Test 7: bohlen-pierce-9 has period 3/1 (BigInt-equal)", () => {
+  it("Test 7: bohlen-pierce-9 has period 3/1 and 10 intervals (1/1 + 9 pitches; BL-01 shape)", () => {
     const bp = BUILTIN_B_SCALES["bohlen-pierce-9"]!();
     expect(bp.period.equals(new Interval("3/1"))).toBe(true);
-    expect(bp.intervals.length).toBe(9);
+    // BL-01: presets lead with 1/1.
+    expect(bp.intervals.length).toBe(10);
+    expect(bp.intervals[0]!.equals(new Interval("1/1"))).toBe(true);
   });
 });
 
@@ -140,11 +150,85 @@ describe("alignment + common-subset (Tests 8, 9)", () => {
     }
   });
 
-  it("Test 9: alignment table has one tbody row per A-degree (7 rows for the seed)", () => {
+  it("Test 9: alignment table has one tbody row per A-degree (8 rows for the BL-01-shape seed)", () => {
     const el = scaleCompare(seedA(), makeStubSynth());
     const rows = el.querySelectorAll("tbody tr");
     expect(rows.length).toBe(seedA().intervals.length);
-    expect(rows.length).toBe(7);
+    // BL-01: seedA now leads with 1/1, so 8 rows = unison + 7 user pitches.
+    expect(rows.length).toBe(8);
+  });
+
+  it("Test 9b (BL-01 regression): production scaleA (parseScala) vs preset → unison row Δ¢ = 0 and common-subset includes 1/1", () => {
+    // Reproduces the production wiring: `new Scale(parseScala(scaleText))`,
+    // which auto-prepends 1/1 per D-13. Before BL-01, the presets did NOT
+    // lead with 1/1, so row 1 always reported A° 1 = 1/1 (0¢) aligned to B's
+    // nearest non-unison interval (~100-204¢). After BL-01, both sides lead
+    // with 1/1 and the unison aligns trivially.
+    const seedText = "9/8\n5/4\n21/16\n3/2\n27/16\n7/4\n2/1";
+    const scaleA = new Scale(parseScala(seedText));
+    expect(scaleA.intervals[0]!.equals(new Interval("1/1"))).toBe(true);
+
+    const el = scaleCompare(scaleA, makeStubSynth(), { defaultPreset: "pythagorean-7" });
+    document.body.appendChild(el);
+    try {
+      // Row 1 = A° 1 = 1/1. With BL-01 fix the preset's first interval is also
+      // 1/1 → BigInt-exact match → |Δ¢| = 0.
+      const firstRow = el.querySelector("tbody tr");
+      expect(firstRow).not.toBeNull();
+      const cells = firstRow!.querySelectorAll("td");
+      // Columns: A° | A ratio | A ¢ | B ¢ | B ratio | |Δ¢| | Audition.
+      // Ratio cells render via Fraction.toFraction(), which emits "1" for 1/1
+      // (no explicit denominator — same convention scale-compare uses elsewhere).
+      expect(cells[1]!.textContent).toBe("1");
+      expect(cells[4]!.textContent).toBe("1");
+      // |Δ¢| string with default precision 1 → "0.0".
+      expect(cells[5]!.textContent).toBe("0.0");
+      // Row should be flagged as exact match.
+      expect(firstRow!.classList.contains("scale-compare__row--match")).toBe(true);
+
+      // Common subset must include 1/1. Pythagorean-7 vs the 7-limit JI seed
+      // shares 1/1, 9/8, 3/2, 27/16, 2/1 → at least 5 (was 4 before BL-01).
+      const summaryText = el.querySelector(".scale-compare__summary")?.textContent ?? "";
+      const m = /Common subset:\s*(\d+)/.exec(summaryText);
+      const count = m ? parseInt(m[1]!, 10) : 0;
+      expect(count).toBeGreaterThanOrEqual(5);
+    } finally {
+      document.body.removeChild(el);
+    }
+  });
+
+  it("Test 9c (BL-01 regression): paste handler keeps the leading 1/1 so paste-mode scaleB shape matches scaleA", () => {
+    // Construct scaleA via the production path.
+    const scaleA = new Scale(parseScala("9/8\n5/4\n3/2\n2/1"));
+    const el = scaleCompare(scaleA, makeStubSynth());
+    document.body.appendChild(el);
+    try {
+      // Switch B-source to Paste, paste a sub-scale that shares 1/1 + some pitches.
+      const modeSel = el.querySelector(
+        "select.scale-compare__b-source-mode",
+      ) as HTMLSelectElement;
+      modeSel.value = "Paste";
+      modeSel.dispatchEvent(new Event("change", { bubbles: true }));
+      const paste = el.querySelector(".scale-compare__paste textarea") as HTMLTextAreaElement;
+      paste.value = "9/8\n3/2\n2/1";
+      paste.dispatchEvent(new Event("input", { bubbles: true }));
+
+      // Row 1 = A° 1 = 1/1. After BL-01, B also leads with 1/1 → exact match.
+      // Fraction.toFraction() emits "1" (no explicit denominator) for 1/1.
+      const firstRow = el.querySelector("tbody tr");
+      const cells = firstRow!.querySelectorAll("td");
+      expect(cells[1]!.textContent).toBe("1");
+      expect(cells[4]!.textContent).toBe("1");
+      expect(cells[5]!.textContent).toBe("0.0");
+
+      // Common subset: 1/1, 9/8, 3/2, 2/1 → at least 4.
+      const summaryText = el.querySelector(".scale-compare__summary")?.textContent ?? "";
+      const m = /Common subset:\s*(\d+)/.exec(summaryText);
+      const count = m ? parseInt(m[1]!, 10) : 0;
+      expect(count).toBeGreaterThanOrEqual(4);
+    } finally {
+      document.body.removeChild(el);
+    }
   });
 
   it("Test 9d (BL-02 regression): BigInt-exact match in B wins over an inexact B at the same float-cents", () => {

@@ -56,9 +56,15 @@ export interface ScaleCompareOpts {
  * "best rational approximation" of the float). Common-subset detection between an
  * EDO and a JI scale will rarely match exactly (and that's musically correct:
  * 12-EDO's "4/3" is 500¢ exactly, not the 498.045¢ of 4/3).
+ *
+ * BL-01 shape: starts at step 0 (1/1) to match the parseScala / scaleTable
+ * convention where the unison is the first degree. Caller scaleA (built via
+ * `new Scale(parseScala(text))`) also leads with 1/1; aligning the shapes makes
+ * the unison row meaningful (Δ¢ = 0) and lets common-subset count include the
+ * unison when both scales agree on it.
  */
 function edoScale(N: number): Scale {
-  const intervals: Interval[] = [];
+  const intervals: Interval[] = [new Interval("1/1")];
   for (let step = 1; step <= N; step++) {
     const cents = (1200 / N) * step;
     intervals.push(new Interval(2 ** (cents / 1200)));
@@ -71,6 +77,12 @@ function edoScale(N: number): Scale {
  * 04-CONTEXT.md lines 207-212. Bohlen-Pierce uses the published Lambda mode
  * (Mathews/Pierce/Wilson 1988): step-by-step scale degrees in the [3/1] period
  * are 27/25, 25/21, 9/7, 7/5, 75/49, 5/3, 9/5, 15/7, 3/1.
+ *
+ * BL-01 shape: every preset leads with 1/1 to match the parseScala-built scaleA
+ * (production wires `new Scale(parseScala(text))`, which auto-prepends 1/1 per
+ * D-13). Aligning the two shapes means the alignment table's first row is
+ * meaningful (A° 1 = 1/1 vs B° 1 = 1/1, Δ¢ = 0) and the common-subset count
+ * includes the unison when both scales agree on it.
  */
 export const BUILTIN_B_SCALES: Record<string, () => Scale> = {
   "12tet": () => edoScale(12),
@@ -79,6 +91,7 @@ export const BUILTIN_B_SCALES: Record<string, () => Scale> = {
   "pythagorean-7": () =>
     new Scale(
       [
+        new Interval("1/1"),
         new Interval("9/8"),
         new Interval("81/64"),
         new Interval("4/3"),
@@ -92,6 +105,7 @@ export const BUILTIN_B_SCALES: Record<string, () => Scale> = {
   "5-limit-7": () =>
     new Scale(
       [
+        new Interval("1/1"),
         new Interval("9/8"),
         new Interval("5/4"),
         new Interval("4/3"),
@@ -105,6 +119,7 @@ export const BUILTIN_B_SCALES: Record<string, () => Scale> = {
   "bohlen-pierce-9": () =>
     new Scale(
       [
+        new Interval("1/1"),
         new Interval("27/25"),
         new Interval("25/21"),
         new Interval("9/7"),
@@ -448,10 +463,13 @@ export function scaleCompare(scaleA: Scale, synth: SynthHandle, opts: ScaleCompa
       if (intervals.length < 2) {
         throw new Error("paste at least one pitch line");
       }
-      // Drop the auto-prepended 1/1 so scaleB matches the same shape as the presets
-      // (which start at the first non-unison degree). The constructor's last entry
-      // is the period (D-14).
-      scaleB = new Scale(intervals.slice(1));
+      // BL-01 shape: keep the auto-prepended 1/1 so scaleB matches the same
+      // shape as scaleA (production wires `new Scale(parseScala(text))` which
+      // also leads with 1/1) and the BUILTIN_B_SCALES presets. The constructor
+      // defaults `period` to the LAST interval (D-14).
+      scaleB = new Scale(intervals);
+      // User-facing pitch count excludes the implicit 1/1 (matches .scl spec
+      // and the dashboard helper text "1/1 is added automatically").
       status.textContent = `Loaded ${String(intervals.length - 1)} pitches.`;
       rerender();
     } catch (err) {
@@ -471,8 +489,10 @@ export function scaleCompare(scaleA: Scale, synth: SynthHandle, opts: ScaleCompa
       const text = typeof result === "string" ? result : "";
       try {
         const parsed = parseScl(text);
-        // parseScl already auto-prepends 1/1 — drop it for the same shape.
-        scaleB = new Scale(parsed.intervals.slice(1));
+        // BL-01 shape: keep parseScl's auto-prepended 1/1 so scaleB matches
+        // scaleA (which `new Scale(parseScala(text))` also leads with 1/1) and
+        // the presets.
+        scaleB = new Scale(parsed.intervals);
         // T-04-27: textContent — never innerHTML.
         status.textContent = `Imported ${file.name} (${String(parsed.intervals.length - 1)} pitches).`;
         rerender();
