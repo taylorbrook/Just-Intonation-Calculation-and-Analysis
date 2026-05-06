@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Bootstrap & Build** - Observable Framework scaffold, TS+Vitest, xen-dev stack installed, deployment target wired
 - [x] **Phase 2: Math Kernel + Composition Anchor (MVP)** - Pure JI kernel, Scala I/O, audio playback, notes surface, composition page end-to-end (completed 2026-05-04)
 - [ ] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified — gaps_found awaiting closure
-- [ ] **Phase 4: Analysis & Sharing** - EDO ↔ JI mapping, MOS construction, scale comparison, persistent URLs
+- [x] **Phase 4: Analysis & Sharing** - EDO ↔ JI mapping, MOS construction, scale comparison, persistent URLs (completed 2026-05-06)
 
 ## Phase Details
 
@@ -104,7 +104,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 04-04-PLAN.md — Wave 2 — edoJitTable + edoJiTable components + colocated CSS + smoke tests (ANAL-01)
   - [x] 04-05-PLAN.md — Wave 2 — mosBuilder component + colocated CSS + smoke tests (ANAL-02)
   - [x] 04-06-PLAN.md — Wave 2 — scaleCompare component (three B-sources + alignment + lollipop) + smoke tests (ANAL-03)
-  - [ ] 04-07-PLAN.md — Wave 3 — src/pages/analysis.md page + dashboard hash auto-update + Analyze button + INVENTORY consolidation + 2 human-verify checkpoints (ANAL-01, ANAL-02, ANAL-03, ANAL-04)
+  - [x] 04-07-PLAN.md — Wave 3 — src/pages/analysis.md page + dashboard hash auto-update + Analyze button + INVENTORY consolidation + 2 human-verify checkpoints (ANAL-01, ANAL-02, ANAL-03, ANAL-04)
 **UI hint**: yes
 
 ## Progress
@@ -117,4 +117,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Bootstrap & Build | 4/4 | Complete | 2026-05-03 |
 | 2. Math Kernel + Composition Anchor (MVP) | 7/7 | Complete   | 2026-05-04 |
 | 3. Visualization + Mobile Audio Audit | 6/6 | Gaps found (3/5 must-haves) | - |
-| 4. Analysis & Sharing | 0/7 | Not started | - |
+| 4. Analysis & Sharing | 7/7 | Complete | 2026-05-06 |

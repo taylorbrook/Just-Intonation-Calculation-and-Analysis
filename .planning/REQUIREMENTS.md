@@ -69,10 +69,10 @@
 
 ### ANAL — Analysis
 
-- [ ] **ANAL-01**: EDO ↔ JI mapping table — find best EDO for a JI scale; find JI approximations in an EDO
-- [ ] **ANAL-02**: MOS / generator-period scale construction
-- [ ] **ANAL-03**: Side-by-side scale comparison cell
-- [ ] **ANAL-04**: Persistent URLs for scales (URL hash encoding) — share + reproduce
+- [x] **ANAL-01**: EDO ↔ JI mapping table — find best EDO for a JI scale; find JI approximations in an EDO
+- [x] **ANAL-02**: MOS / generator-period scale construction
+- [x] **ANAL-03**: Side-by-side scale comparison cell
+- [x] **ANAL-04**: Persistent URLs for scales (URL hash encoding) — share + reproduce
 
 ## v2 Requirements
 
@@ -144,10 +144,10 @@
 | VIZ-01 | Phase 3 | Complete |
 | VIZ-02 | Phase 3 | Complete |
 | VIZ-03 | Phase 3 | Complete |
-| ANAL-01 | Phase 4 | Pending |
-| ANAL-02 | Phase 4 | Pending |
-| ANAL-03 | Phase 4 | Pending |
-| ANAL-04 | Phase 4 | Pending |
+| ANAL-01 | Phase 4 | Complete |
+| ANAL-02 | Phase 4 | Complete |
+| ANAL-03 | Phase 4 | Complete |
+| ANAL-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 42 total
