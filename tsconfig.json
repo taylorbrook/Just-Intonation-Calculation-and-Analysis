@@ -39,8 +39,6 @@
     "node_modules",
     "dist",
     ".observablehq",
-    "src/lib/__tests__/kbm.test.ts",
-    "src/lib/__tests__/diamond.test.ts",
     "src/components/__tests__/lattice.test.ts",
     "src/components/__tests__/tonality-diamond.test.ts",
     "src/components/__tests__/keyboard.test.ts"
