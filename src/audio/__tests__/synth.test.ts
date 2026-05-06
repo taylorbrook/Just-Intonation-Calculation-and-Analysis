@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ---------- Mock sw-synth ----------
 //
@@ -74,12 +74,21 @@ const mockGainNode: MockGainNode = {
   disconnect: vi.fn(),
 };
 
+// `state` + `resume` added in Plan 03 Task 2 to support AUDIO-06 mobile-Safari
+// fixes. `state` is mutable so tests can simulate suspended/running transitions
+// without rebuilding the singleton. `resume` flips state to 'running' on call,
+// matching the contract of the real AudioContext.
 const mockAudioContext = {
   createGain: vi.fn(() => mockGainNode),
   destination: {} as AudioDestinationNode,
   close: vi.fn(() => Promise.resolve()),
   currentTime: 0,
   latencyHint: "interactive" as AudioContextLatencyCategory,
+  state: "suspended" as "suspended" | "running" | "closed",
+  resume: vi.fn(() => {
+    mockAudioContext.state = "running";
+    return Promise.resolve();
+  }),
 };
 
 const mockCtxCtor = vi.fn(() => mockAudioContext);
@@ -104,6 +113,10 @@ beforeEach(() => {
   mockGainNode.disconnect.mockClear();
   mockGainNode.gain.value = 0;
   mockAudioContext.close.mockClear();
+  // Plan 03 Task 2 — reset AUDIO-06 mock state per-test so suspended/running
+  // transitions don't leak across tests.
+  mockAudioContext.state = "suspended";
+  mockAudioContext.resume.mockClear();
 });
 
 // =============================================================
@@ -371,6 +384,136 @@ describe("createSynth — Hz clamps (T-02-17)", () => {
     expect(synth.activeVoices).toBe(0);
     expect(typeof stop).toBe("function");
     stop(); // should not throw
+    synth.dispose();
+  });
+});
+
+// =============================================================
+// AUDIO-06 — mobile Safari fixes (D-15 / Pitfalls #7, #8, #9)
+// =============================================================
+//
+// Three pitfalls fixed by Plan 03:
+//   #7  navigator.audioSession.type = 'playback' bypass for the iOS hardware mute switch
+//   #8  synchronous ctx.resume() inside ensure() (no await between user gesture and resume)
+//   #9  visibilitychange listener bound in ensure(), removed in dispose()
+//
+// All three are testable via mock infrastructure: a navigator stub for #7, the
+// existing mockAudioContext.resume spy for #8, and a document stub for #9.
+
+type DocumentStub = {
+  addEventListener: ReturnType<typeof vi.fn>;
+  removeEventListener: ReturnType<typeof vi.fn>;
+  visibilityState: "visible" | "hidden";
+};
+
+function makeDocStub(): DocumentStub {
+  return {
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    visibilityState: "visible",
+  };
+}
+
+type NavigatorStub = {
+  audioSession?: { type: string };
+};
+
+// Node 20+ exposes `globalThis.navigator` as a getter-only property (since v21
+// exposed via `node:navigator`). A naked assignment throws "Cannot set property
+// navigator of #<Object> which has only a getter". Use Object.defineProperty so
+// every test can install/replace the stub the production code reads via
+// `(globalThis as ...).navigator`.
+function setNavigatorStub(stub: NavigatorStub | null): void {
+  Object.defineProperty(globalThis, "navigator", {
+    value: stub,
+    writable: true,
+    configurable: true,
+  });
+}
+
+describe("AUDIO-06 — mobile Safari fixes", () => {
+  let originalDoc: unknown;
+  let originalNav: unknown;
+
+  beforeEach(() => {
+    originalDoc = (globalThis as unknown as { document?: unknown }).document;
+    originalNav = (globalThis as unknown as { navigator?: unknown }).navigator;
+  });
+
+  afterEach(() => {
+    (globalThis as unknown as { document?: unknown }).document = originalDoc as Document;
+    // navigator is getter-only on the Node 20 globalThis — use defineProperty
+    // to restore it the same way `setNavigatorStub` installed it.
+    Object.defineProperty(globalThis, "navigator", {
+      value: originalNav,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it("sets navigator.audioSession.type = 'playback' when API is available (Pitfall #7)", () => {
+    const navStub: { audioSession: { type: string } } = { audioSession: { type: "auto" } };
+    setNavigatorStub(navStub);
+    (globalThis as unknown as { document: DocumentStub }).document = makeDocStub();
+    const synth = createSynth();
+    synth.playNote(440, 0.05); // user-gesture-equivalent — triggers ensure()
+    expect(navStub.audioSession.type).toBe("playback");
+    synth.dispose();
+  });
+
+  it("does NOT throw when navigator.audioSession is undefined (Chrome/Firefox)", () => {
+    setNavigatorStub({}); // no audioSession property
+    (globalThis as unknown as { document: DocumentStub }).document = makeDocStub();
+    const synth = createSynth();
+    expect(() => synth.playNote(440, 0.05)).not.toThrow();
+    synth.dispose();
+  });
+
+  it("calls ctx.resume() synchronously inside ensure() — first user-gesture invocation (Pitfall #8)", () => {
+    setNavigatorStub({});
+    (globalThis as unknown as { document: DocumentStub }).document = makeDocStub();
+    const synth = createSynth();
+    // Before the gesture: resume should not have been called.
+    expect(mockAudioContext.resume).not.toHaveBeenCalled();
+    synth.playNote(440, 0.05); // first user-gesture-equivalent → ensure() → ctx.resume()
+    // After the gesture: resume called exactly once (synchronously, fire-and-forget).
+    // The call MUST happen during the synth.playNote() return — no microtask delay.
+    expect(mockAudioContext.resume).toHaveBeenCalledTimes(1);
+    synth.dispose();
+  });
+
+  it("registers visibilitychange listener in ensure() and removes it in dispose() (Pitfall #9)", () => {
+    setNavigatorStub({});
+    const doc = makeDocStub();
+    (globalThis as unknown as { document: DocumentStub }).document = doc;
+    const synth = createSynth();
+    synth.playNote(440, 0.05); // triggers ensure()
+    const visBindCalls = doc.addEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === "visibilitychange",
+    );
+    expect(visBindCalls.length).toBe(1);
+    synth.dispose();
+    const visUnbindCalls = doc.removeEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === "visibilitychange",
+    );
+    expect(visUnbindCalls.length).toBe(1);
+    // The bound + unbound listener references must match — otherwise removeEventListener
+    // would silently fail and the listener would leak across hot-reload (Threat T-3-10).
+    expect(visUnbindCalls[0][1]).toBe(visBindCalls[0][1]);
+  });
+
+  it("multiple ensure() invocations bind visibilitychange only once (T-3-10 leak guard)", () => {
+    setNavigatorStub({});
+    const doc = makeDocStub();
+    (globalThis as unknown as { document: DocumentStub }).document = doc;
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    synth.playNote(550, 0.05);
+    synth.playNote(660, 0.05);
+    const visBindCalls = doc.addEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === "visibilitychange",
+    );
+    expect(visBindCalls.length).toBe(1); // bind-at-most-once guard works
     synth.dispose();
   });
 });
