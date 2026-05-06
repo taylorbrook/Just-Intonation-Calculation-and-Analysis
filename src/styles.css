@@ -26,6 +26,52 @@
 @import "./components/ratio-pill.css";
 @import "./components/audio-panel.css";
 @import "./components/scl-io.css";
+@import "./components/keyboard.css";
+@import "./components/lattice.css";
+@import "./components/tonality-diamond.css";
+
+/* Phase 3 (D-17) — global iOS Safari auto-zoom suppression.
+ * iOS Safari auto-zooms any input whose font-size is < 16px on focus. Set
+ * a 16px floor on every form control so the dashboard inputs (textarea,
+ * baseHz number) keep the viewport stable on tap. No media-query breakpoint —
+ * D-17 mandates single-column responsive at all widths. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Phase 3 (D-16) — floating "Stop all audio" button.
+ * Visible only when synth.activeVoices > 0 (driven by inline display from the
+ * page cell in src/index.md). Destructive variant per UI-SPEC line 91 — uses
+ * --theme-red text + border on a quiet background; inverts to white-on-red on
+ * hover/focus to telegraph "this will interrupt." Touch target ≥ 44×44px per
+ * UI-SPEC line 215 / D-17 mobile target. */
+.stop-all-audio {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px 16px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--theme-red);
+  background: var(--theme-background);
+  border: 2px solid var(--theme-red);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.stop-all-audio:hover,
+.stop-all-audio:focus-visible {
+  background: var(--theme-red);
+  color: var(--theme-background);
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
 
 /* Page-level helpers for the dashboard layout (D-05 vertical rhythm). */
 .dashboard-helper {
