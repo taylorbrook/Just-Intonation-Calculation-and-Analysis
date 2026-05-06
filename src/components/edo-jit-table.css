@@ -1,0 +1,67 @@
+/*
+ * edo-jit-table.css — scale→EDO ranking table (Phase 4 ANAL-01).
+ * Phase 3 D-25 colocation. Loaded via @import in src/styles.css (Plan 04-07).
+ */
+
+.edo-jit-table {
+  margin-block: 16px;
+}
+
+.edo-jit-table h2 {
+  font-family: var(--sans-serif);
+  font-size: 18px;
+  margin-block: 0 8px;
+}
+
+.edo-jit-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--monospace);
+  font-size: 14px;
+}
+
+.edo-jit-table thead th {
+  text-align: left;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--sans-serif);
+  font-weight: 600;
+  color: var(--theme-foreground-alt);
+  border-bottom: 2px solid color-mix(in oklab, currentColor 12%, transparent);
+}
+
+.edo-jit-table thead th:hover,
+.edo-jit-table thead th:focus-visible {
+  color: var(--theme-foreground-focus);
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: -2px;
+}
+
+.edo-jit-table .sort-arrow {
+  margin-left: 6px;
+  color: color-mix(in oklab, currentColor 30%, transparent);
+}
+
+.edo-jit-table .sort-arrow[data-active="true"] {
+  color: var(--theme-foreground-focus);
+}
+
+.edo-jit-table tbody tr {
+  cursor: pointer;
+  border-bottom: 1px solid color-mix(in oklab, currentColor 6%, transparent);
+}
+
+.edo-jit-table tbody tr:hover,
+.edo-jit-table tbody tr:focus-visible {
+  background: var(--theme-background-alt);
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: -2px;
+}
+
+.edo-jit-table tbody td {
+  padding: 8px 12px;
+  min-height: 44px;
+  box-sizing: border-box;
+  color: var(--theme-foreground);
+}
