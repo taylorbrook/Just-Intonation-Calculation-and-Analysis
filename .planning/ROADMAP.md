@@ -101,9 +101,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 04-01-PLAN.md — Wave 1 — src/lib/edo.ts (bestEdosForScale, bestJiInEdo, oddLimitApproximation) + tests (ANAL-01)
   - [x] 04-02-PLAN.md — Wave 1 — src/lib/mos.ts (buildMos, nearestMosSize) + tests, hand-rolled per D-11 (ANAL-02)
   - [x] 04-03-PLAN.md — Wave 1 — src/lib/url.ts (encodeScaleToHash, decodeHashToScale) + tests (ANAL-04)
-  - [ ] 04-04-PLAN.md — Wave 2 — edoJitTable + edoJiTable components + colocated CSS + smoke tests (ANAL-01)
-  - [ ] 04-05-PLAN.md — Wave 2 — mosBuilder component + colocated CSS + smoke tests (ANAL-02)
-  - [ ] 04-06-PLAN.md — Wave 2 — scaleCompare component (three B-sources + alignment + lollipop) + smoke tests (ANAL-03)
+  - [x] 04-04-PLAN.md — Wave 2 — edoJitTable + edoJiTable components + colocated CSS + smoke tests (ANAL-01)
+  - [x] 04-05-PLAN.md — Wave 2 — mosBuilder component + colocated CSS + smoke tests (ANAL-02)
+  - [x] 04-06-PLAN.md — Wave 2 — scaleCompare component (three B-sources + alignment + lollipop) + smoke tests (ANAL-03)
   - [ ] 04-07-PLAN.md — Wave 3 — src/pages/analysis.md page + dashboard hash auto-update + Analyze button + INVENTORY consolidation + 2 human-verify checkpoints (ANAL-01, ANAL-02, ANAL-03, ANAL-04)
 **UI hint**: yes
 
