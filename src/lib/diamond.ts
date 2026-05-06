@@ -27,8 +27,19 @@ import type { Scale } from "./scale.js";
  * the (i=5, j=1) cell octave-reduces 5/1 to 5/4, so cell.numerator === 5 and
  * cell.denominator === 4). Cells where the reduced ratio simplifies (e.g.
  * (i=3, j=3) → 1/1) collapse their numerator/denominator accordingly.
+ *
+ * `i` and `j` preserve the ORIGINAL odd-integer pair from the enumeration
+ * loop, before octave reduction. This matters for layout: the SVG renderer
+ * in `src/components/tonality-diamond.ts` looks up grid coordinates against
+ * a rank table keyed on the odd integers {1, 3, 5, 7, ...}. The reduced
+ * `numerator`/`denominator` are not always odd (e.g. (i=3, j=5)→6/5,
+ * (i=1, j=7)→8/7), so they cannot be used as the rank key (CR-01).
  */
 export interface DiamondCell {
+  /** Original odd-integer numerator from the (i, j) enumeration. */
+  i: number;
+  /** Original odd-integer denominator from the (i, j) enumeration. */
+  j: number;
   /** Reduced-ratio numerator (`Number(ratio.fraction.n)`). */
   numerator: number;
   /** Reduced-ratio denominator (`Number(ratio.fraction.d)`). */
@@ -70,7 +81,13 @@ export function enumerateDiamond(oddLimit: number, scale: Scale): DiamondCell[] 
       const inScale = scale.intervals.some((iv) => iv.equals(ratio));
       // numerator/denominator reflect the REDUCED ratio's n/d so consumers
       // can label cells with their canonical reduced form (e.g. 5/4 not 5/1).
+      // i/j preserve the ORIGINAL odd-integer pair so the layout in
+      // src/components/tonality-diamond.ts can compute the correct grid
+      // position (CR-01 fix: reduced n/d are not always odd, so they cannot
+      // be looked up in rankOf).
       cells.push({
+        i,
+        j,
         numerator: Number(ratio.fraction.n),
         denominator: Number(ratio.fraction.d),
         ratio,
