@@ -27,6 +27,10 @@ export default defineConfig({
     alias: {
       "npm:sw-synth": "sw-synth",
       "npm:ji-lattice": "ji-lattice",
+      // Plan 04-06 deviation (Rule 3): scale-compare imports Plot via the
+      // `npm:` prefix Framework resolves at runtime; Vitest needs a local
+      // alias. @observablehq/plot is a devDependency (matches sw-synth pattern).
+      "npm:@observablehq/plot": "@observablehq/plot",
     },
   },
   test: {
