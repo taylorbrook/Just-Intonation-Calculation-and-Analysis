@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Bootstrap & Build** - Observable Framework scaffold, TS+Vitest, xen-dev stack installed, deployment target wired
 - [x] **Phase 2: Math Kernel + Composition Anchor (MVP)** - Pure JI kernel, Scala I/O, audio playback, notes surface, composition page end-to-end (completed 2026-05-04)
-- [x] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified (completed 2026-05-06)
+- [ ] **Phase 3: Visualization + Mobile Audio Audit** - Lattice, tonality diamond, scale-on-keyboard, .kbm I/O, mobile Safari verified — gaps_found awaiting closure
 - [ ] **Phase 4: Analysis & Sharing** - EDO ↔ JI mapping, MOS construction, scale comparison, persistent URLs
 
 ## Phase Details
@@ -104,5 +104,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Bootstrap & Build | 4/4 | Complete | 2026-05-03 |
 | 2. Math Kernel + Composition Anchor (MVP) | 7/7 | Complete   | 2026-05-04 |
-| 3. Visualization + Mobile Audio Audit | 6/6 | Complete | 2026-05-06 |
+| 3. Visualization + Mobile Audio Audit | 6/6 | Gaps found (3/5 must-haves) | - |
 | 4. Analysis & Sharing | 0/TBD | Not started | - |
