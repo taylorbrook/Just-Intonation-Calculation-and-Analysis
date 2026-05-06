@@ -286,6 +286,27 @@ describe("createSynth — playArpeggio (AUDIO-03)", () => {
     vi.useRealTimers();
     synth.dispose();
   });
+
+  it("panic during arpeggio cancels all pending notes (CR-02 regression)", () => {
+    vi.useFakeTimers();
+    const synth = createSynth();
+    // 5-note arpeggio at 500ms cadence: t=0, 500, 1000, 1500, 2000.
+    synth.playArpeggio([440, 550, 660, 770, 880], 0.5);
+    expect(mockSynthInstance.noteOn).toHaveBeenCalledTimes(1); // first note immediate
+    vi.advanceTimersByTime(500);
+    expect(mockSynthInstance.noteOn).toHaveBeenCalledTimes(2); // note 2 fired
+    // Panic mid-flight (between note 2 and note 3).
+    synth.panic();
+    const callsAtPanic = mockSynthInstance.noteOn.mock.calls.length;
+    expect(callsAtPanic).toBe(2);
+    // Advance past where notes 3, 4, 5 would have fired (t = 1000, 1500, 2000).
+    vi.advanceTimersByTime(2000);
+    // No additional noteOn calls — pending timers were cleared by panic().
+    expect(mockSynthInstance.noteOn).toHaveBeenCalledTimes(callsAtPanic);
+    expect(mockSynthInstance.allNotesOff).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    synth.dispose();
+  });
 });
 
 // =============================================================

@@ -193,8 +193,14 @@ export function tonalityDiamond(
       return `diamond-cell ${d.inScale ? "diamond-cell--in-scale" : "diamond-cell--out"} diamond-cell--${axis}`;
     })
     .attr("transform", (d: DiamondCell) => {
-      const row = rankOf.get(d.numerator) ?? 0;
-      const col = rankOf.get(d.denominator) ?? 0;
+      // CR-01 fix: use the ORIGINAL odd-integer (i, j) for rank lookup.
+      // Reduced numerator/denominator are not always odd (e.g. (3,5)→6/5,
+      // (1,7)→8/7) and would miss the rankOf table — collapsing distinct
+      // cells onto the row=0 / col=0 axes. The fallback `?? 0` is no longer
+      // load-bearing (every cell now has integer i and j by construction)
+      // but stays for defense-in-depth.
+      const row = rankOf.get(d.i) ?? 0;
+      const col = rankOf.get(d.j) ?? 0;
       const x = (col - row) * STRIDE;
       const y = (col + row) * STRIDE;
       return `translate(${String(x)},${String(y)})`;

@@ -54,6 +54,11 @@ preset.
       audio. Press Esc anywhere on the page → audio also stops.
 - [ ] **Stop button hides when idle** — after the audio stops, the Stop button
       disappears within ~100ms (the activeVoices polling tick).
+- [ ] **Esc/Stop cancels a running arpeggio mid-flight** (CR-02 regression
+      surface) — start the 7-note seed-scale arpeggio. While it is mid-flight
+      (e.g. on note 3 of 7), press Esc OR click the floating "Stop all audio
+      (Esc)" button. ALL further notes must stop immediately; no remaining
+      arpeggio notes (4, 5, 6, 7) should fire on cadence.
 - [ ] **`.kbm` import surfaces "Use baseHz instead" toggle** — import any of
       the test fixtures from `src/lib/__tests__/fixtures/kbm/`. The
       "Use baseHz instead of imported .kbm" toggle appears below baseHz.
@@ -187,5 +192,9 @@ production deliverable. All four are landed and verified in code:
 
 ---
 
-**Verified by:** {user, after running smoke-test checklist}
-**Verification date:** {YYYY-MM-DD}
+**Verified by:** Taylor Brook (Safari macOS Responsive Design Mode, iPhone preset)
+**Verification date:** 2026-05-06
+
+**Post-CR-02 regression follow-up:**
+**Verified by:** {pending — fill after running smoke test on the fixed build}
+**Verification date:** {pending — fill on smoke-test walk}

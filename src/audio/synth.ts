@@ -117,6 +117,12 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
   // AUDIO-06 / Pitfall #9 — visibilitychange listener handle, bound at most once
   // per createSynth lifetime by `bindVisibilityListener`, removed by `dispose`.
   let onVisibility: (() => void) | null = null;
+  // CR-02 fix: track per-note arpeggio setTimeout handles so panic() and
+  // dispose() can cancel pending notes. Without this, Esc / Stop has no
+  // effect on a running arpeggio — the queued notes continue to fire on
+  // cadence even after allNotesOff() silenced the currently-sounding voice.
+  // Set growth is bounded by the existing MAX_ARPEGGIO_LEN=256 cap.
+  const arpTimers = new Set<ReturnType<typeof setTimeout>>();
 
   /**
    * AUDIO-06 / Pitfall #7 — feature-detected iOS Audio Session "playback" type.
@@ -253,12 +259,17 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
         if (i === 0) {
           playNoteImpl(hz, noteLen);
         } else {
-          setTimeout(
+          // CR-02 fix: capture the timer handle, register it in arpTimers
+          // so panic() / dispose() can cancel; self-remove on fire so the
+          // Set does not retain handles for already-fired notes.
+          const t: ReturnType<typeof setTimeout> = setTimeout(
             () => {
+              arpTimers.delete(t);
               playNoteImpl(hz, noteLen);
             },
             i * stepSec * 1000,
           );
+          arpTimers.add(t);
         }
       });
     },
@@ -280,6 +291,11 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
 
     panic() {
       if (disposed) return;
+      // CR-02 fix: cancel pending arpeggio notes BEFORE silencing the
+      // currently-sounding voice. Otherwise Esc / Stop only kills the
+      // active note while queued setTimeout calls keep firing.
+      for (const t of arpTimers) clearTimeout(t);
+      arpTimers.clear();
       if (synth) synth.allNotesOff();
       activeVoices = 0;
     },
@@ -291,6 +307,12 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
     dispose() {
       if (disposed) return;
       disposed = true;
+      // CR-02 fix: clear pending arpeggio timers so closures (each capturing
+      // hz, noteLen, ctx, synth, etc.) do not stay alive in the timer queue
+      // after dispose. Prevents up to ~115s of held closures for a 256-note
+      // arpeggio at 0.45s/step. T-3-10 leak shape on the audio side.
+      for (const t of arpTimers) clearTimeout(t);
+      arpTimers.clear();
       // AUDIO-06 / Pitfall #9 — remove the visibilitychange listener BEFORE the
       // teardown so a late-firing event cannot reference `ctx` while we're
       // tearing down. Idempotent via the null-check + null-assignment.
