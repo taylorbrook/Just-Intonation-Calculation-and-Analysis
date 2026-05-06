@@ -82,7 +82,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 03-04-PLAN.md — lattice.ts component: D3 + ji-lattice 2D viz + d3.zoom + click-to-audition + deriveLatticeBasis (VIZ-01)
   - [x] 03-05-PLAN.md — tonality-diamond.ts + keyboard.ts components: hand-laid SVG + d3.zoom (diamond) + pointerdown/up sustain (keyboard) (VIZ-02, VIZ-03)
   - [x] 03-06-PLAN.md — Integration: extend sclIo (.scl + .kbm), wire dashboard cells (Esc + Stop + effectiveBaseHz + viz widgets), styles.css updates, INVENTORY.md, mobile-audit.md, human-verify on Safari RDM (VIZ-01, VIZ-02, VIZ-03, IO-03, AUDIO-06)
-  - [ ] 03-07-PLAN.md — Gap closure: preserve (i, j) on DiamondCell + use it in tonality-diamond layout (CR-01); track arpeggio setTimeout queue + clear on panic/dispose (CR-02); backfill mobile-audit.md verifier/date footer; +3 regression tests (VIZ-02, AUDIO-06)
+  - [x] 03-07-PLAN.md — Gap closure: preserve (i, j) on DiamondCell + use it in tonality-diamond layout (CR-01); track arpeggio setTimeout queue + clear on panic/dispose (CR-02); backfill mobile-audit.md verifier/date footer; +3 regression tests (VIZ-02, AUDIO-06)
 **UI hint**: yes
 
 ### Phase 4: Analysis & Sharing
