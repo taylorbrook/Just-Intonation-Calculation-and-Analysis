@@ -499,7 +499,7 @@ describe("AUDIO-06 — mobile Safari fixes", () => {
     expect(visUnbindCalls.length).toBe(1);
     // The bound + unbound listener references must match — otherwise removeEventListener
     // would silently fail and the listener would leak across hot-reload (Threat T-3-10).
-    expect(visUnbindCalls[0][1]).toBe(visBindCalls[0][1]);
+    expect(visUnbindCalls[0]![1]).toBe(visBindCalls[0]![1]);
   });
 
   it("multiple ensure() invocations bind visibilitychange only once (T-3-10 leak guard)", () => {
