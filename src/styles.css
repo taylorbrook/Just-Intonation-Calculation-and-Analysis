@@ -32,6 +32,10 @@
 @import "./components/keyboard.css";
 @import "./components/lattice.css";
 @import "./components/tonality-diamond.css";
+@import "./components/edo-jit-table.css";
+@import "./components/edo-ji-table.css";
+@import "./components/mos-builder.css";
+@import "./components/scale-compare.css";
 
 /* Theme tokens — kept after @import per CSS spec (imports must come first).
  * Values mirror Framework's air (light) + coffee (dark) palettes so the look
