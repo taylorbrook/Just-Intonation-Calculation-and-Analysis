@@ -79,6 +79,14 @@ const clampPolyphony = (n: number): number => {
   return Math.min(MAX_POLYPHONY, Math.max(MIN_POLYPHONY, Math.floor(n)));
 };
 
+// AUDIO-06 / Pitfall #7 — Audio Session API for iOS hardware-mute bypass.
+// Safari 16.4+ on iOS/macOS; Chrome/Firefox have no support (feature-detected).
+type WithAudioSession = Navigator & {
+  audioSession?: {
+    type: "auto" | "playback" | "transient" | "transient-solo" | "ambient" | "play-and-record";
+  };
+};
+
 // Resolve the AudioContext constructor at call time.
 // In production: `window.AudioContext` (or `webkitAudioContext` for older Safari).
 // In tests: globalThis.window is mocked with an `AudioContext` constructor stub.
@@ -106,6 +114,48 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
   let activeVoices = 0;
   let disposed = false;
   let arpeggioTruncationWarned = false;
+  // AUDIO-06 / Pitfall #9 — visibilitychange listener handle, bound at most once
+  // per createSynth lifetime by `bindVisibilityListener`, removed by `dispose`.
+  let onVisibility: (() => void) | null = null;
+
+  /**
+   * AUDIO-06 / Pitfall #7 — feature-detected iOS Audio Session "playback" type.
+   * Bypasses the hardware silent switch on iOS 16.4+ Safari. No-op on browsers
+   * without `navigator.audioSession`. The single insertion point for any
+   * `audioSession` reference in this module.
+   */
+  const setAudioSessionPlayback = (): void => {
+    const nav = (globalThis as unknown as { navigator?: WithAudioSession }).navigator;
+    if (nav?.audioSession) {
+      try {
+        nav.audioSession.type = "playback";
+      } catch {
+        // swallow — could be read-only or unsupported in some implementation; non-fatal
+      }
+    }
+  };
+
+  /**
+   * AUDIO-06 / Pitfall #9 — bind a `visibilitychange` listener that resumes the
+   * AudioContext when the tab regains focus. Idempotent (binds at most once per
+   * createSynth lifetime). Cleaned up in `dispose()`.
+   *
+   * The listener captures `ctx` lexically and uses the LATEST reference at fire
+   * time, not at bind time — so even if `ensure()` re-runs, the same listener
+   * remains valid.
+   */
+  const bindVisibilityListener = (): void => {
+    if (onVisibility) return; // bind at most once per createSynth lifetime
+    const doc = (globalThis as unknown as { document?: Document }).document;
+    if (!doc) return; // node test env without DOM — no-op
+    onVisibility = (): void => {
+      if (disposed || !ctx) return;
+      if (doc.visibilityState === "visible" && ctx.state === "suspended") {
+        void ctx.resume();
+      }
+    };
+    doc.addEventListener("visibilitychange", onVisibility);
+  };
 
   /**
    * Lazy AudioContext + Synth construction.
@@ -114,10 +164,22 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
    */
   const ensure = (): boolean => {
     if (disposed) return false;
-    if (ctx && synth) return true;
+    if (ctx && synth) {
+      // Already initialised — but the context may have been suspended (e.g.
+      // tab backgrounded). Resume synchronously here so the user-gesture frame
+      // is preserved (Pitfall #8). Fire-and-forget; do NOT await.
+      if (ctx.state === "suspended") void ctx.resume();
+      return true;
+    }
     const Ctx = resolveAudioCtxCtor();
     if (!Ctx) return false;
     ctx = new Ctx({ latencyHint: "interactive" });
+    // AUDIO-06 / Pitfall #7 — iOS 16.4+ hardware-mute-switch bypass.
+    setAudioSessionPlayback();
+    // AUDIO-06 / Pitfall #8 — synchronous fire-and-forget resume so the FIRST
+    // user-gesture invocation unlocks the context. NO await between gesture
+    // and this call.
+    if (ctx.state === "suspended") void ctx.resume();
     master = ctx.createGain();
     master.gain.value = opts.master ?? 0.2;
     master.connect(ctx.destination);
@@ -131,6 +193,9 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
       releaseTime: D16_RELEASE,
       ...opts.voiceParams,
     };
+    // AUDIO-06 / Pitfall #9 — bind visibilitychange AFTER ctx is ready so the
+    // listener can safely read ctx.state when it fires.
+    bindVisibilityListener();
     return true;
   };
 
@@ -226,6 +291,14 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
     dispose() {
       if (disposed) return;
       disposed = true;
+      // AUDIO-06 / Pitfall #9 — remove the visibilitychange listener BEFORE the
+      // teardown so a late-firing event cannot reference `ctx` while we're
+      // tearing down. Idempotent via the null-check + null-assignment.
+      if (onVisibility) {
+        const doc = (globalThis as unknown as { document?: Document }).document;
+        doc?.removeEventListener("visibilitychange", onVisibility);
+        onVisibility = null;
+      }
       try {
         synth?.allNotesOff();
       } catch {
