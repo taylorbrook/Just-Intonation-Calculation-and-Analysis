@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@observablehq/framework": "1.13.4",
+    "d3": "^7.9.0",
     "fraction.js": "5.3.4",
     "ji-lattice": "^0.3.2",
     "sonic-weave": "^0.14.1",
@@ -26,8 +27,10 @@
     "xen-dev-utils": "^0.13.1"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/node": "^20.19.39",
     "eslint": "^9.39.4",
+    "happy-dom": "^15.11.7",
     "prettier": "^3.8.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.1",

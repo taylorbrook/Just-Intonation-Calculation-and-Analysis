@@ -27,5 +27,22 @@
     }
   },
   "include": ["src/**/*.ts", "observablehq.config.ts", "vitest.config.ts"],
-  "exclude": ["node_modules", "dist", ".observablehq"]
+  // Wave-0 RED stubs (Plan 03-01) import modules that Plans 02/04/05 will land.
+  // tsc would error TS2307 on the missing modules and break `npm run lint:types`
+  // / `npm run ci`. Vitest uses its own resolver and still fails the tests at
+  // runtime with module-not-found — the intended Wave-0 RED state.
+  // REMOVE each excluded path as the corresponding Plan lands its module:
+  //   kbm.test.ts + diamond.test.ts → Plan 02
+  //   lattice.test.ts + tonality-diamond.test.ts → Plan 04
+  //   keyboard.test.ts → Plan 05
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".observablehq",
+    "src/lib/__tests__/kbm.test.ts",
+    "src/lib/__tests__/diamond.test.ts",
+    "src/components/__tests__/lattice.test.ts",
+    "src/components/__tests__/tonality-diamond.test.ts",
+    "src/components/__tests__/keyboard.test.ts"
+  ]
 }
