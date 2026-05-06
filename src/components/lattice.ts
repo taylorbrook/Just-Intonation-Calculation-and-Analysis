@@ -189,6 +189,25 @@ export function lattice(scale: Scale, synth: SynthHandle, opts: LatticeOpts = {}
     .attr("width", width)
     .attr("height", height);
 
+  // Fit lattice coords into the viewBox with padding. spanLattice's natural
+  // extent depends on the basis + showContext; without normalization, sparse
+  // scales render as a tiny cluster and dense ones overflow. Compute a uniform
+  // scale + center so r=NODE_RADIUS stays proportional to the visible spread.
+  const padding = 56; // viewBox units around the lattice (label headroom)
+  const xs = vertices.map((v) => v.x);
+  const ys = vertices.map((v) => v.y);
+  const xMin = xs.length > 0 ? Math.min(...xs) : 0;
+  const xMax = xs.length > 0 ? Math.max(...xs) : 0;
+  const yMin = ys.length > 0 ? Math.min(...ys) : 0;
+  const yMax = ys.length > 0 ? Math.max(...ys) : 0;
+  const xSpan = Math.max(xMax - xMin, 1);
+  const ySpan = Math.max(yMax - yMin, 1);
+  const fitScale = Math.min((width - 2 * padding) / xSpan, (height - 2 * padding) / ySpan);
+  const xMid = (xMin + xMax) / 2;
+  const yMid = (yMin + yMax) / 2;
+  const fx = (x: number): number => (x - xMid) * fitScale;
+  const fy = (y: number): number => (y - yMid) * fitScale;
+
   const g = svg.append("g");
 
   // Edges first (so nodes render on top).
@@ -197,10 +216,10 @@ export function lattice(scale: Scale, synth: SynthHandle, opts: LatticeOpts = {}
     .enter()
     .append("line")
     .attr("class", (d: Edge) => `edge edge-${d.type}`)
-    .attr("x1", (d: Edge) => d.x1)
-    .attr("y1", (d: Edge) => d.y1)
-    .attr("x2", (d: Edge) => d.x2)
-    .attr("y2", (d: Edge) => d.y2);
+    .attr("x1", (d: Edge) => fx(d.x1))
+    .attr("y1", (d: Edge) => fy(d.y1))
+    .attr("x2", (d: Edge) => fx(d.x2))
+    .attr("y2", (d: Edge) => fy(d.y2));
 
   const baseHz = opts.baseHz ?? 440; // Phase 2 D-08 default.
   const audition = opts.audition ?? "dyad";
@@ -233,7 +252,7 @@ export function lattice(scale: Scale, synth: SynthHandle, opts: LatticeOpts = {}
       const axisClass = iv ? classForPrime(dominantPrimeFor(iv)) : "axis-default";
       return `lattice-node lattice-node--in-scale lattice-node--${axisClass}`;
     })
-    .attr("transform", (d: Vertex) => `translate(${String(d.x)},${String(d.y)})`)
+    .attr("transform", (d: Vertex) => `translate(${String(fx(d.x))},${String(fy(d.y))})`)
     .attr("tabindex", (d: Vertex) => (d.index !== undefined ? 0 : -1))
     .attr("role", (d: Vertex) => (d.index !== undefined ? "button" : "presentation"))
     .attr("aria-label", (d: Vertex) => {
@@ -245,7 +264,7 @@ export function lattice(scale: Scale, synth: SynthHandle, opts: LatticeOpts = {}
     });
 
   // Render circles + labels per node.
-  nodeGroups.append("circle").attr("r", 18);
+  nodeGroups.append("circle").attr("r", 12);
 
   nodeGroups
     .filter((d: Vertex) => d.index !== undefined)
@@ -268,7 +287,7 @@ export function lattice(scale: Scale, synth: SynthHandle, opts: LatticeOpts = {}
         .append("text")
         .attr("class", "cents")
         .attr("text-anchor", "middle")
-        .attr("y", 30)
+        .attr("y", 26)
         .text(formatted);
       sel.append("title").text(`${iv.fraction.toFraction()} | ${formatted} from 12-TET`);
     });

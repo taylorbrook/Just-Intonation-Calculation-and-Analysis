@@ -17,10 +17,13 @@
  * @import is the simplest aggregation — Framework copies-through @import URLs
  * via Rollup; the browser resolves each @import as a real CSS sub-request.
  *
- * All theme tokens (var(--theme-blue), var(--monospace), etc.) come from
- * Framework's default.css which is auto-loaded — UI-SPEC color rule.
+ * Theme tokens are defined locally below: setting `style:` frontmatter
+ * REPLACES Framework's default stylesheet (which is where --theme-blue,
+ * --theme-foreground, --theme-background normally come from), so without
+ * these declarations every var(--theme-*) lookup resolves to invalid and
+ * fills fall back to black. Values mirror Framework's air (light) + coffee
+ * (dark) palettes so the look matches when toggling system theme.
  */
-
 @import "./components/play-buttons.css";
 @import "./components/scale-table.css";
 @import "./components/ratio-pill.css";
@@ -29,6 +32,34 @@
 @import "./components/keyboard.css";
 @import "./components/lattice.css";
 @import "./components/tonality-diamond.css";
+
+/* Theme tokens — kept after @import per CSS spec (imports must come first).
+ * Values mirror Framework's air (light) + coffee (dark) palettes so the look
+ * matches when toggling system theme. */
+:root {
+  --theme-foreground: #161616;
+  --theme-foreground-alt: #353535;
+  --theme-foreground-faint: #6b6b6b;
+  --theme-foreground-focus: #4269d0;
+  --theme-background: #ffffff;
+  --theme-background-alt: #f4f4f4;
+  --theme-blue: #4269d0;
+  --theme-green: #3ca951;
+  --theme-yellow: #efb118;
+  --theme-red: #ff725c;
+  --monospace: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans-serif: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --theme-foreground: #f4f4f4;
+    --theme-foreground-alt: #c5c5c5;
+    --theme-foreground-faint: #888888;
+    --theme-foreground-focus: #6c8ee3;
+    --theme-background: #140f0c;
+    --theme-background-alt: #1f1c19;
+  }
+}
 
 /* Phase 3 (D-17) — global iOS Safari auto-zoom suppression.
  * iOS Safari auto-zooms any input whose font-size is < 16px on focus. Set

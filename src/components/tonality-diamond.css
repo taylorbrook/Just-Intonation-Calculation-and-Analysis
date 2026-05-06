@@ -23,7 +23,7 @@
 svg.viz.diamond {
   width: 100%;
   height: auto;
-  max-width: 100%;
+  max-width: 720px;
   touch-action: none;
   display: block;
   background: var(--theme-background);
@@ -36,7 +36,7 @@ svg.viz.diamond .diamond-cell[role="button"] {
   cursor: pointer;
 }
 svg.viz.diamond .diamond-cell--in-scale rect {
-  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-blue) 40%, transparent);
   stroke: var(--theme-blue);
   stroke-width: 1.5;
 }
@@ -47,19 +47,19 @@ svg.viz.diamond .diamond-cell--out rect {
 }
 /* Prime-axis variants override the in-scale fill (D-22 — dominant-prime color). */
 svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-3 rect {
-  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-blue) 40%, transparent);
   stroke: var(--theme-blue);
 }
 svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-5 rect {
-  fill: color-mix(in oklab, var(--theme-green) 24%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-green) 40%, transparent);
   stroke: var(--theme-green);
 }
 svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-7 rect {
-  fill: color-mix(in oklab, var(--theme-orange) 24%, var(--theme-background));
-  stroke: var(--theme-orange);
+  fill: color-mix(in oklab, var(--theme-yellow) 40%, transparent);
+  stroke: var(--theme-yellow);
 }
 svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-default rect {
-  fill: color-mix(in oklab, var(--theme-foreground) 18%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-foreground) 22%, transparent);
   stroke: var(--theme-foreground);
 }
 svg.viz.diamond .diamond-cell[role="button"]:focus,

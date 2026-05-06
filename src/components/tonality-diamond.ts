@@ -41,10 +41,10 @@ export interface DiamondOpts {
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 
-const DEFAULT_WIDTH = 600;
-const DEFAULT_HEIGHT = 600; // square — diamond is rhombic-square
+const DEFAULT_WIDTH = 720;
+const DEFAULT_HEIGHT = 720; // square — diamond is rhombic-square
 const DEFAULT_AUDITION_DUR_SEC = 1.5; // matches Phase 2 D-18
-const CELL_SIZE = 40; // pixels per cell
+const CELL_SIZE = 36; // visual size of each cell rect
 
 // Auto-derivation presets (CONTEXT D-20).
 const ODD_LIMIT_PRESETS = [7, 9, 11, 13, 15, 21, 31] as const;
@@ -151,8 +151,21 @@ export function tonalityDiamond(
     }
   };
 
-  const width = opts.width ?? Math.min(DEFAULT_WIDTH, odds.length * CELL_SIZE + 80);
-  const height = opts.height ?? Math.min(DEFAULT_HEIGHT, odds.length * CELL_SIZE + 80);
+  // Diamond layout: cell at logical (row=numerator-rank, col=denominator-rank)
+  // is placed at isometric (col-row, col+row) so otonal cells (i/1) span up-right,
+  // utonal cells (1/j) span up-left, and the unison diagonal stacks vertically —
+  // forming a literal rhombus (Partch/Erlich tonality-diamond convention).
+  const N = odds.length;
+  const width = opts.width ?? DEFAULT_WIDTH;
+  const height = opts.height ?? DEFAULT_HEIGHT;
+  const padding = 40;
+  // STRIDE auto-scales to fit the diamond (which spans 2*(N-1) strides in both
+  // axes) inside the viewBox with margin. Capped so small odd-limits don't
+  // produce comically large cells.
+  const fitStride = Math.max(1, (Math.min(width, height) - 2 * padding) / Math.max(1, 2 * (N - 1)));
+  const STRIDE = Math.min(CELL_SIZE * 0.78, fitStride);
+  const cellRectSize = Math.min(CELL_SIZE, STRIDE * 1.28);
+  const halfSpan = (N - 1) * STRIDE;
 
   const svg = d3
     .create("svg")
@@ -162,11 +175,11 @@ export function tonalityDiamond(
     .attr("width", width)
     .attr("height", height);
 
-  const gridOriginX = (width - odds.length * CELL_SIZE) / 2;
-  const gridOriginY = (height - odds.length * CELL_SIZE) / 2;
-  const g = svg
-    .append("g")
-    .attr("transform", `translate(${String(gridOriginX)},${String(gridOriginY)})`);
+  // Center the diamond in the viewBox. Iso (col-row) ranges from -(N-1) to +(N-1),
+  // (col+row) ranges from 0 to 2*(N-1). Translate origin so iso(0,0) lands top-center.
+  const cx = width / 2;
+  const cy = (height - 2 * halfSpan) / 2;
+  const g = svg.append("g").attr("transform", `translate(${String(cx)},${String(cy)})`);
 
   // Cells.
   const cellGroups = g
@@ -182,7 +195,9 @@ export function tonalityDiamond(
     .attr("transform", (d: DiamondCell) => {
       const row = rankOf.get(d.numerator) ?? 0;
       const col = rankOf.get(d.denominator) ?? 0;
-      return `translate(${String(col * CELL_SIZE)},${String(row * CELL_SIZE)})`;
+      const x = (col - row) * STRIDE;
+      const y = (col + row) * STRIDE;
+      return `translate(${String(x)},${String(y)})`;
     })
     // Only in-scale cells are interactive auditions (D-22 + Plan 01 test contract:
     // first .diamond-cell[role="button"] must call synth.playNotes on click).
@@ -200,17 +215,22 @@ export function tonalityDiamond(
         `Play ${d.ratio.fraction.toFraction()}, ${d.inScale ? "in scale" : "not in scale"}`,
     );
 
+  // Cell rect is centered on its iso-translated origin so the diamond aligns
+  // symmetrically (otherwise cells anchor at top-left and break the rhombus).
+  const half = (cellRectSize - 2) / 2;
   cellGroups
     .append("rect")
-    .attr("width", CELL_SIZE - 2)
-    .attr("height", CELL_SIZE - 2)
+    .attr("x", -half)
+    .attr("y", -half)
+    .attr("width", cellRectSize - 2)
+    .attr("height", cellRectSize - 2)
     .attr("rx", 4);
 
   cellGroups
     .append("text")
     .attr("class", "ratio")
-    .attr("x", (CELL_SIZE - 2) / 2)
-    .attr("y", (CELL_SIZE - 2) / 2)
+    .attr("x", 0)
+    .attr("y", 0)
     .attr("text-anchor", "middle")
     .attr("dy", "0.35em")
     .text((d: DiamondCell) => `${String(d.numerator)}/${String(d.denominator)}`);

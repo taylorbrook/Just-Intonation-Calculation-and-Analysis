@@ -22,7 +22,7 @@
 svg.viz.keyboard {
   width: 100%;
   height: auto;
-  max-width: 100%;
+  max-width: 720px;
   touch-action: manipulation;
   display: block;
   background: var(--theme-background);
@@ -32,12 +32,12 @@ svg.viz.keyboard .keyboard__key {
   cursor: pointer;
 }
 svg.viz.keyboard .keyboard__key-rect {
-  fill: var(--theme-background);
-  stroke: color-mix(in oklab, var(--theme-foreground) 30%, transparent);
+  fill: color-mix(in oklab, var(--theme-foreground) 6%, transparent);
+  stroke: color-mix(in oklab, var(--theme-foreground) 35%, transparent);
   stroke-width: 1;
 }
 svg.viz.keyboard .keyboard__key--active .keyboard__key-rect {
-  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-blue) 40%, transparent);
   stroke: var(--theme-blue);
 }
 svg.viz.keyboard .keyboard__key:focus-visible,

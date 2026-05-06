@@ -32,7 +32,7 @@
 svg.viz.lattice {
   width: 100%;
   height: auto;
-  max-width: 100%;
+  max-width: 720px;
   touch-action: none; /* d3-zoom owns pinch — RESEARCH Pitfall #5 */
   display: block;
   background: var(--theme-background);
@@ -62,7 +62,7 @@ svg.viz.lattice .lattice-node[role="button"] {
 }
 
 svg.viz.lattice .lattice-node--in-scale circle {
-  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-blue) 40%, transparent);
   stroke: var(--theme-blue);
   stroke-width: 1.5;
 }
@@ -86,22 +86,22 @@ svg.viz.lattice .lattice-node[role="button"]:focus {
 /* Prime-axis variants (D-21) — dominant-prime color encodes the node fill.
  * Mirrors the .diamond-cell--axis-{N} cascade pattern Plan 05 will adopt. */
 svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-3 circle {
-  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-blue) 40%, transparent);
   stroke: var(--theme-blue);
 }
 
 svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-5 circle {
-  fill: color-mix(in oklab, var(--theme-green) 24%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-green) 40%, transparent);
   stroke: var(--theme-green);
 }
 
 svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-7 circle {
-  fill: color-mix(in oklab, var(--theme-orange) 24%, var(--theme-background));
-  stroke: var(--theme-orange);
+  fill: color-mix(in oklab, var(--theme-yellow) 40%, transparent);
+  stroke: var(--theme-yellow);
 }
 
 svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-default circle {
-  fill: color-mix(in oklab, var(--theme-foreground) 18%, var(--theme-background));
+  fill: color-mix(in oklab, var(--theme-foreground) 22%, transparent);
   stroke: var(--theme-foreground);
 }
 
