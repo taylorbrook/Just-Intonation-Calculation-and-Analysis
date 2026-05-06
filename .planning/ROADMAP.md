@@ -70,17 +70,19 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can see a scale's pitches mapped onto a piano-keyboard SVG with cents-offset labels
   4. User can export and re-import a `.kbm` keyboard mapping where `referenceKey ≠ middleNote` (the three named fields are explicit, never conflated)
   5. User can open the composition page on iPhone Safari, tap a play button, and hear the interval (mute switch and autoplay-policy quirks documented)
-**Plans**: 6 plans across 4 waves
+**Plans**: 7 plans across 5 waves (incl. gap closure)
   - Wave 1: 03-01 (setup: install d3, scaffold tests, seed kbm fixtures)
   - Wave 2 (parallel): 03-02 (kbm.ts + diamond.ts kernels), 03-03 (synth.ts mobile-Safari fixes)
   - Wave 3 (parallel): 03-04 (lattice component), 03-05 (tonality-diamond + keyboard components)
   - Wave 4: 03-06 (extend sclIo + integrate dashboard + INVENTORY + mobile-audit.md + human verify)
+  - Wave 5 (gap closure): 03-07 (CR-01 diamond layout fix + CR-02 arpeggio panic fix + mobile-audit footer signature)
   - [x] 03-01-PLAN.md — Wave 0 setup: install d3@7.9.0 + @types/d3, extend vitest test glob, scaffold 5 RED test files, seed 4 .kbm fixtures (VIZ-01, VIZ-02, VIZ-03, IO-03, AUDIO-06)
   - [x] 03-02-PLAN.md — kbm.ts (parseKbm/writeKbm/kbmToFrequencies/defaultKbmFor/KbmMapping) + diamond.ts (enumerateDiamond) — pure-data kernel modules (IO-03, VIZ-02)
   - [x] 03-03-PLAN.md — synth.ts mobile-Safari fixes: navigator.audioSession.type='playback', sync ctx.resume(), visibilitychange listener with cleanup (AUDIO-06)
   - [x] 03-04-PLAN.md — lattice.ts component: D3 + ji-lattice 2D viz + d3.zoom + click-to-audition + deriveLatticeBasis (VIZ-01)
   - [x] 03-05-PLAN.md — tonality-diamond.ts + keyboard.ts components: hand-laid SVG + d3.zoom (diamond) + pointerdown/up sustain (keyboard) (VIZ-02, VIZ-03)
   - [x] 03-06-PLAN.md — Integration: extend sclIo (.scl + .kbm), wire dashboard cells (Esc + Stop + effectiveBaseHz + viz widgets), styles.css updates, INVENTORY.md, mobile-audit.md, human-verify on Safari RDM (VIZ-01, VIZ-02, VIZ-03, IO-03, AUDIO-06)
+  - [ ] 03-07-PLAN.md — Gap closure: preserve (i, j) on DiamondCell + use it in tonality-diamond layout (CR-01); track arpeggio setTimeout queue + clear on panic/dispose (CR-02); backfill mobile-audit.md verifier/date footer; +3 regression tests (VIZ-02, AUDIO-06)
 **UI hint**: yes
 
 ### Phase 4: Analysis & Sharing
