@@ -1,0 +1,138 @@
+/*
+ * scale-compare.css — A vs B comparison widget (Phase 4 ANAL-03).
+ * Phase 3 D-25 colocation. Loaded via @import in src/styles.css (Plan 04-07).
+ * D-33 colors: A=#4269d0 (blue, --theme-blue), B=#ef8e3a (orange, color-blind-safe).
+ */
+
+.scale-compare {
+  margin-block: 16px;
+}
+
+.scale-compare h2 {
+  font-family: var(--sans-serif);
+  font-size: 18px;
+  margin-block: 0 8px;
+}
+
+.scale-compare__b-source {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.scale-compare__b-source label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  color: var(--theme-foreground-alt);
+}
+
+.scale-compare__b-source select {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  padding: 4px 8px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+  border: 1px solid var(--theme-foreground-faint);
+  border-radius: 3px;
+}
+
+.scale-compare__b-input {
+  margin-bottom: 12px;
+}
+
+.scale-compare__b-input textarea {
+  width: 100%;
+  min-height: 100px;
+  font-family: var(--monospace);
+  font-size: 16px; /* iOS-safe — does not trigger zoom-on-focus. */
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+  border: 1px solid var(--theme-foreground-faint);
+  border-radius: 3px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.scale-compare__import-btn {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  padding: 6px 12px;
+  min-height: 36px;
+  background: var(--theme-background-alt);
+  color: var(--theme-foreground);
+  border: 1px solid var(--theme-foreground-faint);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.scale-compare__plot {
+  margin-block: 12px;
+  min-height: 140px;
+}
+
+.scale-compare__table-wrap {
+  overflow-x: auto;
+}
+
+.scale-compare table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--monospace);
+  font-size: 14px;
+}
+
+.scale-compare thead th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--theme-foreground-faint);
+  font-family: var(--sans-serif);
+  font-weight: 600;
+  color: var(--theme-foreground-alt);
+}
+
+.scale-compare tbody td {
+  padding: 8px 12px;
+  min-height: 44px; /* iOS tap-target — Phase 3 D-17. */
+  box-sizing: border-box;
+  border-bottom: 1px solid color-mix(in oklab, var(--theme-foreground-faint) 50%, transparent);
+}
+
+.scale-compare__row--match {
+  background: color-mix(in oklab, var(--theme-green) 12%, var(--theme-background));
+}
+
+.scale-compare__summary {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  margin-top: 12px;
+  color: var(--theme-foreground-alt);
+}
+
+.scale-compare__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 18px;
+  margin-top: 8px;
+}
+
+.scale-compare__audition {
+  padding: 4px 10px;
+  min-height: 30px;
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  background: var(--theme-background-alt);
+  color: var(--theme-foreground);
+  border: 1px solid var(--theme-foreground-faint);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.scale-compare__audition:hover {
+  background: color-mix(in oklab, var(--theme-blue) 10%, var(--theme-background-alt));
+}
