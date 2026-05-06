@@ -146,6 +146,79 @@ describe("alignment + common-subset (Tests 8, 9)", () => {
     expect(rows.length).toBe(seedA().intervals.length);
     expect(rows.length).toBe(7);
   });
+
+  it("Test 9d (BL-02 regression): BigInt-exact match in B wins over an inexact B at the same float-cents", () => {
+    // D-32 / Pitfall #1 contract: common-subset is BigInt-rational, NEVER
+    // cents-tolerance. The OLD single-pass align() picks cents-nearest then
+    // checks `aIv.equals(best)` post-hoc. With strict-< tie-breaking, a
+    // non-equal B[0] and an equal B[1] at IDENTICAL float-cents would both
+    // report `bestDist === 0`; the loop's `0 < 0` is false, so it keeps B[0]
+    // and reports exactMatch=false (the bug).
+    //
+    // To force two distinct fractions to share an identical float-cents value,
+    // exploit BigInt → Number precision loss in Interval.cents (the getter
+    // does `1200 * Math.log2(Number(fraction.valueOf()))`). For numerators
+    // above 2^53, distinct BigInt values collapse to the same Number, so
+    // distinct Fractions yield IDENTICAL float-cents.
+    //
+    //   A    = (2^53 + 1) / 1
+    //   B[0] = (2^53 + 2) / 1   ← NOT BigInt-equal to A; same float-cents.
+    //   B[1] = (2^53 + 1) / 1   ← BigInt-equal to A; same float-cents.
+    //   period = 2/1            ← B's period (Scale's CR-01 needs > 1/1).
+    //
+    // OLD: best = B[0]; loop sees d === bestDist === 0 → strict `<` keeps
+    //      B[0] → reports B[0] as the match, exactMatch=false. Common-subset
+    //      undercount by 1.
+    // NEW: Pass-1 BigInt search finds B[1] → exactMatch=true, |Δ¢|=0.
+    const big1 = (2n ** 53n + 1n).toString() + "/1";
+    const big2 = (2n ** 53n + 2n).toString() + "/1";
+    const a = new Interval(big1);
+    const b0 = new Interval(big2);
+    const b1 = new Interval(big1);
+    const period = new Interval("2/1");
+
+    // Sanity guard for the precision-drift premise. Without these properties
+    // the test would be exercising an unrelated case.
+    expect(a.cents).toBe(b0.cents);
+    expect(a.cents).toBe(b1.cents);
+    expect(a.equals(b0)).toBe(false);
+    expect(a.equals(b1)).toBe(true);
+
+    const scaleA = new Scale([a, period]);
+    const customB = new Scale([b0, b1, period]);
+
+    // BUILTIN_B_SCALES is a plain Record (no Object.freeze), so register a
+    // temporary preset for the test's lifetime then unregister in `finally`.
+    // This is the only public path to inject a hand-crafted scaleB into
+    // scaleCompare; the paste/import paths funnel through parseScala which
+    // doesn't accept the (2^53 + k)-magnitude numerator we need.
+    BUILTIN_B_SCALES["__bl02_test__"] = (): Scale => customB;
+    try {
+      const el = scaleCompare(scaleA, makeStubSynth(), {
+        defaultPreset: "__bl02_test__",
+      });
+      document.body.appendChild(el);
+      try {
+        const rows = el.querySelectorAll("tbody tr");
+        // Row 1 = A's big1 interval. NEW: aligns to B[1] (BigInt-equal) →
+        // exactMatch class set. OLD: aligns to B[0] (non-equal) → no class.
+        const row1 = rows[0]!;
+        expect(row1.classList.contains("scale-compare__row--match")).toBe(true);
+
+        // Common subset includes both BigInt-equal pairs (a/b1 and the period)
+        // → 2. Old algorithm reports 1 (only the period passes the post-hoc
+        // `aIv.equals(best)` check).
+        const summaryText = el.querySelector(".scale-compare__summary")?.textContent ?? "";
+        const m = /Common subset:\s*(\d+)/.exec(summaryText);
+        const count = m ? parseInt(m[1]!, 10) : 0;
+        expect(count).toBe(2);
+      } finally {
+        document.body.removeChild(el);
+      }
+    } finally {
+      delete BUILTIN_B_SCALES["__bl02_test__"];
+    }
+  });
 });
 
 describe("CR-02 panic-clear discipline (Tests 10, 13)", () => {

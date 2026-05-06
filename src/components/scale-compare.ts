@@ -128,9 +128,16 @@ interface AlignedRow {
 }
 
 /**
- * Cents-position alignment (D-23). For each A degree, find the nearest-cents B
+ * Cents-position alignment (D-23). For each A degree, find the matching B
  * degree. Some B degrees may be re-used; some may be unmatched. Index-pairing
  * is NOT used (musically meaningless across different sizes).
+ *
+ * BL-02 two-pass: BigInt-exact equality (D-32 / Pitfall #1) wins UNCONDITIONALLY.
+ * Common-subset detection is supposed to be exact-rational; if a B interval has
+ * the same prime-factorization as A, that is the match — even when a different
+ * B interval happens to be closer in floating-point cents (e.g. 81/80 ~21¢ vs
+ * A's 64/63 ~27¢ would beat B's own exact 64/63 ~27¢ by ~6¢ in a cents-only
+ * comparison). Cents-nearest is used only as a fallback for the inexact case.
  */
 function align(a: Scale, b: Scale): AlignedRow[] {
   return a.intervals.map((aIv, i) => {
@@ -143,6 +150,18 @@ function align(a: Scale, b: Scale): AlignedRow[] {
         exactMatch: false,
       };
     }
+    // Pass 1: BigInt-exact match wins unconditionally (D-32 / Pitfall #1).
+    const exact = b.intervals.find((bIv) => aIv.equals(bIv));
+    if (exact) {
+      return {
+        aDegree: i + 1,
+        aInterval: aIv,
+        bMatch: exact,
+        centsDelta: 0,
+        exactMatch: true,
+      };
+    }
+    // Pass 2: nearest-cents fallback for the inexact case.
     let best = b.intervals[0]!;
     let bestDist = Math.abs(aIv.cents - best.cents);
     for (let j = 1; j < b.intervals.length; j++) {
@@ -158,7 +177,7 @@ function align(a: Scale, b: Scale): AlignedRow[] {
       aInterval: aIv,
       bMatch: best,
       centsDelta: bestDist,
-      exactMatch: aIv.equals(best), // BigInt — D-32, Pitfall #1
+      exactMatch: false,
     };
   });
 }
