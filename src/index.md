@@ -18,6 +18,7 @@ import { lattice } from "./components/lattice.js";
 import { tonalityDiamond } from "./components/tonality-diamond.js";
 import { keyboard } from "./components/keyboard.js";
 import { kbmToFrequencies, type KbmMapping } from "./lib/kbm.js";
+import { encodeScaleToHash, decodeHashToScale } from "./lib/url.js";
 ```
 
 ```ts
@@ -44,16 +45,36 @@ invalidation.then(() => {
 ```
 
 ```ts
+// Phase 4 ANAL-04 (D-19): hash-read at boot. When `#s=...` decodes successfully,
+// it overrides the seed scale silently (no banner). Malformed hash falls back to
+// the seed and surfaces a status-region message via the `dashboardHashError` cell
+// below per D-20 (the malformed hash is NOT cleared — user can copy for debugging).
+const hashRaw = typeof window !== "undefined" && window.location.hash.startsWith("#s=")
+  ? window.location.hash.slice(3)
+  : "";
+const hashDecoded = hashRaw ? decodeHashToScale(hashRaw) : null;
+const dashboardHashError = (hashRaw && hashDecoded === null)
+  ? "Couldn't load shared scale: malformed or oversized hash. Falling back to default."
+  : null;
+```
+
+```ts
 // Seed scale per D-02 — 7-limit JI heptatonic, baked in as a constant. 1/1 is
 // auto-prepended by parseScala (D-13) so we list only non-unison pitches; the
 // last line is the period (D-14).
-const seedText = `9/8
+const seedTextLiteral = `9/8
 5/4
 21/16
 3/2
 27/16
 7/4
 2/1`;
+```
+
+```ts
+// Phase 4 ANAL-04 (D-19): defer to hash-decoded value when present; else use the
+// literal seed. Downstream textarea cell reads `seedText` unchanged from Phase 2.
+const seedText = hashDecoded ?? seedTextLiteral;
 ```
 
 ```ts
@@ -90,6 +111,40 @@ if (parseError) {
   display(html`<div class="dashboard-error">Couldn't parse: ${parseError}</div>`);
 } else if (scale) {
   display(scaleTable(scale, baseHz, { copyButton: true }));
+}
+```
+
+```ts
+// Phase 4 ANAL-04 (D-20): status region for hash-decode failure. Hardcoded
+// message string; createElement + textContent (NEVER innerHTML) per T-04-13.
+if (dashboardHashError) {
+  const div = document.createElement("div");
+  div.setAttribute("role", "status");
+  div.setAttribute("aria-live", "polite");
+  div.className = "dashboard-error";
+  div.textContent = dashboardHashError;
+  display(div);
+}
+```
+
+```ts
+// Phase 4 ANAL-04 (D-17 / D-26): debounced 300ms hash-write. replaceState (NOT
+// pushState) so back-button history stays clean. Encoder caps at 8 KB (Plan 04-03);
+// RangeError → console.warn + skip (no UI surfacing for the dashboard — the URL
+// just doesn't update for huge inputs). T-04-40 mitigation.
+{
+  let timer = null;
+  const flush = () => {
+    try {
+      const hash = "#s=" + encodeScaleToHash(scaleText);
+      history.replaceState(null, "", hash);
+    } catch (err) {
+      console.warn("encodeScaleToHash failed:", err);
+    }
+  };
+  clearTimeout(timer);
+  timer = setTimeout(flush, 300);
+  invalidation.then(() => clearTimeout(timer));
 }
 ```
 
@@ -134,6 +189,29 @@ if (scale) {
     // which drives the override toggle visibility and effectiveBaseHz.
     onImportKbm: (kbm) => { importedKbm.value = kbm; },
   }));
+}
+```
+
+```ts
+// Phase 4 ANAL-04 (D-04): one-click navigation to /analysis with the current
+// scale encoded into the hash. Catches encoder RangeError on > 8 KB; falls back
+// to plain navigation (the analysis page will then load its own seed).
+{
+  const btn = document.createElement("button");
+  btn.className = "play-btn";
+  btn.type = "button";
+  btn.textContent = "Analyze this scale →";
+  btn.setAttribute("aria-label", "Open the analysis page seeded with the current scale.");
+  btn.addEventListener("click", () => {
+    try {
+      const hash = "#s=" + encodeScaleToHash(scaleText);
+      window.location.assign("./pages/analysis" + hash);
+    } catch (err) {
+      console.warn("encodeScaleToHash failed:", err);
+      window.location.assign("./pages/analysis");
+    }
+  });
+  display(btn);
 }
 ```
 

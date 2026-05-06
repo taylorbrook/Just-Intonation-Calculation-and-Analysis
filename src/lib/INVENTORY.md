@@ -103,3 +103,40 @@ Note: components live in `src/components/` (not `src/lib/`), but they are listed
 |--------|--------|-------|
 | `keyboard` (factory, `src/components/keyboard.ts`) | Custom (this repo) | DOM factory `(scale, synth, baseHz, opts?) => HTMLElement` per D-08 / D-09. Linear-by-degree mapping (D-03): N scale degrees → N adjacent white keys; period-boundary marker (vertical dashed line) after the last key. `pointerdown` → `synth.playNote` returns a release callback held in closure-local `release`; `pointerup` / `pointerleave` / `pointercancel` ALL invoke release (T-3-19); re-entrant guard `if (release) return` (T-3-20) prevents voice stacking. `aria-pressed` mirrors held state. Enter/Space → fire-and-forget short note (no Enter-up analog). Single-note audition only — does NOT expose `opts.audition` per RESEARCH OQ3. Plain DOM via `createElementNS` (no d3 dependency for a simple key strip). VIZ-03 / D-04. |
 | `KeyboardOpts` (interface, `src/components/keyboard.ts`) | Custom (this repo) | `{ precision?=1 (0.1¢ per Pitfall #16), keyWidth?=60 }`. Cents-from-12tet labels formatted with U+2212 minus per UI-SPEC. VIZ-03 / D-23. |
+
+## Phase 4 entries
+
+### Phase 4 — EDO ↔ JI mapping kernel (Plan 04-01 / ANAL-01)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `bestEdosForScale` (`src/lib/edo.ts`) | Custom (this repo) | ANAL-01 / D-05/D-06/D-09. Per-EDO max/RMS/Tenney-weighted error rows; consumer re-sorts on column-header click. range.min ≥ 5 (D-07), range.max ≤ 1000 (defense-in-depth — T-04-01). Uses `iv.cents` (display projection — Pitfall #1 acknowledged at the call boundary). |
+| `bestJiInEdo` (`src/lib/edo.ts`) | Custom (this repo) — wraps `jiSubsetOfEdo` for the prime-limit branch | ANAL-01 / D-08. Two branches: `kind='prime'` delegates to Phase 2 SCALE-05; `kind='odd'` runs the new oddLimitApproximation search. oddLimit ≤ 31 cap (T-04-02). |
+| `oddLimitApproximation` (`src/lib/edo.ts`) | Custom (this repo) | ANAL-01 / D-08. Hand-written enumeration — for each odd `i, j ∈ [1, oddLimit]`, build `i/j`, octave-reduce, track closest-by-cents to the target. ~30 LOC per CONTEXT line 220. |
+
+### Phase 4 — MOS construction kernel (Plan 04-02 / ANAL-02)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `buildMos` (`src/lib/mos.ts`) | Custom (this repo) | ANAL-02 / D-11/D-12/D-29. Hand-rolled per D-11 (NOT `moment-of-symmetry` — peer-dep risk against `xen-dev-utils@0.13`; ~80 LOC of standard generator-stacking + period-reduce + sort + dedupe). Period-aware via `Interval.octaveReduce(period)` (Pitfall #13). Period > 1/1 enforced (D-29 + Phase 2 CR-01). |
+| `nearestMosSize` (`src/lib/mos.ts`) | Custom (this repo) | ANAL-02 / D-13. Stern-Brocot continued-fraction convergents of `log(generator) / log(period)`. Capped at 16 convergents (sufficient for any practical generator). For (3/2, 2/1) emits the standard sequence 2, 3, 5, 7, 12, 17, 29, 41, 53. |
+
+### Phase 4 — URL hash encode/decode (Plan 04-03 / ANAL-04)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `encodeScaleToHash` (`src/lib/url.ts`) | Custom (this repo) | ANAL-04 / D-15/D-16. Base64 URL-safe per RFC 4648 §5 (`+/` → `-_`, no padding). Prepends version byte (URL_HASH_VERSION = 0x01) for forward-compat. RangeError on > 8 KB plaintext (T-04-16 / MAX_SCALE_TEXT_BYTES). |
+| `decodeHashToScale` (`src/lib/url.ts`) | Custom (this repo) | ANAL-04 / D-19/D-20. NEVER throws — returns null on any failure (malformed alphabet, bad base64, malformed UTF-8 via `TextDecoder({fatal:true})`, wrong version byte, oversized hash > 16 KB). The page cell surfaces the error in the status region. |
+| `URL_HASH_VERSION` (`src/lib/url.ts`) | Custom (this repo) | Forward-compat hook (CONTEXT "deferred" — tiered URL scope is a future expansion). Currently 0x01. |
+| `MAX_SCALE_TEXT_BYTES` (`src/lib/url.ts`) | Custom (this repo) | 8192 (8 KB plaintext cap; encoded ≤ ~10.7 KB; decoder cap is 16 KB defense-in-depth — T-04-11). |
+
+### Phase 4 — analysis components (Plans 04-04/05/06)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `edoJitTable` (`src/components/edo-jit-table.ts`) | Custom (this repo) | ANAL-01 / D-09/D-10. Sortable scale→EDO table with click-to-arpeggiate-the-scale-in-this-EDO. Three sortable error columns (D-06). Pattern 2 factory `(scale, synth, opts?) => HTMLElement`. |
+| `edoJiTable` (`src/components/edo-ji-table.ts`) | Custom (this repo) | ANAL-01 / D-08/D-09. Per-step JI approximation with prime/odd toggle + limit input clamp [1, 31]. Status region surfaces clamp messages (T-04-19). |
+| `mosBuilder` (`src/components/mos-builder.ts`) | Custom (this repo) | ANAL-02 / D-11..D-14/D-28/D-29. n/d ratio inputs (D-12 — cents-defined deferred). Snap toggle default ON (D-13). Reuses scaleTable + playScale for output (D-14 — fungible Scale). Degenerate inputs surface in status region (D-29). |
+| `scaleCompare` (`src/components/scale-compare.ts`) | Custom (this repo) | ANAL-03 / D-21..D-24/D-27/D-30/D-32/D-33. Three B-sources (preset / paste / .scl). Cents-position alignment (D-23). Common-subset via Interval.equals (BigInt — D-32 / Pitfall #1). Per-row sequential A→B audition (D-30). Observable Plot lollipop (D-24). |
+| `BUILTIN_B_SCALES` (`src/components/scale-compare.ts`) | Custom (this repo) | D-27 — six built-ins: 12tet, 19edo, 31edo, pythagorean-7, 5-limit-7, bohlen-pierce-9. Plain `Record<string, () => Scale>`; lazy construction so the dropdown's "12tet" only allocates a Scale on selection. |
+| `disposeScaleCompare` (`src/components/scale-compare.ts`) | Custom (this repo) | Phase 3 CR-02 panic-clear discipline carried into Phase 4. Page cells call this in `invalidation.then(...)` to drop pending B-note audition setTimeouts and remove the local Esc keydown listener. |
