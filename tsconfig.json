@@ -32,15 +32,13 @@
   // / `npm run ci`. Vitest uses its own resolver and still fails the tests at
   // runtime with module-not-found — the intended Wave-0 RED state.
   // REMOVE each excluded path as the corresponding Plan lands its module:
-  //   kbm.test.ts + diamond.test.ts → Plan 02
-  //   lattice.test.ts + tonality-diamond.test.ts → Plan 04
-  //   keyboard.test.ts → Plan 05
+  //   kbm.test.ts + diamond.test.ts → Plan 02 (DONE)
+  //   lattice.test.ts → Plan 04
+  //   tonality-diamond.test.ts + keyboard.test.ts → Plan 05 (DONE here)
   "exclude": [
     "node_modules",
     "dist",
     ".observablehq",
-    "src/components/__tests__/lattice.test.ts",
-    "src/components/__tests__/tonality-diamond.test.ts",
-    "src/components/__tests__/keyboard.test.ts"
+    "src/components/__tests__/lattice.test.ts"
   ]
 }

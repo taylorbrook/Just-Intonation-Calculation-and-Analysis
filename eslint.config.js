@@ -18,11 +18,11 @@ export default tseslint.config(
       "src/**/*.md",
       // Wave-0 RED stubs (Plan 03-01) — modules under test don't exist yet.
       // tsconfig.json also excludes these; both gates reactivate when the
-      // corresponding Plan lands its module (04 → lattice/tonality-diamond,
-      // 05 → keyboard). Vitest still discovers + RED-fails them.
+      // corresponding Plan lands its module:
+      //   - Plan 04 → lattice
+      //   - Plan 05 → tonality-diamond + keyboard (DONE here, removed)
+      // Vitest still discovers + RED-fails the remaining ones.
       "src/components/__tests__/lattice.test.ts",
-      "src/components/__tests__/tonality-diamond.test.ts",
-      "src/components/__tests__/keyboard.test.ts",
     ],
   },
   // Type-checked baseline applied ONLY to src/ TypeScript and JavaScript files.
