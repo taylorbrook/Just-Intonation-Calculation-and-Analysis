@@ -47,7 +47,7 @@ Declared values (multiples of 4, all members of the standard set {4, 8, 16, 24, 
 **Exceptions:**
 - **Touch targets ≥ 44×44px** (per D-16, mobile audit): floating Stop button, keyboard widget keys, lattice/diamond click hit-areas. The floating Stop button uses padding to reach 44×44 even when the visible chrome is smaller.
 - **Viewport padding on narrow screens** = 16px (`lg` token) per D-17, implemented via the dashboard wrapper, not added per-widget.
-- **Inline-text spacing** in `.ratio-pill` uses 2–4px gaps (sub-grid; intentional inline-flex baseline alignment).
+- **Inline-text spacing** in `.ratio-pill` uses `4px` gaps (the `xs` token; sub-grid inline-flex baseline alignment for tight glyph pairs).
 
 ---
 
