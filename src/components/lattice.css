@@ -1,0 +1,120 @@
+/* lattice.css — D3 + ji-lattice 2D viz for VIZ-01.
+ *
+ * Theme tokens only (UI-SPEC color contract). Prime-axis colors map to
+ * --theme-blue (3), --theme-green (5), --theme-orange (7). Primes ≥ 11
+ * gracefully fall back to --theme-foreground (D-21).
+ *
+ * `touch-action:none` on the SVG so d3-zoom owns pinch gestures on iOS
+ * Safari (RESEARCH Pitfall #5; verified by d3-zoom 7.x docs).
+ */
+
+.lattice-widget {
+  margin-block: 32px; /* 2xl spacing token between viz sections per UI-SPEC */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lattice-widget h2 {
+  margin: 0 0 8px 0;
+}
+
+.lattice-widget .dashboard-helper {
+  margin: 0;
+}
+
+.lattice-empty {
+  color: var(--theme-foreground-alt);
+  font-style: normal; /* per Phase 3 typography forbid italic — use color discriminator */
+  margin: 0;
+}
+
+svg.viz.lattice {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  touch-action: none; /* d3-zoom owns pinch — RESEARCH Pitfall #5 */
+  display: block;
+  background: var(--theme-background);
+}
+
+svg.viz.lattice .edge {
+  stroke: color-mix(in oklab, var(--theme-foreground) 30%, transparent);
+  stroke-width: 1;
+  fill: none;
+}
+
+svg.viz.lattice .edge.edge-auxiliary {
+  stroke-dasharray: 2 3;
+  opacity: 0.5;
+}
+
+svg.viz.lattice .edge.edge-gridline {
+  stroke: color-mix(in oklab, var(--theme-foreground) 12%, transparent);
+}
+
+svg.viz.lattice .lattice-node {
+  cursor: default;
+}
+
+svg.viz.lattice .lattice-node[role="button"] {
+  cursor: pointer;
+}
+
+svg.viz.lattice .lattice-node--in-scale circle {
+  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  stroke: var(--theme-blue);
+  stroke-width: 1.5;
+}
+
+svg.viz.lattice .lattice-node--neighbor circle {
+  fill: var(--theme-background);
+  stroke: color-mix(in oklab, var(--theme-foreground) 30%, transparent);
+  stroke-width: 1;
+}
+
+svg.viz.lattice .lattice-node[role="button"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+svg.viz.lattice .lattice-node[role="button"]:focus {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* Prime-axis variants (D-21) — dominant-prime color encodes the node fill.
+ * Mirrors the .diamond-cell--axis-{N} cascade pattern Plan 05 will adopt. */
+svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-3 circle {
+  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  stroke: var(--theme-blue);
+}
+
+svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-5 circle {
+  fill: color-mix(in oklab, var(--theme-green) 24%, var(--theme-background));
+  stroke: var(--theme-green);
+}
+
+svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-7 circle {
+  fill: color-mix(in oklab, var(--theme-orange) 24%, var(--theme-background));
+  stroke: var(--theme-orange);
+}
+
+svg.viz.lattice .lattice-node--in-scale.lattice-node--axis-default circle {
+  fill: color-mix(in oklab, var(--theme-foreground) 18%, var(--theme-background));
+  stroke: var(--theme-foreground);
+}
+
+svg.viz.lattice .ratio {
+  font-family: var(--monospace);
+  font-size: 13px;
+  fill: var(--theme-foreground);
+  pointer-events: none; /* clicks pass through to the parent <g> */
+}
+
+svg.viz.lattice .cents {
+  font-family: var(--monospace);
+  font-size: 11px;
+  fill: var(--theme-foreground-alt);
+  pointer-events: none;
+}
