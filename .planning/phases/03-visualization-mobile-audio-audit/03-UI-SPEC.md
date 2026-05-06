@@ -33,21 +33,20 @@ created: 2026-05-05
 
 ## Spacing Scale
 
-Declared values (multiples of 4, matching Phase 2 conventions):
+Declared values (multiples of 4, all members of the standard set {4, 8, 16, 24, 32, 48, 64}):
 
 | Token | Value | Usage |
 |-------|-------|-------|
 | xs | 4px | Inline padding, icon gaps, tight glyph spacing |
-| sm | 8px | Compact element spacing, button-internal padding (vertical) |
-| md | 12px | Default row gaps, button-internal padding (horizontal) |
-| lg | 16px | Default block spacing, viewport padding on narrow screens |
+| sm | 8px | Compact element spacing, button-internal padding (vertical), default row gaps |
+| lg | 16px | Default block spacing, button-internal padding (horizontal), viewport padding on narrow screens |
 | xl | 24px | Section padding (`.audio-panel`, `.scl-io`, viz widget block margins) |
 | 2xl | 32px | Major section breaks between viz widgets on dashboard |
 | 3xl | 48px | Reserved (no current Phase 3 use) |
 
 **Exceptions:**
 - **Touch targets ≥ 44×44px** (per D-16, mobile audit): floating Stop button, keyboard widget keys, lattice/diamond click hit-areas. The floating Stop button uses padding to reach 44×44 even when the visible chrome is smaller.
-- **Viewport padding on narrow screens** = 12–16px (per D-17), implemented via the dashboard wrapper, not added per-widget.
+- **Viewport padding on narrow screens** = 16px (`lg` token) per D-17, implemented via the dashboard wrapper, not added per-widget.
 - **Inline-text spacing** in `.ratio-pill` uses 2–4px gaps (sub-grid; intentional inline-flex baseline alignment).
 
 ---
@@ -63,8 +62,10 @@ Sizes are 4 declared steps; weights are 2. Matches Phase 2; new viz widgets MUST
 | Numeric / monospace | 14px | 400 | 1.5 | `var(--monospace)` — used for ratios, cents, frequencies, filenames |
 | Heading (h2) | inherits Framework default (~20px) | 600 | 1.2 | `var(--sans-serif)` |
 
+**Caption vs. body hierarchy contract:** caption (13px) and body (14px) are only 1px apart. To make the difference read as hierarchy rather than as inconsistency, helper/caption text MUST carry a non-size distinction in addition to the smaller size. Implementation: caption-role text uses the existing `.dashboard-helper` class which applies `color: var(--theme-foreground-alt)`. Captions MUST NOT appear at the same color as body. (Weight stays 400 for both; color is the discriminator.) This rule applies to: helper text under viz headings, the iOS mute-switch hint, the "Use baseHz instead" toggle helper, SVG cents-from-12tet labels.
+
 **Phase 3 specifics:**
-- **SVG text labels** (lattice node labels, diamond cell labels, keyboard cents-from-12tet labels): 11–13px in `var(--monospace)`. Cents labels show signed values at **0.1¢ precision** per Phase 2 D-06 and Pitfall #16 (e.g., `+3.9¢`, `−13.7¢`).
+- **SVG text labels** (lattice node labels, diamond cell labels, keyboard cents-from-12tet labels): 11–13px in `var(--monospace)`. Cents labels show signed values at **0.1¢ precision** per Phase 2 D-06 and Pitfall #16 (e.g., `+3.9¢`, `−13.7¢`). Cents-deviation labels MUST use `var(--theme-foreground-alt)` (caption color) so they read as secondary annotation, consistent with the caption/body hierarchy contract above.
 - **Inputs MUST be `font-size: 16px` minimum on iOS** to suppress Safari's auto-zoom-on-focus (D-17). Apply via media query targeting `@supports (-webkit-touch-callout: none)` OR globally — global is simpler and harmless on desktop. Override the existing 14px in `audio-panel__select`, `scl-io__filename`, baseHz number input only on touch devices, OR raise all inputs to 16px globally (recommended for simplicity).
 - **Heading line-height 1.2** for the dashboard h2s ("Audio", "Lattice", "Tonality diamond", "Keyboard", "Scala / KBM I/O").
 
@@ -150,6 +151,8 @@ Phase 3 introduces three new widgets, extends `sclIo`, and adds the Stop-all-aud
 
 ## Component Inventory (Phase 3)
 
+**Page-level focal point:** Primary visual anchor on page load = the Audio panel (topmost interactive widget); viz widgets enter the viewport on scroll. The dashboard is intentionally a scrollable research notebook — there is no above-the-fold "hero" beyond the audio controls. Lattice, diamond, and keyboard are revealed in document order as the user scrolls. The floating Stop-all-audio button is a fixed-position recovery affordance, not a focal element — it appears only when `synth.activeVoices > 0`.
+
 | Component | Type | New / Extended | File | Theme tokens used |
 |-----------|------|----------------|------|-------------------|
 | `lattice` | viz widget (D3 SVG + ji-lattice coords) | new | `src/components/lattice.ts` + `lattice.css` | `--theme-background`, `--theme-foreground`, `--theme-blue/green/orange`, `--monospace`, `--sans-serif` |
@@ -204,7 +207,7 @@ Phase 3 introduces three new widgets, extends `sclIo`, and adds the Stop-all-aud
 - **Status region:** single `role="status" aria-live="polite"` (existing). Messages exact per copywriting table.
 
 ### Floating "Stop all audio" button (D-16)
-- **Position:** `position: fixed; top: 16px; right: 16px;` on desktop. On narrow screens (`max-width: 480px`), `top: 12px; right: 12px;` with same 44×44 minimum.
+- **Position:** `position: fixed; top: 16px; right: 16px;` on desktop. On narrow screens (`max-width: 480px`), `top: 16px; right: 16px;` with same 44×44 minimum. (Single 16px value matches the `lg` viewport-padding token; no narrow-screen exception needed.)
 - **Visibility:** controlled by a reactive `Mutable<boolean>` keyed off `synth.activeVoices > 0`. When zero, `display: none`. When `> 0`, `display: inline-flex`. (Per D-16; uses existing `synth.activeVoices` getter from Phase 2 INVENTORY.)
 - **Esc keybinding:** bound in the synth cell with `document.addEventListener('keydown', ...)` + `invalidation.then(() => removeEventListener)` cleanup (Pitfall #11).
 - **Visual:** red outline + red text by default; inverts to white-on-red on hover/focus to convey urgency without being garish.
@@ -221,6 +224,7 @@ Phase 3 introduces three new widgets, extends `sclIo`, and adds the Stop-all-aud
 - **Single-column, full-width** below the page's natural max-width. No `@media (min-width:)` breakpoints introduced in Phase 3.
 - **Viewport meta:** confirm `<meta name="viewport" content="width=device-width, initial-scale=1">` is present in Framework's HTML shell (it is — Framework default).
 - **Inputs `font-size: 16px`** globally to prevent iOS auto-zoom.
+- **Viewport padding** = 16px (`lg` token) at all widths. No narrow-screen reduction.
 - **No horizontal overflow** at viewport widths ≥ 320px. Each viz SVG must shrink gracefully via `width: 100%` + `preserveAspectRatio`.
 - **Touch targets** for keyboard widget keys, lattice/diamond clickable nodes/cells, Stop button: ≥ 44×44px effective hit area (use SVG `pointer-events` + invisible padding-rect if visual size is smaller).
 
