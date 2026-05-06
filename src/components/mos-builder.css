@@ -1,0 +1,94 @@
+/*
+ * mos-builder.css — MOS construction widget (Phase 4 ANAL-02).
+ * Phase 3 D-25 colocation. Loaded via @import in src/styles.css (Plan 04-07).
+ *
+ * Design notes:
+ *   - 16px input font-size is set globally in styles.css to suppress iOS
+ *     auto-zoom (Phase 3 D-17); this stylesheet does NOT override it.
+ *   - Field layout follows the audio-panel/scl-io house style: flex row,
+ *     wraps on narrow widths, gap 12px.
+ */
+
+.mos-builder {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mos-builder h2 {
+  margin: 0 0 8px 0;
+}
+
+.mos-builder__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.mos-builder__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mos-builder__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.mos-builder__field input[type="number"] {
+  width: 64px;
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.mos-builder__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.mos-builder__slash {
+  font-family: var(--monospace);
+  color: var(--theme-foreground-alt);
+  user-select: none;
+}
+
+.mos-builder__snap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.mos-builder__snap input[type="checkbox"] {
+  /* Override the global 16px input rule — checkboxes don't need font sizing. */
+  width: auto;
+  min-width: auto;
+  margin: 0;
+}
+
+.mos-builder__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.mos-builder__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.mos-builder__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}
