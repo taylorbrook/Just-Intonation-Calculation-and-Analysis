@@ -1,0 +1,64 @@
+/* keyboard.css — scale-on-keyboard SVG strip for VIZ-03.
+ *
+ * Theme tokens only. Active-press uses --theme-blue 24% tint per UI-SPEC.
+ * The SVG sets touch-action:manipulation (NOT none) — allows fast taps but
+ * blocks double-tap-zoom which would interfere with rapid key tapping per
+ * RESEARCH Pitfall 5.
+ */
+
+.keyboard-widget {
+  margin-block: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.keyboard-widget h2 {
+  margin: 0 0 8px 0;
+}
+.keyboard-widget .dashboard-helper {
+  margin: 0;
+}
+
+svg.viz.keyboard {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  touch-action: manipulation;
+  display: block;
+  background: var(--theme-background);
+}
+
+svg.viz.keyboard .keyboard__key {
+  cursor: pointer;
+}
+svg.viz.keyboard .keyboard__key-rect {
+  fill: var(--theme-background);
+  stroke: color-mix(in oklab, var(--theme-foreground) 30%, transparent);
+  stroke-width: 1;
+}
+svg.viz.keyboard .keyboard__key--active .keyboard__key-rect {
+  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  stroke: var(--theme-blue);
+}
+svg.viz.keyboard .keyboard__key:focus-visible,
+svg.viz.keyboard .keyboard__key:focus {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+svg.viz.keyboard .keyboard__ratio {
+  font-family: var(--monospace);
+  font-size: 13px;
+  fill: var(--theme-foreground);
+  pointer-events: none;
+}
+svg.viz.keyboard .keyboard__cents {
+  font-family: var(--monospace);
+  font-size: 11px;
+  fill: var(--theme-foreground-alt);
+  pointer-events: none;
+}
+svg.viz.keyboard .keyboard__period-boundary {
+  stroke: var(--theme-foreground-alt);
+  stroke-width: 1;
+  fill: none;
+}

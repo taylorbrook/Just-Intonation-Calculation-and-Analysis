@@ -1,0 +1,76 @@
+/* tonality-diamond.css — odd-limit tonality diamond viz for VIZ-02.
+ *
+ * Theme tokens only. Cell color encodes the dominant prime's axis (3/5/7);
+ * primes ≥ 11 fall back to --theme-foreground per D-22.
+ *
+ * The SVG declares touch-action:none so d3-zoom owns pinch on iOS Safari
+ * (RESEARCH Pitfall 5). Verified by d3-zoom 7.x docs.
+ */
+
+.tonality-diamond-widget {
+  margin-block: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tonality-diamond-widget h2 {
+  margin: 0 0 8px 0;
+}
+.tonality-diamond-widget .dashboard-helper {
+  margin: 0;
+}
+
+svg.viz.diamond {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  touch-action: none;
+  display: block;
+  background: var(--theme-background);
+}
+
+svg.viz.diamond .diamond-cell {
+  cursor: default;
+}
+svg.viz.diamond .diamond-cell[role="button"] {
+  cursor: pointer;
+}
+svg.viz.diamond .diamond-cell--in-scale rect {
+  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  stroke: var(--theme-blue);
+  stroke-width: 1.5;
+}
+svg.viz.diamond .diamond-cell--out rect {
+  fill: var(--theme-background);
+  stroke: color-mix(in oklab, var(--theme-foreground) 30%, transparent);
+  stroke-width: 1;
+}
+/* Prime-axis variants override the in-scale fill (D-22 — dominant-prime color). */
+svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-3 rect {
+  fill: color-mix(in oklab, var(--theme-blue) 24%, var(--theme-background));
+  stroke: var(--theme-blue);
+}
+svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-5 rect {
+  fill: color-mix(in oklab, var(--theme-green) 24%, var(--theme-background));
+  stroke: var(--theme-green);
+}
+svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-7 rect {
+  fill: color-mix(in oklab, var(--theme-orange) 24%, var(--theme-background));
+  stroke: var(--theme-orange);
+}
+svg.viz.diamond .diamond-cell--in-scale.diamond-cell--axis-default rect {
+  fill: color-mix(in oklab, var(--theme-foreground) 18%, var(--theme-background));
+  stroke: var(--theme-foreground);
+}
+svg.viz.diamond .diamond-cell[role="button"]:focus,
+svg.viz.diamond .diamond-cell[role="button"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+svg.viz.diamond .ratio {
+  font-family: var(--monospace);
+  font-size: 11px;
+  fill: var(--theme-foreground);
+  pointer-events: none;
+}
