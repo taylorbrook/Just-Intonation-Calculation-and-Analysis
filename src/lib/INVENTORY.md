@@ -60,4 +60,46 @@ Note: components live in `src/components/` (not `src/lib/`), but they are listed
 | `scaleTable` (`src/components/scale-table.ts`) | Custom (this repo) | 4-column table per D-06 (Degree / Ratio / Cents / ¢ from 12-TET). Cents at 0.1¢ default per Pitfall #16 (`opts.precision` overrides). Optional copy button → `scalaToCsv` via `navigator.clipboard.writeText` (IO-04). Cell values rendered via `createElement` + `textContent` — never `innerHTML` for dynamic content (T-02-22, T-02-23). |
 | `ratioPill` (`src/components/ratio-pill.ts`) | Custom (this repo) | Inline `<code>n/d</code> <small>(~cents¢)</small>` pill for prose. Unicode rendering, NOT KaTeX (RESEARCH O-01 / D-10 — KaTeX reserved for true math). |
 | `audioPanel` (`src/components/audio-panel.ts`) | Custom (this repo) | Dashboard-only (D-07/D-10). Three rows: interval-selector + ▶ Play, ⏵⏵ Arpeggiate, 🔇/🔊 Drone toggle. Drone toggle holds the stop callback returned by `synth.startDrone` (Pitfall #9). Drone state announced via `aria-pressed` + icon swap + visible text (color-independent — UI-SPEC accessibility). |
-| `sclIo` (`src/components/scl-io.ts`) | Custom (this repo) | Dashboard-only. Import: hidden file picker → `FileReader` → `parseScl` → `opts.onImport(newScale, description)`. Export: `writeScl` → `Blob` → `URL.createObjectURL` → anchor download. Filename default per D-22 (`scale-{N}-tone-{YYYY-MM-DD}`). Status region uses `role=status aria-live=polite` for parser-error announcements; description rendered via `textContent` (T-02-14 — no innerHTML). |
+| `sclIo` (`src/components/scl-io.ts`) | Custom (this repo) | Dashboard-only. Import: hidden file picker → `FileReader` → `parseScl` → `opts.onImport(newScale, description)`. Export: `writeScl` → `Blob` → `URL.createObjectURL` → anchor download. Filename default per D-22 (`scale-{N}-tone-{YYYY-MM-DD}`). Status region uses `role=status aria-live=polite` for parser-error announcements; description rendered via `textContent` (T-02-14 — no innerHTML). **Phase 3 extension (Plan 06):** combined widget per D-11 — file picker now `accept=".scl,.kbm"`; auto-detects format by extension and calls `opts.onImportKbm` for `.kbm`; export row gains a second `Download .kbm` button that writes via `writeKbm(opts.kbmForExport ?? defaultKbmFor(scale, opts.baseHz ?? 440))` (D-12 Pitfall #7-safe defaults). |
+
+## Phase 3 entries
+
+### Phase 3 — kbm I/O entries (Plan 02 / IO-03)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `KbmMapping` (interface, `src/lib/kbm.ts`) | Custom (this repo) | Typed mirror of the Scala `.kbm` 7-field header + per-key mapping body. **Three-named-fields discipline (Pitfall #7 / D-10):** `middleNote` (where 1/1 sounds), `referenceKey` (MIDI note for which `referenceHz` is given), and `referenceHz` (Hz of the referenceKey, float per spec) are SEPARATE fields — never collapsed into a single `baseHz`. IO-03. |
+| `parseKbm` (`src/lib/kbm.ts`) | Custom (this repo) | Permissive about whitespace/BOM/CRLF; strict about field types via per-field `parseIntStrict` / `parseFloatStrict`. Defense-in-depth: 1MB UTF-8 input cap (T-3-04), `size ≤ 1024` (T-3-05), `formalOctave ≤ 1024` (T-3-06), MIDI 0..127 bounds, `referenceHz > 0`. Mapping entries accept non-negative integers OR `'x'`/`'X'`/blank → `null` (muted). Fails closed with named-field error messages (T-3-23). IO-03 / D-09. |
+| `writeKbm` (`src/lib/kbm.ts`) | Custom (this repo) | Round-trip-stable serializer: byte-canonical comment-prefixed layout matches the Plan 01 fixtures (12-tet, mid-60-ref-69, seven-degree, with-muted-keys); 6-decimal `referenceHz` per Scala convention. IO-03 / D-09. |
+| `kbmToFrequencies` (`src/lib/kbm.ts`) | Custom (this repo) | Pure derivation `Map<midi, Hz>` for the .kbm-aware audition path (D-24). `refHzAtMiddle = referenceHz × 2^((middleNote − referenceKey)/12)` — fixed 12-TET semitone anchor regardless of the consuming scale's period. Internal `degrees` view auto-prepends 1/1 if scale.intervals[0] is not the unison so hand-constructed scales also work (Scala convention: mapEntry 0 references the implicit unison). S-3 audio-boundary `Number()` coercion. IO-03 / D-24. |
+| `defaultKbmFor` (`src/lib/kbm.ts`) | Custom (this repo) | D-12 default factory: `middleNote == referenceKey == 69` (A4), `referenceHz = baseHz`, `formalOctave = scale.intervals.length`, identity keyMap, full MIDI range. Pitfall #7-safe by construction (middle == reference eliminates dual-source-of-truth ambiguity). Used by `sclIo` to synthesize a default export when no explicit `kbmForExport` is provided. IO-03 / D-12. |
+
+### Phase 3 — diamond entries (Plan 02 / VIZ-02)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `DiamondCell` (interface, `src/lib/diamond.ts`) | Custom (this repo) | Cell record for the tonality-diamond viz: `{ ratio, numerator, denominator, inScale }`. The `numerator` / `denominator` reflect the OCTAVE-REDUCED ratio's `n` / `d` (not the input `i, j`) so consumers see the labeled form "5/4" for the (i=5, j=1) cell. VIZ-02 / D-22. |
+| `enumerateDiamond` (`src/lib/diamond.ts`) | Custom (this repo) | Hand-laid odd-limit enumeration: for each odd pair `(i, j) ∈ [1, oddLimit]²`, octave-reduce `i/j` to `[1, 2)` via `Interval.octaveReduce()` default period 2/1 (octave-bound by definition — NOT scale.period; Bohlen-Pierce still compares against the octave diamond). In-scale check via `Interval.equals` (BigInt Fraction equality, NEVER cents tolerance — Pitfall #1 / Pitfall #6). Defense-in-depth: oddLimit clamped to [1, 1023]. VIZ-02 / D-20. |
+
+### Phase 3 — lattice component entries (Plan 04 / VIZ-01)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `lattice` (factory, `src/components/lattice.ts`) | Custom (this repo) — wraps `ji-lattice@0.3.2` + `d3@7.9.0` | DOM factory `(scale, synth, opts?) => HTMLElement` per D-08 / D-09. Composes ji-lattice's `spanLattice()` (coordinate output) with D3 SVG rendering + `d3.zoom()` pan/zoom + click→`synth.playNotes` audition. `spanLattice()` called ONCE per render, never inside the zoom handler (Pitfall #6). Octave-only scales (basis === []) render an empty-state message (Pitfall #11). In-scale nodes carry `lattice-node--axis-{N}` class (D-21). VIZ-01 / D-08. |
+| `LatticeOpts` (interface, `src/components/lattice.ts`) | Custom (this repo) | `{ basis?, showContext?='neighbors' (D-05), audition?='dyad' (D-07), baseHz?=440, width?, height? }`. `baseHz` lets the dashboard cell pass its computed `effectiveBaseHz` (Plan 06 wiring; D-13 / D-24). VIZ-01. |
+| `deriveLatticeBasis` (`src/components/lattice.ts`) | Custom (this repo) | Auto-derived basis: union of primes appearing with non-zero exponent across any interval, minus prime 2 (D-19). Returns sorted ascending. For `>3` primes, truncates to top-2-by-frequency and `console.warn`s the dropped primes. Exported so Plan 05's tonality-diamond can reuse the same prime-axis inference. VIZ-01 / D-19. |
+
+### Phase 3 — tonality-diamond component entries (Plan 05 / VIZ-02)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `tonalityDiamond` (factory, `src/components/tonality-diamond.ts`) | Custom (this repo) — consumes `enumerateDiamond` from `src/lib/diamond.ts` | DOM factory `(scale, synth, opts?) => HTMLElement` per D-08 / D-09. Hand-laid square `(i, j)` grid for odd `i, j ∈ [1, oddLimit]`. SVG `<title>` tooltip shows `"<ratio> | <±cents>¢ | <prime-limit>-limit | <in scale|not in scale>"` (D-22, keyboard-discoverable). Click → `synth.playNotes` (default 'dyad' per D-07). `role="button"` only on in-scale cells; out-of-scale cells stay `role="presentation"` for context. `d3.zoom()` (scaleExtent [0.5, 6]). VIZ-02 / D-08. |
+| `DiamondOpts` (interface, `src/components/tonality-diamond.ts`) | Custom (this repo) | `{ oddLimit?, showContext?='neighbors' (D-05), audition?='dyad' (D-07), baseHz?=440, width?, height? }`. VIZ-02. |
+| `deriveDiamondOddLimit` (`src/components/tonality-diamond.ts`) | Custom (this repo) | Auto-derive: `max(oddLimit(iv) for iv in scale)` rounded UP to nearest preset of `{7, 9, 11, 13, 15, 21, 31}`. Clamps at 31 if scale exceeds the highest preset (the seed scale's max-odd 27 rounds UP to 31 to preserve 27/16 fidelity rather than silently clamping). VIZ-02 / D-20. |
+
+### Phase 3 — keyboard component entries (Plan 05 / VIZ-03)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `keyboard` (factory, `src/components/keyboard.ts`) | Custom (this repo) | DOM factory `(scale, synth, baseHz, opts?) => HTMLElement` per D-08 / D-09. Linear-by-degree mapping (D-03): N scale degrees → N adjacent white keys; period-boundary marker (vertical dashed line) after the last key. `pointerdown` → `synth.playNote` returns a release callback held in closure-local `release`; `pointerup` / `pointerleave` / `pointercancel` ALL invoke release (T-3-19); re-entrant guard `if (release) return` (T-3-20) prevents voice stacking. `aria-pressed` mirrors held state. Enter/Space → fire-and-forget short note (no Enter-up analog). Single-note audition only — does NOT expose `opts.audition` per RESEARCH OQ3. Plain DOM via `createElementNS` (no d3 dependency for a simple key strip). VIZ-03 / D-04. |
+| `KeyboardOpts` (interface, `src/components/keyboard.ts`) | Custom (this repo) | `{ precision?=1 (0.1¢ per Pitfall #16), keyWidth?=60 }`. Cents-from-12tet labels formatted with U+2212 minus per UI-SPEC. VIZ-03 / D-23. |
