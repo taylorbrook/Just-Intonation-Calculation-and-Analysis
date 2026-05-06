@@ -30,6 +30,7 @@ export default defineConfig({
       "src/audio/**/__tests__/**/*.test.ts",
       "src/audio/**/*.test.ts",
       "src/__tests__/**/*.test.ts",
+      "src/components/**/__tests__/**/*.test.ts",
     ],
     exclude: ["node_modules/**", "dist/**", ".observablehq/**", "src/**/*.md"],
     environment: "node",
