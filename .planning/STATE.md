@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: MVP
 status: shipped
 stopped_at: ""
-last_updated: "2026-05-07T20:30:00.000Z"
-last_activity: 2026-05-07 -- quick-260507-ios: fix tonality-diamond zoom snap
+last_updated: "2026-05-07T23:36:00.000Z"
+last_activity: 2026-05-07 -- quick-260507-mgl: app UX/visual upgrade (theme, sidebar, TOC, header/footer)
 progress:
   total_phases: 4
   completed_phases: 4
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
 
 Milestone: v1.0 MVP — SHIPPED 2026-05-07
 Phases: 4/4 complete (full archive at .planning/milestones/v1.0-ROADMAP.md)
-Last activity: 2026-05-07 -- v1.0 milestone shipped
+Last activity: 2026-05-07 -- quick-260507-mgl: app UX/visual upgrade (theme, sidebar, TOC, header/footer)
 
 Progress: [██████████] 100%
 
@@ -142,6 +142,7 @@ None yet.
 | 260504-i3v | fix CR-01: Interval.octaveReduce infinite loop on period <= 1/1 | 2026-05-04 | e288037 | [260504-i3v-fix-cr-01-interval-octavereduce-infinite](./quick/260504-i3v-fix-cr-01-interval-octavereduce-infinite/) |
 | 260504-lb6 | fix CR-02 + CR-03: writeScl description sanitation + parseScl UTF-8 byte cap | 2026-05-04 | 2c44907 | [260504-lb6-fix-cr-02-cr-03-writescl-description-san](./quick/260504-lb6-fix-cr-02-cr-03-writescl-description-san/) |
 | 260507-ios | fix tonality-diamond zoom snap: first zoom event jumps diamond to top-left | 2026-05-07 | 98602f5 | [260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo](./quick/260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo/) |
+| 260507-mgl | app UX/visual upgrade: Framework theme + global stylesheet, sidebar/TOC, orientation card, H2 anchors, header/footer | 2026-05-07 | 2fdd558 | [260507-mgl-look-into-ways-to-make-this-app-better-l](./quick/260507-mgl-look-into-ways-to-make-this-app-better-l/) |
 
 ## Deferred Items
 
