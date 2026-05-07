@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: completed
-stopped_at: Phase 4 context gathered
-last_updated: "2026-05-06T23:19:05.915Z"
-last_activity: 2026-05-06 -- Phase 04 marked complete
+milestone_name: MVP
+status: shipped
+stopped_at: ""
+last_updated: "2026-05-07T20:07:29.922Z"
+last_activity: 2026-05-07 -- v1.0 milestone shipped
 progress:
   total_phases: 4
   completed_phases: 4
@@ -18,17 +18,16 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-02)
+See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Phase 04 — Analysis & Sharing
+**Current focus:** Planning next milestone — run `/gsd-new-milestone` to scope v1.1 (or v2.0).
 
 ## Current Position
 
-Phase: 04 — COMPLETE
-Plan: 2 of 7
-Status: Phase 04 complete
-Last activity: 2026-05-06 -- Phase 04 marked complete
+Milestone: v1.0 MVP — SHIPPED 2026-05-07
+Phases: 4/4 complete (full archive at .planning/milestones/v1.0-ROADMAP.md)
+Last activity: 2026-05-07 -- v1.0 milestone shipped
 
 Progress: [██████████] 100%
 
@@ -145,15 +144,23 @@ None yet.
 
 ## Deferred Items
 
-Items acknowledged and carried forward from previous milestone close:
+Items acknowledged and deferred at milestone close on 2026-05-07:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| uat_gap | 03-HUMAN-UAT.md — RDM smoke test "Esc/Stop cancels arpeggio mid-flight" | partial (1 pending) | 2026-05-07 (v1.0 close) |
+| verification_gap | 03-VERIFICATION.md — mobile-audit.md `{pending}` Post-CR-02 footer signature | human_needed | 2026-05-07 (v1.0 close) |
+| quick_task | 260504-i3v-fix-cr-01-interval-octavereduce-infinite (SUMMARY.md present, commit e288037) | missing-marker | 2026-05-07 (v1.0 close) |
+| quick_task | 260504-lb6-fix-cr-02-cr-03-writescl-description-san (SUMMARY.md present, commit 2c44907) | missing-marker | 2026-05-07 (v1.0 close) |
+
+Notes:
+
+- The two Phase 3 items share a single root cause: a `{pending}` signature block in `mobile-audit.md` awaiting a Safari RDM re-walk of the new "Esc/Stop cancels arpeggio mid-flight" bullet. The unit-level regression test (`src/audio/__tests__/synth.test.ts:290`) already verifies the code path; per `03-VERIFICATION.md` the gap is "a documentation-trail nicety, not a code defect." 5/5 must-haves on Phase 3 are VERIFIED.
+- The two quick-task entries have completed `SUMMARY.md` files and are merged (commits e288037, 2c44907); the audit flags them as `missing` because the audit tool looks for a marker the SUMMARY files don't carry. No actual work outstanding.
 
 ## Session Continuity
 
-Last session: 2026-05-06T22:39:53.693Z
-Stopped at: Phase 4 context gathered
+Last session: 2026-05-07T20:07:29.922Z
+Stopped at: v1.0 MVP milestone shipped — ready for next milestone scoping
 Resume file:
 None
