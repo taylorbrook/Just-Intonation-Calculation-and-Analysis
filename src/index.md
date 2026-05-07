@@ -1,7 +1,3 @@
----
-theme: [air, near-midnight, wide]
----
-
 # Tuning Systems
 
 A scale-design workspace. Type a scale, hear it, export it.
