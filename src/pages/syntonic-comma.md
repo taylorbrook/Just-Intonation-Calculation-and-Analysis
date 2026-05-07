@@ -1,7 +1,3 @@
----
-style: ../styles.css
----
-
 # The syntonic comma
 
 81/80 — the gap between Pythagorean and 5-limit major thirds

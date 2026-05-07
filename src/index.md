@@ -1,5 +1,5 @@
 ---
-style: ./styles.css
+theme: [air, near-midnight, wide]
 ---
 
 # Tuning Systems

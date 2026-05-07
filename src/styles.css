@@ -1,28 +1,21 @@
+@import url("observablehq:default.css");
+@import url("observablehq:theme-air.css") (prefers-color-scheme: light);
+@import url("observablehq:theme-near-midnight.css") (prefers-color-scheme: dark);
+
 /*
- * styles.css — combined widget styles for Phase 2 dashboard + theory pages.
+ * styles.css — global stylesheet for Tuning Systems.
  *
- * Loaded via the per-page `style:` frontmatter (`style: ./styles.css` in
- * src/index.md, `style: ../styles.css` in src/pages/*.md).
+ * Loaded via observablehq.config.ts `style:` (which REPLACES default.css —
+ * this file re-imports default.css plus the configured theme palettes
+ * (air for light, near-midnight for dark) so theme tokens remain available
+ * on every page that does NOT have its own `theme:` frontmatter. The
+ * dashboard (src/index.md) overrides with `theme: [air, near-midnight, wide]`
+ * so its main column is wider; Framework loads its own combined theme
+ * stylesheet there and ignores this file.
  *
- * Why one combined file (vs. per-module `import "./foo.css"` inside .ts files):
- *   Observable Framework uses esbuild.transform (a syntactic transform) on
- *   markdown TS blocks — it does NOT bundle. A bare `import "./foo.css"` in a
- *   .ts module passes through unchanged into the emitted JS, so the browser
- *   would attempt to fetch the .css URL and parse the response as a JS module,
- *   which fails on Content-Type mismatch. The fix is to attach CSS via
- *   Framework's own page-level `style:` frontmatter, which it knows how to
- *   serve as a real <link rel="stylesheet">. (See Plan 06 SUMMARY Deferred
- *   Issues.)
+ * Component CSS files are aggregated below via @import.
  *
- * @import is the simplest aggregation — Framework copies-through @import URLs
- * via Rollup; the browser resolves each @import as a real CSS sub-request.
- *
- * Theme tokens are defined locally below: setting `style:` frontmatter
- * REPLACES Framework's default stylesheet (which is where --theme-blue,
- * --theme-foreground, --theme-background normally come from), so without
- * these declarations every var(--theme-*) lookup resolves to invalid and
- * fills fall back to black. Values mirror Framework's air (light) + coffee
- * (dark) palettes so the look matches when toggling system theme.
+ * Per-page `style:` frontmatter is NOT used; this is the single global sheet.
  */
 @import "./components/play-buttons.css";
 @import "./components/scale-table.css";
@@ -36,34 +29,6 @@
 @import "./components/edo-ji-table.css";
 @import "./components/mos-builder.css";
 @import "./components/scale-compare.css";
-
-/* Theme tokens — kept after @import per CSS spec (imports must come first).
- * Values mirror Framework's air (light) + coffee (dark) palettes so the look
- * matches when toggling system theme. */
-:root {
-  --theme-foreground: #161616;
-  --theme-foreground-alt: #353535;
-  --theme-foreground-faint: #6b6b6b;
-  --theme-foreground-focus: #4269d0;
-  --theme-background: #ffffff;
-  --theme-background-alt: #f4f4f4;
-  --theme-blue: #4269d0;
-  --theme-green: #3ca951;
-  --theme-yellow: #efb118;
-  --theme-red: #ff725c;
-  --monospace: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --sans-serif: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --theme-foreground: #f4f4f4;
-    --theme-foreground-alt: #c5c5c5;
-    --theme-foreground-faint: #888888;
-    --theme-foreground-focus: #6c8ee3;
-    --theme-background: #140f0c;
-    --theme-background-alt: #1f1c19;
-  }
-}
 
 /* Phase 3 (D-17) — global iOS Safari auto-zoom suppression.
  * iOS Safari auto-zooms any input whose font-size is < 16px on focus. Set

@@ -1,7 +1,3 @@
----
-style: ../styles.css
----
-
 # Analysis
 
 EDO ↔ JI mapping, MOS construction, and side-by-side scale comparison.
