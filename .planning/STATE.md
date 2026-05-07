@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: MVP
 status: shipped
 stopped_at: ""
-last_updated: "2026-05-07T20:07:29.922Z"
-last_activity: 2026-05-07 -- v1.0 milestone shipped
+last_updated: "2026-05-07T20:30:00.000Z"
+last_activity: 2026-05-07 -- quick-260507-ios: fix tonality-diamond zoom snap
 progress:
   total_phases: 4
   completed_phases: 4
@@ -141,6 +141,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260504-i3v | fix CR-01: Interval.octaveReduce infinite loop on period <= 1/1 | 2026-05-04 | e288037 | [260504-i3v-fix-cr-01-interval-octavereduce-infinite](./quick/260504-i3v-fix-cr-01-interval-octavereduce-infinite/) |
 | 260504-lb6 | fix CR-02 + CR-03: writeScl description sanitation + parseScl UTF-8 byte cap | 2026-05-04 | 2c44907 | [260504-lb6-fix-cr-02-cr-03-writescl-description-san](./quick/260504-lb6-fix-cr-02-cr-03-writescl-description-san/) |
+| 260507-ios | fix tonality-diamond zoom snap: first zoom event jumps diamond to top-left | 2026-05-07 | 98602f5 | [260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo](./quick/260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo/) |
 
 ## Deferred Items
 
