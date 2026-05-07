@@ -6,6 +6,11 @@ theme: [air, near-midnight, wide]
 
 A scale-design workspace. Type a scale, hear it, export it.
 
+<div class="card" style="margin-block: 24px;">
+  <p>This is a research notebook for designing just-intonation scales. Build a scale here, audition it, and export it as <code>.scl</code>/<code>.kbm</code>. The <a href="./pages/analysis">Analysis</a> page maps it to EDOs, builds MOS scales, and compares scales side-by-side. The <a href="./pages/syntonic-comma">Theory notes</a> are short essays on intervals and commas.</p>
+  <p style="margin-block-end: 0;"><strong>You are here:</strong> Dashboard · <a href="./pages/analysis">Analysis</a> · <a href="./pages/syntonic-comma">Theory: the syntonic comma</a></p>
+</div>
+
 ```ts
 import { Interval } from "./lib/interval.js";
 import { Scale } from "./lib/scale.js";
@@ -76,6 +81,8 @@ const seedTextLiteral = `9/8
 // literal seed. Downstream textarea cell reads `seedText` unchanged from Phase 2.
 const seedText = hashDecoded ?? seedTextLiteral;
 ```
+
+## Scale
 
 ```ts
 const scaleText = view(Inputs.textarea({
@@ -214,6 +221,8 @@ if (scale) {
   display(btn);
 }
 ```
+
+## Visualize
 
 ```ts
 // Phase 3 (D-01/D-02 — full-bleed vertical viz stack, document order).

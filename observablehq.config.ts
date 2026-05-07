@@ -6,6 +6,8 @@ export default {
   style: "styles.css",
   toc: true,
   pager: "main",
+  header: `<div style="display:flex; align-items:baseline; gap:1rem;"><a href="/" style="font-weight:600; text-decoration:none; color:inherit;">Tuning Systems</a><span style="font-size:0.85em; color:var(--theme-foreground-muted);"><a href="/" style="color:inherit; text-decoration:none;">Dashboard</a> · <a href="/pages/analysis" style="color:inherit; text-decoration:none;">Analysis</a> · <a href="/pages/syntonic-comma" style="color:inherit; text-decoration:none;">Theory</a></span></div>`,
+  footer: `<div>Source on <a href="https://github.com/" style="color:inherit;">GitHub</a> · Last built ${new Date().toISOString().slice(0, 10)}</div>`,
   pages: [
     { name: "Dashboard", path: "/" },
     { name: "Analysis", path: "/pages/analysis" },
