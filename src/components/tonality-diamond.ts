@@ -272,6 +272,11 @@ export function tonalityDiamond(
       g.attr("transform", event.transform.toString());
     });
   svg.call(zoom);
+  // Seed the zoom's internal state with the centering translate so the first
+  // zoom/pan event composes onto the centering rather than overwriting it
+  // (the on-zoom handler replaces g's transform — without seeding, identity
+  // would snap the diamond from center to (0,0)).
+  svg.call(zoom.transform, d3.zoomIdentity.translate(cx, cy));
 
   const svgNode = svg.node();
   if (svgNode) root.appendChild(svgNode);
