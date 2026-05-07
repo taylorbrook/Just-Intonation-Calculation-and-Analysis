@@ -2,6 +2,20 @@
 export default {
   title: "Tuning Systems",
   root: "src",
-  pages: [{ name: "Syntonic comma", path: "/pages/syntonic-comma" }],
+  theme: ["air", "near-midnight"],
+  style: "styles.css",
+  toc: true,
+  pager: "main",
+  header: `<div style="display:flex; align-items:baseline; gap:1rem;"><a href="/" style="font-weight:600; text-decoration:none; color:inherit;">Tuning Systems</a><span style="font-size:0.85em; color:var(--theme-foreground-muted);"><a href="/" style="color:inherit; text-decoration:none;">Dashboard</a> · <a href="/pages/analysis" style="color:inherit; text-decoration:none;">Analysis</a> · <a href="/pages/syntonic-comma" style="color:inherit; text-decoration:none;">Theory</a></span></div>`,
+  footer: `<div>Source on <a href="https://github.com/" style="color:inherit;">GitHub</a> · Last built ${new Date().toISOString().slice(0, 10)}</div>`,
+  pages: [
+    { name: "Dashboard", path: "/" },
+    { name: "Analysis", path: "/pages/analysis" },
+    {
+      name: "Theory notes",
+      open: true,
+      pages: [{ name: "The syntonic comma", path: "/pages/syntonic-comma" }],
+    },
+  ],
   head: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" crossorigin="anonymous">`,
 };
