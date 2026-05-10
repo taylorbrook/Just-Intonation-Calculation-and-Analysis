@@ -13,12 +13,7 @@ import { describe, it, expect } from "vitest";
 import { Interval } from "../interval.js";
 import { Scale, jiSubsetOfEdo } from "../scale.js";
 import { oddLimit } from "../monzo.js";
-import {
-  bestEdosForScale,
-  bestJiInEdo,
-  oddLimitApproximation,
-  type EdoErrorRow,
-} from "../edo.js";
+import { bestEdosForScale, bestJiInEdo, oddLimitApproximation, type EdoErrorRow } from "../edo.js";
 
 const jiDiatonic5limit = (): Scale =>
   new Scale([

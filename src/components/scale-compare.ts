@@ -212,7 +212,11 @@ export function disposeScaleCompare(el: HTMLElement): void {
   }
 }
 
-export function scaleCompare(scaleA: Scale, synth: SynthHandle, opts: ScaleCompareOpts = {}): HTMLElement {
+export function scaleCompare(
+  scaleA: Scale,
+  synth: SynthHandle,
+  opts: ScaleCompareOpts = {},
+): HTMLElement {
   const baseHz = opts.baseHz ?? 440;
   const precision = opts.precision ?? 1;
   const auditionMode = opts.auditionMode ?? "sequential";
@@ -278,8 +282,7 @@ export function scaleCompare(scaleA: Scale, synth: SynthHandle, opts: ScaleCompa
   pasteWrap.className = "scale-compare__paste";
   pasteWrap.style.display = "none";
   const pasteTextarea = document.createElement("textarea");
-  pasteTextarea.placeholder =
-    "Paste pitch lines: ratios (5/4) or cents (408.0). One per line.";
+  pasteTextarea.placeholder = "Paste pitch lines: ratios (5/4) or cents (408.0). One per line.";
   pasteWrap.appendChild(pasteTextarea);
   inputRow.appendChild(pasteWrap);
 
@@ -364,8 +367,7 @@ export function scaleCompare(scaleA: Scale, synth: SynthHandle, opts: ScaleCompa
       auditBtn.textContent = "▶ A vs B";
       auditBtn.addEventListener("click", () => {
         const aHz = baseHz * Number(row.aInterval.fraction.valueOf());
-        const bHz =
-          row.bMatch !== null ? baseHz * Number(row.bMatch.fraction.valueOf()) : null;
+        const bHz = row.bMatch !== null ? baseHz * Number(row.bMatch.fraction.valueOf()) : null;
         if (auditionMode === "simultaneous" && bHz !== null) {
           synth.playNotes([aHz, bHz], 0.6);
           return;
@@ -388,14 +390,10 @@ export function scaleCompare(scaleA: Scale, synth: SynthHandle, opts: ScaleCompa
   }
 
   function renderSummary(rows: AlignedRow[]): void {
-    const deltas = rows
-      .map((r) => r.centsDelta)
-      .filter((d): d is number => d !== null);
+    const deltas = rows.map((r) => r.centsDelta).filter((d): d is number => d !== null);
     const max = deltas.length === 0 ? 0 : Math.max(...deltas);
     const rms =
-      deltas.length === 0
-        ? 0
-        : Math.sqrt(deltas.reduce((s, d) => s + d * d, 0) / deltas.length);
+      deltas.length === 0 ? 0 : Math.sqrt(deltas.reduce((s, d) => s + d * d, 0) / deltas.length);
     const common = rows.filter((r) => r.exactMatch).length;
     summary.textContent = `Max deviation: ${max.toFixed(precision)}¢ · RMS: ${rms.toFixed(precision)}¢ · Common subset: ${String(common)}`;
   }

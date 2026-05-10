@@ -96,9 +96,7 @@ export function bestEdosForScale(
   // is zero (rounding gap zero, weight finite — clamp at 1) and excluding it would muddy the
   // RMS denominator.
   const idealCentsList: number[] = scale.intervals.map((iv) => iv.cents);
-  const weightList: number[] = scale.intervals.map((iv) =>
-    Math.max(1, tenneyHeight(iv.monzo)),
-  );
+  const weightList: number[] = scale.intervals.map((iv) => Math.max(1, tenneyHeight(iv.monzo)));
 
   const rows: EdoErrorRow[] = [];
   for (let N = range.min; N <= range.max; N++) {

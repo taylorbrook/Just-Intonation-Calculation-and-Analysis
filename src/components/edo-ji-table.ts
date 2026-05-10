@@ -45,7 +45,11 @@ export interface EdoJiTableOpts {
 }
 
 // Signature on one line so plan-checker grep gates can match.
-export function edoJiTable(edoSteps: number, synth: SynthHandle, opts: EdoJiTableOpts = {}): HTMLElement {
+export function edoJiTable(
+  edoSteps: number,
+  synth: SynthHandle,
+  opts: EdoJiTableOpts = {},
+): HTMLElement {
   const baseHz = opts.baseHz ?? 440;
   const precision = opts.precision ?? 1;
 
@@ -171,10 +175,7 @@ export function edoJiTable(edoSteps: number, synth: SynthHandle, opts: EdoJiTabl
       const tr = document.createElement("tr");
       tr.setAttribute("role", "button");
       tr.setAttribute("tabindex", "0");
-      tr.setAttribute(
-        "aria-label",
-        `Audition step ${String(step)}: ${iv.fraction.toFraction()}`,
-      );
+      tr.setAttribute("aria-label", `Audition step ${String(step)}: ${iv.fraction.toFraction()}`);
       const stepCell = document.createElement("td");
       stepCell.textContent = String(step);
       tr.appendChild(stepCell);

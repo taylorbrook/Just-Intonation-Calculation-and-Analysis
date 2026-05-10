@@ -5,16 +5,7 @@ import { buildMos, nearestMosSize } from "../mos.js";
 describe("buildMos", () => {
   it("size=7, gen=3/2, period=2/1 -> Pythagorean diatonic (centered chain, BigInt-equal)", () => {
     const scale = buildMos(new Interval("3/2"), new Interval("2/1"), 7);
-    const expectedDiatonic = [
-      "1/1",
-      "9/8",
-      "81/64",
-      "4/3",
-      "3/2",
-      "27/16",
-      "243/128",
-      "2/1",
-    ];
+    const expectedDiatonic = ["1/1", "9/8", "81/64", "4/3", "3/2", "27/16", "243/128", "2/1"];
     expect(scale.intervals.length).toBe(expectedDiatonic.length);
     // Stringify via n/d directly — fraction.js' Fraction.toFraction() drops "/1"
     // for whole-number ratios (so "2/1" round-trips as "2"), which breaks naive

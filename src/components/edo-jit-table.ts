@@ -44,7 +44,11 @@ interface ColumnDef {
 }
 
 // Signature on one line so plan-checker grep gates can match.
-export function edoJitTable(scale: Scale, synth: SynthHandle, opts: EdoJitTableOpts = {}): HTMLElement {
+export function edoJitTable(
+  scale: Scale,
+  synth: SynthHandle,
+  opts: EdoJitTableOpts = {},
+): HTMLElement {
   const range = opts.range ?? { min: 5, max: 72 };
   const baseHz = opts.baseHz ?? 440;
   const stepSec = opts.stepSec ?? 0.45;

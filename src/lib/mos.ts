@@ -218,8 +218,7 @@ export function nearestMosSize(generator: Interval, period: Interval, target: nu
 
   // α = log(generator) / log(period); reduce to (0, 1).
   let alpha =
-    Math.log(Number(generator.fraction.valueOf())) /
-    Math.log(Number(period.fraction.valueOf()));
+    Math.log(Number(generator.fraction.valueOf())) / Math.log(Number(period.fraction.valueOf()));
   alpha = alpha - Math.floor(alpha);
   if (alpha === 0) {
     // Generator is the period (or a power of it) — degenerate; nothing to approximate.

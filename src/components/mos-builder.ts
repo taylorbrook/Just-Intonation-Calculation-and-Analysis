@@ -270,8 +270,7 @@ export function mosBuilder(synth: SynthHandle, opts: MosBuilderOpts = {}): HTMLE
       // the table just dropped to one row. Override any prior snap message —
       // this case is structurally more important to flag.
       if (generator.equals(period)) {
-        status.textContent =
-          "Generator equals period — scale collapses to a single pitch";
+        status.textContent = "Generator equals period — scale collapses to a single pitch";
       }
 
       tableHost.replaceChildren(scaleTable(scale, baseHz, { precision }));

@@ -61,9 +61,7 @@ describe("scaleCompare factory shape (Tests 1, 2, 11, 12)", () => {
 
   it("Test 2: renders a B-source mode <select> with three options Preset/Paste/Import .scl", () => {
     const el = scaleCompare(seedA(), makeStubSynth());
-    const modeSelect = el.querySelector<HTMLSelectElement>(
-      "select.scale-compare__b-source-mode",
-    );
+    const modeSelect = el.querySelector<HTMLSelectElement>("select.scale-compare__b-source-mode");
     expect(modeSelect).not.toBeNull();
     const optionTexts = Array.from(modeSelect!.options).map((o) => o.textContent);
     expect(optionTexts).toEqual(["Preset", "Paste", "Import .scl"]);
@@ -135,9 +133,7 @@ describe("alignment + common-subset (Tests 8, 9)", () => {
     const el = scaleCompare(pythagorean7(), makeStubSynth());
     document.body.appendChild(el);
     try {
-      const presetSel = el.querySelector(
-        "select.scale-compare__preset",
-      ) as HTMLSelectElement;
+      const presetSel = el.querySelector("select.scale-compare__preset") as HTMLSelectElement;
       presetSel.value = "5-limit-7";
       presetSel.dispatchEvent(new Event("change", { bubbles: true }));
       const summaryText = el.querySelector(".scale-compare__summary")?.textContent ?? "";
@@ -204,9 +200,7 @@ describe("alignment + common-subset (Tests 8, 9)", () => {
     document.body.appendChild(el);
     try {
       // Switch B-source to Paste, paste a sub-scale that shares 1/1 + some pitches.
-      const modeSel = el.querySelector(
-        "select.scale-compare__b-source-mode",
-      ) as HTMLSelectElement;
+      const modeSel = el.querySelector("select.scale-compare__b-source-mode") as HTMLSelectElement;
       modeSel.value = "Paste";
       modeSel.dispatchEvent(new Event("change", { bubbles: true }));
       const paste = el.querySelector(".scale-compare__paste textarea") as HTMLTextAreaElement;
