@@ -17,6 +17,7 @@ export default {
       pages: [
         { name: "The syntonic comma", path: "/pages/syntonic-comma" },
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
+        { name: "The schisma", path: "/pages/schisma" },
       ],
     },
   ],
