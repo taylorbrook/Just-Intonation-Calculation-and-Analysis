@@ -143,6 +143,7 @@ None yet.
 | 260504-lb6 | fix CR-02 + CR-03: writeScl description sanitation + parseScl UTF-8 byte cap | 2026-05-04 | 2c44907 | [260504-lb6-fix-cr-02-cr-03-writescl-description-san](./quick/260504-lb6-fix-cr-02-cr-03-writescl-description-san/) |
 | 260507-ios | fix tonality-diamond zoom snap: first zoom event jumps diamond to top-left | 2026-05-07 | 98602f5 | [260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo](./quick/260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo/) |
 | 260507-mgl | app UX/visual upgrade: Framework theme + global stylesheet, sidebar/TOC, orientation card, H2 anchors, header/footer | 2026-05-07 | 2fdd558 | [260507-mgl-look-into-ways-to-make-this-app-better-l](./quick/260507-mgl-look-into-ways-to-make-this-app-better-l/) |
+| 260511-j8l | add Pythagorean-comma theory page mirroring syntonic-comma.md; sidebar entry registered | 2026-05-11 | 4d06e66 | [260511-j8l-add-pythagorean-comma-theory-page-at-src](./quick/260511-j8l-add-pythagorean-comma-theory-page-at-src/) |
 
 ## Deferred Items
 
