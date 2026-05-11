@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: MVP
 status: shipped
 stopped_at: ""
-last_updated: "2026-05-07T23:36:00.000Z"
-last_activity: 2026-05-07 -- quick-260507-mgl: app UX/visual upgrade (theme, sidebar, TOC, header/footer)
+last_updated: "2026-05-11T20:59:00.000Z"
+last_activity: 2026-05-11 -- quick-260511-jbq: add schisma theory page mirroring syntonic-comma.md
 progress:
   total_phases: 4
   completed_phases: 4
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
 
 Milestone: v1.0 MVP — SHIPPED 2026-05-07
 Phases: 4/4 complete (full archive at .planning/milestones/v1.0-ROADMAP.md)
-Last activity: 2026-05-07 -- quick-260507-mgl: app UX/visual upgrade (theme, sidebar, TOC, header/footer)
+Last activity: 2026-05-11 -- quick-260511-jbq: add schisma theory page mirroring syntonic-comma.md
 
 Progress: [██████████] 100%
 
@@ -144,6 +144,7 @@ None yet.
 | 260507-ios | fix tonality-diamond zoom snap: first zoom event jumps diamond to top-left | 2026-05-07 | 98602f5 | [260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo](./quick/260507-ios-fix-tonality-diamond-ui-shift-bug-on-zoo/) |
 | 260507-mgl | app UX/visual upgrade: Framework theme + global stylesheet, sidebar/TOC, orientation card, H2 anchors, header/footer | 2026-05-07 | 2fdd558 | [260507-mgl-look-into-ways-to-make-this-app-better-l](./quick/260507-mgl-look-into-ways-to-make-this-app-better-l/) |
 | 260511-j8l | add Pythagorean-comma theory page mirroring syntonic-comma.md; sidebar entry registered | 2026-05-11 | 4d06e66 | [260511-j8l-add-pythagorean-comma-theory-page-at-src](./quick/260511-j8l-add-pythagorean-comma-theory-page-at-src/) |
+| 260511-jbq | add schisma theory page (32805/32768) mirroring syntonic-comma.md; sidebar entry registered | 2026-05-11 | ddb15a4 | [260511-jbq-add-schisma-theory-page-at-src-pages-sch](./quick/260511-jbq-add-schisma-theory-page-at-src-pages-sch/) |
 
 ## Deferred Items
 
