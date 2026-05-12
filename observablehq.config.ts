@@ -16,6 +16,7 @@ export default {
       open: true,
       pages: [
         { name: "Monzos", path: "/pages/monzos" },
+        { name: "Otonality & utonality", path: "/pages/otonality-utonality" },
         { name: "The syntonic comma", path: "/pages/syntonic-comma" },
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
         { name: "The schisma", path: "/pages/schisma" },
