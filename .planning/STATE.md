@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: MVP
 status: shipped
 stopped_at: ""
-last_updated: "2026-05-12T17:00:00.000Z"
-last_activity: 2026-05-12 -- quick-260512-dcp: add edo-approximation theory page (12-/19-/31-/53-EDO nearest-step approximation of 3/2, 5/4, 7/4, 9/8, 11/8; inline Math.round(ji.cents/stepCents) mirrors bestEdosForScale's discipline; 31-EDO crushes 7/4 (1.08¢ off), 53-EDO crushes 3/2 (0.07¢ off — Mercator's comma closure); audition: pure 7/4 vs 31-EDO 7/4 via centsToRatio; sidebar entry after Meantone)
+last_updated: "2026-05-12T17:38:13.575Z"
+last_activity: 2026-05-12 -- quick-260512-eru: add play-dyad component for simultaneous dyad audition (mirrors play-interval.ts factory shape; signature `playDyad(a, b, synth, { baseHz?, duration?, label? })` returns HTMLButtonElement; click triggers a single `synth.playNotes([baseHz*a, baseHz*b], dur)` chord call; BigInt-Fraction source of truth — no cents on the kernel side; happy-dom vitest spec 6/6 pass; component not yet wired into any page)
 progress:
   total_phases: 4
   completed_phases: 4
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
 
 Milestone: v1.0 MVP — SHIPPED 2026-05-07
 Phases: 4/4 complete (full archive at .planning/milestones/v1.0-ROADMAP.md)
-Last activity: 2026-05-12 -- quick-260512-dcp: add edo-approximation theory page (12-/19-/31-/53-EDO nearest-step approximation of 3/2, 5/4, 7/4, 9/8, 11/8; inline Math.round(ji.cents/stepCents) mirrors bestEdosForScale's discipline; 31-EDO crushes 7/4 (1.08¢ off), 53-EDO crushes 3/2 (0.07¢ off — Mercator's comma closure); audition: pure 7/4 vs 31-EDO 7/4 via centsToRatio; sidebar entry after Meantone)
+Last activity: 2026-05-12 -- quick-260512-eru: add play-dyad component for simultaneous dyad audition (mirrors play-interval.ts factory shape; signature `playDyad(a, b, synth, { baseHz?, duration?, label? })` returns HTMLButtonElement; click triggers a single `synth.playNotes([baseHz*a, baseHz*b], dur)` chord call; BigInt-Fraction source of truth — no cents on the kernel side; happy-dom vitest spec 6/6 pass; component not yet wired into any page)
 
 Progress: [██████████] 100%
 
@@ -155,6 +155,7 @@ None yet.
 | 260512-cst | add pythagorean-tuning theory page (12-note chain of pure 3/2 fifths; inline chainOfFifths(n) building a Scale via Interval.mul + octaveReduce, sort by cents, append 2/1 period; scaleTable render at baseHz 261.625 (C4) shows the 13 rows; wolf 5th derived as 262144/177147 ≈ 678.49¢ = (2/1)^7 / (3/2)^11 and auditioned against pure 3/2 via two playInterval buttons); sidebar entry after The Pythagorean comma | 2026-05-12 | ee2cbdf | [260512-cst-add-pythagorean-tuning-theory-page](./quick/260512-cst-add-pythagorean-tuning-theory-page/) |
 | 260512-d38 | add meantone theory page (1/4-comma Aron / 1/3-comma Salinas / 1/6-comma Silbermann; tempered 5ths computed at the display layer via 1200*log2(3/2) − (1/n)*1200*log2(81/80) from pureFifth.cents and syntonic.cents projections; new centsToRatio in src/lib/cents.ts wraps xen-dev-utils centsToValue at the project boundary; kernel stays exact via Interval for 3/2, 5/4, 6/5, 81/64, 81/80; variants table at 0.001¢ precision via plain-DOM createElement/textContent; audition: pure 5/4 vs cents-built 1/4-comma meantone third sound identical, with Pythagorean 81/64 contrast); sidebar entry after Pythagorean tuning | 2026-05-12 | 6d22640 | [260512-d38-add-meantone-theory-page-at-src-pages-me](./quick/260512-d38-add-meantone-theory-page-at-src-pages-me/) |
 | 260512-dcp | add edo-approximation theory page (12-/19-/31-/53-EDO approximation of 3/2, 5/4, 7/4, 9/8, 11/8; per-cell nearest-step math `Math.round(ji.cents / stepCents)` mirroring bestEdosForScale's discipline — src/lib/edo.ts unchanged; 4×5 DOM table at 2-decimal precision via createElement/textContent shows step + signed cents-deviation; highlights: 31-EDO step 25 = 967.74¢ for 7/4 (1.08¢ off pure, headline 7-limit anchor), 53-EDO step 31 = 701.89¢ for 3/2 (0.07¢ off, Mercator's comma closure); audition: pure 7/4 + 31-EDO 7/4 (centsToRatio audio-boundary pattern) + 12-EDO 7/4 contrast; sidebar entry after Meantone | 2026-05-12 | dbf5b5c | [260512-dcp-add-edo-approximation-theory-page-at-src](./quick/260512-dcp-add-edo-approximation-theory-page-at-src/) |
+| 260512-eru | add play-dyad component for simultaneous dyad audition (new src/components/play-dyad.ts mirrors play-interval.ts factory shape, .play-btn class, ARIA, owner-allocates SynthHandle pattern; signature `playDyad(a, b, synth, { baseHz?, duration?, label? })` returns HTMLButtonElement; click handler calls `synth.playNotes([baseHz*Number(a.fraction.valueOf()), baseHz*Number(b.fraction.valueOf())], dur)` — one chord call, BigInt-Fraction stays source of truth, no cents round-trip on the kernel side; PlayDyadOpts.label is `string \| undefined` (vs play-interval's `boolean`) so callers can render arbitrary chord labels like "▶ 4:5:6"; happy-dom vitest spec covers class+ARIA, default/labeled render, playNotes call shape, and custom baseHz/duration forwarding — 6/6 pass; component NOT wired into any page yet — deferred to follow-up tasks) | 2026-05-12 | 3c5976d | [260512-eru-play-dyad-component](./quick/260512-eru-play-dyad-component/) |
 
 ## Deferred Items
 
