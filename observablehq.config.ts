@@ -21,6 +21,7 @@ export default {
         { name: "Odd-limits", path: "/pages/odd-limits" },
         { name: "Otonality & utonality", path: "/pages/otonality-utonality" },
         { name: "The syntonic comma", path: "/pages/syntonic-comma" },
+        { name: "Comma pump", path: "/pages/comma-pump" },
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
         { name: "The schisma", path: "/pages/schisma" },
         { name: "The septimal comma", path: "/pages/septimal-comma" },
