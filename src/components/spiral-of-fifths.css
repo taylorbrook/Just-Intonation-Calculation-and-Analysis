@@ -1,0 +1,51 @@
+/* spiral-of-fifths.css — circle/spiral-of-fifths SVG viz.
+ *
+ * Theme tokens only. Per-page CSS loading: this file is NOT auto-loaded;
+ * the consuming page must opt in via `style:` frontmatter or <link> head
+ * injection (per the ratio-pill.ts pattern; deferred to a future wiring task).
+ */
+
+.spiral-of-fifths-widget {
+  margin-block: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+svg.viz.spiral-of-fifths {
+  width: 100%;
+  height: auto;
+  max-width: 720px;
+  display: block;
+  background: var(--theme-background);
+}
+
+svg.viz.spiral-of-fifths .spiral-of-fifths__dot {
+  fill: color-mix(in oklab, var(--theme-blue) 70%, transparent);
+  stroke: var(--theme-blue);
+  stroke-width: 1;
+}
+svg.viz.spiral-of-fifths .spiral-of-fifths__ratio {
+  font-family: var(--monospace);
+  font-size: 12px;
+  fill: var(--theme-foreground);
+  pointer-events: none;
+}
+svg.viz.spiral-of-fifths .spiral-of-fifths__cents {
+  font-family: var(--monospace);
+  font-size: 10px;
+  fill: var(--theme-foreground-alt);
+  pointer-events: none;
+}
+svg.viz.spiral-of-fifths .spiral-of-fifths__wolf {
+  stroke: color-mix(in oklab, var(--theme-red, crimson) 70%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  fill: none;
+}
+svg.viz.spiral-of-fifths .spiral-of-fifths__gap {
+  stroke: var(--theme-foreground-alt);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  fill: none;
+}
