@@ -7,6 +7,7 @@ import { Interval } from "../lib/interval.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -43,6 +44,108 @@ ${tex`\text{p-limit}\!\left(\,2^{a_2}\cdot 3^{a_3}\cdot 5^{a_5}\cdot 7^{a_7}\cdo
 Every step up — 3 → 5 → 7 → 11 — opens a new dimension in the monzo lattice
 and a new family of intervals that don't exist below it. The four sections
 below walk that ladder, with a play button at every rung.
+
+## Limit explorer
+
+Sweep the slider through the primes 3 → 5 → 7 → 11 → 13. At each step the table
+shows the intervals that newly enter the JI system at that prime — i.e. the rungs
+of the prime-limit ladder. Below the table, the strip chart shows where each
+prime's basic identity ${tex`p / 2^{\lfloor \log_2 p \rfloor}`} lands on a
+0–1200¢ axis against the 12-TET grid: 3, 5, 7 sit close to 12-TET pitches; 11
+and 13 fall between them.
+
+```ts
+const limitIdx = view(
+  Inputs.range([0, 4], { step: 1, value: 1, label: "Prime limit" }),
+);
+```
+
+```ts
+// 5-position lookup. Indices 0..4 map to primes 3,5,7,11,13. The intervals at
+// each step are the canonical "newly-entering" ratios for that prime — built
+// from strings so the BigInt-Fraction path is exercised end-to-end (R-01).
+const limitSet = [
+  { prime: 3,  intervals: [new Interval("9/8"),  new Interval("27/16")] },
+  { prime: 5,  intervals: [new Interval("5/4"),  new Interval("6/5"),   new Interval("5/3")] },
+  { prime: 7,  intervals: [new Interval("7/4"),  new Interval("7/6"),   new Interval("7/5")] },
+  { prime: 11, intervals: [new Interval("11/8"), new Interval("11/9"),  new Interval("11/6")] },
+  { prime: 13, intervals: [new Interval("13/8"), new Interval("13/12"), new Interval("13/10")] },
+];
+```
+
+```ts
+// Reactive caption — surfaces the actual prime under the slider thumb.
+const limitCaption = (() => {
+  const span = document.createElement("p");
+  span.style.margin = "0.25rem 0 0.75rem 0";
+  span.textContent = `Prime limit: ${limitSet[limitIdx].prime}`;
+  return span;
+})();
+display(limitCaption);
+```
+
+```ts
+// Reactive table: intervals newly entering at the selected prime.
+// Pitfall #1: each Interval is constructed once (in limitSet) from a ratio
+// string. We read .fraction, .monzo, and .cents ONLY at the display step here.
+// XSS discipline (T-02-22/T-02-23): every dynamic cell uses createElement +
+// textContent; no innerHTML for dynamic values.
+const limitTable = (() => {
+  const { prime, intervals } = limitSet[limitIdx];
+
+  const table = document.createElement("table");
+
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  for (const label of ["Ratio", "Monzo", "Cents", "Play"]) {
+    const th = document.createElement("th");
+    th.textContent = label;
+    headerRow.appendChild(th);
+  }
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  for (const iv of intervals) {
+    const tr = document.createElement("tr");
+
+    // Ratio — reuse ratioPill, but suppress its cents (cents have their own column).
+    const ratioCell = document.createElement("td");
+    ratioCell.appendChild(ratioPill(iv, { showCents: false }));
+    tr.appendChild(ratioCell);
+
+    // Monzo — Unicode bra-ket `[ a  b  c … ⟩` on a <code> with tabular-nums.
+    // NOT KaTeX (would re-typeset on every slider tick and flicker).
+    const monzoCell = document.createElement("td");
+    const monzoCode = document.createElement("code");
+    monzoCode.style.fontVariantNumeric = "tabular-nums";
+    monzoCode.textContent = `[ ${iv.monzo.map((x) => String(x)).join("  ")} ⟩`;
+    monzoCell.appendChild(monzoCode);
+    tr.appendChild(monzoCell);
+
+    // Cents — 1 d.p., trailing `¢`.
+    const centsCell = document.createElement("td");
+    centsCell.textContent = `${iv.cents.toFixed(1)}¢`;
+    tr.appendChild(centsCell);
+
+    // Play — bare ▶ button via playInterval (no label, since the Ratio column
+    // already shows the ratio).
+    const playCell = document.createElement("td");
+    playCell.appendChild(playInterval(iv, synth));
+    tr.appendChild(playCell);
+
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+
+  // Suppress unused-variable warnings — `prime` is read above implicitly when
+  // we build the row labels; keep the destructure shape for clarity.
+  void prime;
+
+  return table;
+})();
+display(limitTable);
+```
 
 ## 3-limit (Pythagorean)
 
