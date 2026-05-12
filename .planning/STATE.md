@@ -5,7 +5,7 @@ milestone_name: MVP
 status: shipped
 stopped_at: ""
 last_updated: "2026-05-12T05:50:00.000Z"
-last_activity: 2026-05-12 -- quick-260511-vlq: add harmonic-series theory page (partials 1-16 over baseHz=110)
+last_activity: 2026-05-12 -- quick-260512-aph: add prime-limits theory page (3-limit -> 5-limit -> 7-limit -> 11-limit walkthrough; sidebar entry after Monzos)
 progress:
   total_phases: 4
   completed_phases: 4
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
 
 Milestone: v1.0 MVP — SHIPPED 2026-05-07
 Phases: 4/4 complete (full archive at .planning/milestones/v1.0-ROADMAP.md)
-Last activity: 2026-05-12 -- quick-260511-vlq: add harmonic-series theory page (partials 1-16 over baseHz=110)
+Last activity: 2026-05-12 -- quick-260512-aph: add prime-limits theory page (3-limit -> 5-limit -> 7-limit -> 11-limit walkthrough; sidebar entry after Monzos)
 
 Progress: [██████████] 100%
 
@@ -149,6 +149,7 @@ None yet.
 | 260511-rb4 | add monzos theory page (prime-factor vectors; 3/2, 5/4, 81/80, 7/6 worked examples) mirroring syntonic-comma.md; sidebar entry registered | 2026-05-12 | 9470db5 | [260511-rb4-add-monzos-theory-page-at-src-pages-monz](./quick/260511-rb4-add-monzos-theory-page-at-src-pages-monz/) |
 | 260511-uuh | add otonality-utonality theory page (Partch's over-N/under-N duality; 4:5:6:7 vs 1/4:1/5:1/6:1/7 with kernel-side .inv().octaveReduce() verification); sidebar entry registered | 2026-05-12 | 64ab9a2 | [260511-uuh-otonality-utonality](./quick/260511-uuh-otonality-utonality/) |
 | 260511-vlq | add harmonic-series theory page (partials 1-16 over baseHz=110 with per-row playInterval; positioned as "ground floor" first in Theory notes sidebar); See-also back-link from syntonic-comma.md; forward-links to /pages/prime-limits + /pages/odd-limits | 2026-05-12 | 816af02 | [260511-vlq-add-harmonic-series-theory-page](./quick/260511-vlq-add-harmonic-series-theory-page/) |
+| 260512-aph | add prime-limits theory page (3-limit 3/2,9/8 -> 5-limit 4:5:6 triad -> 7-limit 7/4 -> 11-limit 11/8 with playInterval at each rung; references commas.ts 5/7/11-limit grouping); sidebar entry after Monzos; harmonic-series.md forward-link parenthetical dropped | 2026-05-12 | fb5a736 | [260512-aph-add-prime-limits-theory-page](./quick/260512-aph-add-prime-limits-theory-page/) |
 
 ## Deferred Items
 
