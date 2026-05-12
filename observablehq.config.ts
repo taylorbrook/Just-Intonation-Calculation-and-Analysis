@@ -15,6 +15,7 @@ export default {
       name: "Theory notes",
       open: true,
       pages: [
+        { name: "The harmonic series", path: "/pages/harmonic-series" },
         { name: "Monzos", path: "/pages/monzos" },
         { name: "Otonality & utonality", path: "/pages/otonality-utonality" },
         { name: "The syntonic comma", path: "/pages/syntonic-comma" },

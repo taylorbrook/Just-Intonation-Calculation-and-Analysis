@@ -48,6 +48,11 @@ The four 3's of the Pythagorean stacking + the −1 5-power = exactly the comma'
 
 ## See also
 
+The [harmonic series](/pages/harmonic-series) is the prerequisite: the 5-limit
+major third is partial 5 over partial 4, the Pythagorean major third is four
+stacked partial-3's, and the syntonic comma is precisely the gap between those
+two paths to the same scale degree.
+
 The dashboard at [/](/) lets you build any JI scale containing the comma. Try
 replacing one of the seed scale's pitches with `81/64` and audition both against
 the drone — the syntonic-comma beat-rate becomes audible immediately.
