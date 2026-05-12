@@ -7,6 +7,8 @@ import { Interval } from "../lib/interval.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import * as Plot from "npm:@observablehq/plot";
+import { monzoBuilder } from "../components/monzo-builder.js";
 ```
 
 ```ts
@@ -81,6 +83,68 @@ The first nonzero 7-prime entry pushes this interval into 7-limit. The negative
 3-prime exponent is doing real work — there's a factor of 3 in the *denominator*
 (6 = 2 · 3).
 
+## Monzo builder
+
+Build any prime-2/3/5/7/11 monzo by hand. The inputs and the ratio field stay
+synced; the bra-ket form, the ratio, the cents value, and the ▶ button update
+on every keystroke.
+
+```ts
+display(monzoBuilder(synth));
+```
+
+Ratios that include primes above 11 (for example `13/12`) surface an inline
+error rather than silently truncating — the builder enforces a 5-coordinate
+ceiling that matches the input grid.
+
+## Worked examples — projected to the 3-5 plane
+
+Each worked example carries five-or-fewer nonzero prime coordinates, but two of
+them — the 3- and 5-prime exponents — already tell most of the story. Plotting
+just those two coordinates gives a flat picture of where each interval sits in
+the 5-limit slice of monzo space. Notice that ${tex`3/2`} and ${tex`7/6`} both
+land at ${tex`(-1, 0)`} on this plane — they differ only in their 7-prime
+coordinate, which this projection collapses to zero. The overlap is real, not a
+rendering bug.
+
+```ts
+// 2D projection of the four worked examples onto the (prime-3, prime-5) plane.
+// p3, p5 are pulled directly from the existing Interval bindings via iv.monzo[1]
+// and iv.monzo[2] — no hardcoded coordinate literals (kernel stays the source of
+// truth; Pitfall #1).
+const scatterData = [
+  { ratio: "3/2", p3: fifth.monzo[1] ?? 0, p5: fifth.monzo[2] ?? 0 },
+  { ratio: "5/4", p3: majorThird.monzo[1] ?? 0, p5: majorThird.monzo[2] ?? 0 },
+  { ratio: "81/80", p3: syntonic.monzo[1] ?? 0, p5: syntonic.monzo[2] ?? 0 },
+  { ratio: "7/6", p3: septimalSubminorThird.monzo[1] ?? 0, p5: septimalSubminorThird.monzo[2] ?? 0 },
+];
+const monzoScatter = Plot.plot({
+  width: 480,
+  height: 360,
+  marginLeft: 60,
+  marginRight: 40,
+  marginBottom: 50,
+  x: { label: "Prime-3 exponent", grid: true, domain: [-5, 5] },
+  y: { label: "Prime-5 exponent", grid: true, domain: [-2, 2] },
+  marks: [
+    Plot.ruleX([0], { stroke: "#888", strokeDasharray: "2,3" }),
+    Plot.ruleY([0], { stroke: "#888", strokeDasharray: "2,3" }),
+    Plot.dot(scatterData, { x: "p3", y: "p5", fill: "#4269d0", r: 5 }),
+    Plot.text(scatterData, {
+      x: "p3",
+      y: "p5",
+      text: "ratio",
+      dx: 8,
+      dy: -4,
+      textAnchor: "start",
+      fontSize: 12,
+      fill: "currentColor",
+    }),
+  ],
+});
+display(monzoScatter);
+```
+
 ```ts
 // Round-trip check: every worked example survives Interval → monzo → Interval.
 // If any of these `ok` flags is false, the page is lying — surface it immediately
@@ -149,3 +213,10 @@ The [syntonic comma](/pages/syntonic-comma) page is the concrete worked-out 5-li
 example — its "In monzos" section reads naturally from here, since you can now see
 that ${tex`\begin{bmatrix} -4 & 4 & -1 \end{bmatrix}\rangle`} is just a vector
 that happens to spell out the gap between two ways of building a major third.
+
+## Further reading
+
+- [Monzo on the Xenharmonic Wiki](https://en.xen.wiki/w/Monzo) —
+  community-curated reference for the prime-factor vector notation. Covers
+  the bra-ket form, monzo arithmetic, prime limits, and the relationship to
+  vals (the dual lattice used in regular-temperament theory).
