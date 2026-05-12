@@ -24,6 +24,7 @@ export default {
         { name: "Comma pump", path: "/pages/comma-pump" },
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
         { name: "Pythagorean tuning", path: "/pages/pythagorean-tuning" },
+        { name: "Meantone", path: "/pages/meantone" },
         { name: "The schisma", path: "/pages/schisma" },
         { name: "The septimal comma", path: "/pages/septimal-comma" },
       ],
