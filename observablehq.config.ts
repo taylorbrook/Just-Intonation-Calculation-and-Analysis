@@ -15,6 +15,7 @@ export default {
       name: "Theory notes",
       open: true,
       pages: [
+        { name: "Monzos", path: "/pages/monzos" },
         { name: "The syntonic comma", path: "/pages/syntonic-comma" },
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
         { name: "The schisma", path: "/pages/schisma" },
