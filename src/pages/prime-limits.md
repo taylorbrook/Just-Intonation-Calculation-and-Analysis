@@ -147,6 +147,70 @@ const limitTable = (() => {
 display(limitTable);
 ```
 
+Each prime's **basic identity** is the ratio ${tex`p / 2^{\lfloor \log_2 p \rfloor}`} —
+the prime itself, octave-reduced into 1..2. Plotted on the cents axis with
+the 12-TET grid (dashed gray rules at every 100¢), it becomes obvious that
+3 (~702¢), 5 (~386¢), 7 (~969¢) all sit close to a 12-TET pitch, while
+11 (~551¢) and 13 (~841¢) fall squarely between 12-TET grid lines — which
+is why music using those primes can sound foreign to a 12-TET ear.
+
+```ts
+// Each prime's basic identity, computed in the kernel (BigInt-Fraction).
+// The Interval is built from a string ratio ONCE; .cents is read at the
+// data-row construction boundary (display-layer projection, Pitfall #1).
+const primeIdentities = [
+  { prime: 3,  iv: new Interval("3/2")  },
+  { prime: 5,  iv: new Interval("5/4")  },
+  { prime: 7,  iv: new Interval("7/4")  },
+  { prime: 11, iv: new Interval("11/8") },
+  { prime: 13, iv: new Interval("13/8") },
+].map(({ prime, iv }) => ({
+  prime,
+  ratio: iv.toString(),
+  cents: iv.cents,
+  label: `${prime} (${iv.toString()})`,
+}));
+
+const primeIdentityChart = Plot.plot({
+  width: 720,
+  height: 120,
+  marginTop: 28,
+  marginBottom: 36,
+  marginLeft: 24,
+  marginRight: 24,
+  x: { label: "Cents from 1/1", domain: [0, 1200], grid: false },
+  y: { axis: null, domain: [-1, 1] },
+  marks: [
+    // 12-TET grid: dashed rules at every 100¢ from 100 to 1100.
+    Plot.ruleX(
+      [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100],
+      { stroke: "#aaa", strokeDasharray: "2,3" },
+    ),
+    // Axis endpoints.
+    Plot.ruleX([0, 1200], { stroke: "#888" }),
+    // Each prime identity as a single dot on the strip.
+    Plot.dot(primeIdentities, {
+      x: "cents",
+      y: 0,
+      fill: "#4269d0",
+      r: 6,
+      stroke: "white",
+    }),
+    // Label above each dot.
+    Plot.text(primeIdentities, {
+      x: "cents",
+      y: 0,
+      text: "label",
+      dy: -14,
+      textAnchor: "middle",
+      fontSize: 12,
+      fill: "currentColor",
+    }),
+  ],
+});
+display(primeIdentityChart);
+```
+
 ## 3-limit (Pythagorean)
 
 3-limit ratios use only the primes 2 and 3. That gives you octaves
