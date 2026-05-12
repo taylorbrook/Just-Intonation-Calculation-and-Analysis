@@ -3,7 +3,7 @@ quick_id: 260512-cv2
 slug: add-odd-limits-theory-page
 date: 2026-05-12
 status: complete
-commit: _pending_
+commit: 0ff3958
 ---
 
 # Summary — add odd-limits theory page
