@@ -6,6 +6,7 @@ Why the I-vi-ii-V-I cadence in pure 5-limit JI drifts one syntonic comma flat pe
 import { Interval } from "../lib/interval.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -93,6 +94,30 @@ const cycleButton = (label, cycle) => {
 
 const playDrifting = cycleButton("Play drifting cycle", driftingCycle);
 const playReanchored = cycleButton("Play re-anchored cycle", reanchoredCycle);
+
+// Three drifting cycles chained back-to-back. Each successive cycle's chord roots
+// are multiplied by 80/81 relative to the previous — so cycle 1 starts where
+// cycle 0's I' landed (one syntonic comma flat of 1/1), cycle 2 starts at
+// (80/81)^2 (~−43¢), and cycle 2's final I' lands at (80/81)^3 (~−64.5¢, the
+// ~65¢ cumulative drift). This is what makes the comma pump unmistakable:
+// repeating the cadence is what exposes it. The multiplication uses Interval.mul,
+// which goes through the BigInt Fraction — no precision loss, no float-cents
+// round-tripping (Pitfall #1).
+const COMMA_FLAT = new Interval("80/81");
+const drift3Cycle = (() => {
+  const chords = [];
+  let shift = new Interval("1/1");
+  for (let k = 0; k < 3; k++) {
+    chords.push(triad(I.mul(shift), MAJOR));
+    chords.push(triad(vi.mul(shift), MINOR));
+    chords.push(triad(ii.mul(shift), MINOR));
+    chords.push(triad(V.mul(shift), MAJOR));
+    chords.push(triad(Iflat.mul(shift), MAJOR));
+    shift = shift.mul(COMMA_FLAT); // (80/81)^k for the next iteration
+  }
+  return chords; // 15 chords total
+})();
+const playDrift3 = cycleButton("Play 3 drift cycles", drift3Cycle);
 ```
 
 The most familiar cadence in Western music — **I-vi-ii-V-I** — is also the
@@ -127,6 +152,145 @@ so it sits **one syntonic comma below** the opening I. Each motion was a pure
 JI interval; their composition does not close the loop. This is the *comma
 pump*.
 
+## Visualizing the drift
+
+The chart below tracks the cumulative cents offset of the tonic across the five
+chords. For the first four chords nothing has accumulated — the tonic reference
+hasn't been revisited yet — so the line sits at zero. At chord 5 the cycle
+returns to the I chord built on the new root ${tex`80/81`}, and the line steps
+down to ${tex`-21.5\text{¢}`}: one syntonic comma flat of where we started.
+
+```ts
+// Drift chart — cumulative cents offset of the tonic across the 5 chords of one
+// pure-5-limit I-vi-ii-V-I cycle. The intermediate chords don't "drift" until
+// the cycle closes; only at chord 5 does the cumulative product 80/81 manifest.
+// Cents are derived ONCE here from Iflat.cents at chart-build time (display
+// boundary; Pitfall #1). The y-domain is shared with the re-anchored chart so
+// both drops are visually commensurable.
+const DRIFT_Y_DOMAIN = [-28, 6];
+const CHORD_LABELS_DRIFT = ["I", "vi", "ii", "V", "I'"];
+const CHORD_LABELS_REANCHORED = ["I", "vi", "ii", "V", "I"];
+
+const driftChart = (() => {
+  const data = [
+    { chord: 1, label: "I",  cents: 0 },
+    { chord: 2, label: "vi", cents: 0 },
+    { chord: 3, label: "ii", cents: 0 },
+    { chord: 4, label: "V",  cents: 0 },
+    { chord: 5, label: "I'", cents: Iflat.cents }, // ≈ −21.5064 (BigInt-Fraction → cents projection, once)
+  ];
+  return Plot.plot({
+    width: 640,
+    height: 280,
+    marginLeft: 70,
+    marginRight: 40,
+    marginBottom: 50,
+    x: {
+      label: "Chord",
+      domain: [1, 2, 3, 4, 5],
+      tickFormat: (n) => CHORD_LABELS_DRIFT[n - 1] ?? String(n),
+    },
+    y: {
+      label: "Cents from opening tonic",
+      domain: DRIFT_Y_DOMAIN,
+      grid: true,
+      tickFormat: (v) => (v > 0 ? `+${v}` : String(v)),
+    },
+    marks: [
+      Plot.ruleY([0], { stroke: "#888", strokeDasharray: "2,3" }),
+      Plot.line(data, {
+        x: "chord",
+        y: "cents",
+        curve: "step-after", // flat through chords 1–4, drops at chord 5
+        stroke: "#4269d0",
+        strokeWidth: 2.5,
+      }),
+      Plot.dot(data, { x: "chord", y: "cents", fill: "#4269d0", r: 4 }),
+      // Comma annotation near the final point.
+      Plot.text(
+        [{ x: 5, y: Iflat.cents, text: "−21.5¢ (one syntonic comma)" }],
+        { x: "x", y: "y", text: "text", dx: -8, dy: 14, textAnchor: "end", fontSize: 12, fill: "#c45656" },
+      ),
+    ],
+  });
+})();
+display(driftChart);
+```
+
+Re-rooting the final tonic hides the drift. The chart below holds the line at
+zero across all five chords — the price is that the ${tex`V \to I`} motion is
+no longer a pure ${tex`2/3`} fifth. The red bracket marks the
+${tex`21.5\text{¢}`} that the re-rooting has absorbed into that single motion.
+
+```ts
+// Re-anchored chart — same axes and y-domain as the drift chart so the two are
+// visually comparable. The line is flat at 0 across all 5 chords; a red bracket
+// drops BELOW the zero line on the V→I motion to show the 21.5¢ that the
+// re-rooting has silently absorbed (the same comma shown as a drop in the
+// previous chart, here marked as "what didn't happen"). The bracket terminus
+// y-coords use `Iflat.cents` (negative ≈ −21.5) so the bracket points DOWN
+// toward where the drift would have landed.
+const reanchoredChart = (() => {
+  const data = [
+    { chord: 1, cents: 0 },
+    { chord: 2, cents: 0 },
+    { chord: 3, cents: 0 },
+    { chord: 4, cents: 0 },
+    { chord: 5, cents: 0 },
+  ];
+  const BRACKET_RED = "#c45656";
+  return Plot.plot({
+    width: 640,
+    height: 280,
+    marginLeft: 70,
+    marginRight: 40,
+    marginBottom: 50,
+    x: {
+      label: "Chord",
+      domain: [1, 2, 3, 4, 5],
+      tickFormat: (n) => CHORD_LABELS_REANCHORED[n - 1] ?? String(n),
+    },
+    y: {
+      label: "Cents from opening tonic",
+      domain: DRIFT_Y_DOMAIN,
+      grid: true,
+      tickFormat: (v) => (v > 0 ? `+${v}` : String(v)),
+    },
+    marks: [
+      Plot.ruleY([0], { stroke: "#888", strokeDasharray: "2,3" }),
+      Plot.line(data, {
+        x: "chord",
+        y: "cents",
+        curve: "step-after",
+        stroke: "#4269d0",
+        strokeWidth: 2.5,
+      }),
+      Plot.dot(data, { x: "chord", y: "cents", fill: "#4269d0", r: 4 }),
+      // Red bracket spanning V→I (chord 4 → chord 5), pointing DOWN from the
+      // zero line to y=Iflat.cents (≈ −21.5): two short vertical ticks + one
+      // horizontal bar connecting them at the bottom of the bracket.
+      Plot.link(
+        [{ x1: 4, y1: 0, x2: 4, y2: Iflat.cents }],
+        { x1: "x1", y1: "y1", x2: "x2", y2: "y2", stroke: BRACKET_RED, strokeWidth: 2 },
+      ),
+      Plot.link(
+        [{ x1: 5, y1: 0, x2: 5, y2: Iflat.cents }],
+        { x1: "x1", y1: "y1", x2: "x2", y2: "y2", stroke: BRACKET_RED, strokeWidth: 2 },
+      ),
+      Plot.link(
+        [{ x1: 4, y1: Iflat.cents, x2: 5, y2: Iflat.cents }],
+        { x1: "x1", y1: "y1", x2: "x2", y2: "y2", stroke: BRACKET_RED, strokeWidth: 2 },
+      ),
+      Plot.text(
+        [{ x: 4.5, y: Iflat.cents, text: "comma absorbed (21.5¢)" }],
+        { x: "x", y: "y", text: "text", dy: 14, textAnchor: "middle", fontSize: 12, fill: BRACKET_RED },
+      ),
+    ],
+  });
+})();
+display(reanchoredChart);
+```
+
 ## Audition
 
 - ${playDrifting} — pure 5-limit roots throughout. Listen to the final tonic
@@ -139,6 +303,12 @@ pump*.
   ${tex`27/40`}, sharp by one syntonic comma). This is what equal-tempered
   systems do *globally* — they smear the comma across all twelve fifths so
   that every cycle closes, at the cost of every fifth being slightly impure.
+- ${playDrift3} — three full cadences chained back-to-back. Each cycle's chord
+  roots are multiplied by ${tex`80/81`} relative to the previous, so the drift
+  is cumulative: ~21.5¢ after cycle 1, ~43¢ after cycle 2, ~64.5¢ after cycle 3.
+  By the third cycle the "home" chord sits more than half a 12-TET semitone
+  flat — the cadence has walked off the page. The full 15-chord run takes ~16
+  seconds; listen for the final I against your memory of the opening one.
 
 ## Why this matters
 
@@ -184,3 +354,22 @@ The [dashboard](/) — design any 5-limit JI scale to hear the comma pump in
 your own composition. Try replacing one of the seed scale's pitches with
 ${tex`80/81`} and audition against the drone — that is the absolute pitch
 your tonic walks down to after one I-vi-ii-V-I.
+
+## Further reading
+
+- [Comma pump on the Xenharmonic Wiki](https://en.xen.wiki/w/Comma_pump) —
+  community-curated reference for the syntonic comma pump and its cousins (the
+  septimal comma pump on dominant 7th progressions, the Pythagorean comma pump
+  on stacks of fifths, etc.). Covers the algebraic conditions under which a
+  progression "pumps" a given comma.
+- **Ben Johnston, *Suite for Microtonal Piano* (1977).** A four-movement piano
+  cycle written in pure 5-limit just intonation. Johnston's notation explicitly
+  marks each comma shift with arrows above the notes: an up-arrow before a
+  notehead raises that pitch by one syntonic comma (${tex`81/80`}), a
+  down-arrow lowers it by the same. The Suite is a sustained meditation on
+  exactly the drift this page demonstrates — Johnston treats the comma as a
+  compositional resource rather than a problem to be tempered away, and the
+  movements modulate by *accepting* the pump rather than absorbing it. The
+  Suite is the canonical reference work for any composer asking "what does it
+  sound like to write in pure JI?"; the Lubman recording (New World Records
+  80637) is the standard.
