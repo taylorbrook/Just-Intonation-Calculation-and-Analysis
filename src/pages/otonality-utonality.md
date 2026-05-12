@@ -6,6 +6,8 @@ Over-N and under-N chord-formation — Partch's central duality, and the rows-an
 import { Interval } from "../lib/interval.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
+import { playInterval } from "../components/play-interval.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -75,10 +77,10 @@ numerator, ascending denominator).
 
 As harmonics: ${tex`4 : 5 : 6 : 7`}. Octave-reduced to ${tex`[1, 2)`}: ${tex`1 : \tfrac{5}{4} : \tfrac{3}{2} : \tfrac{7}{4}`}.
 
-- ${ratioPill(otonal[0])} — the fundamental (4/4 = 1/1).
-- ${ratioPill(otonal[1])} — 5-limit major third (5th harmonic, octave-reduced).
-- ${ratioPill(otonal[2])} — perfect fifth (6/4 = 3/2; the 6th harmonic, octave-reduced).
-- ${ratioPill(otonal[3])} — harmonic seventh (7th harmonic; 7-limit, ~969¢, a touch flatter than the 12-TET minor seventh).
+- ${ratioPill(otonal[0])} — the fundamental (4/4 = 1/1). ${playInterval(otonal[0], synth, { label: true })}
+- ${ratioPill(otonal[1])} — 5-limit major third (5th harmonic, octave-reduced). ${playInterval(otonal[1], synth, { label: true })}
+- ${ratioPill(otonal[2])} — perfect fifth (6/4 = 3/2; the 6th harmonic, octave-reduced). ${playInterval(otonal[2], synth, { label: true })}
+- ${ratioPill(otonal[3])} — harmonic seventh (7th harmonic; 7-limit, ~969¢, a touch flatter than the 12-TET minor seventh). ${playInterval(otonal[3], synth, { label: true })}
 
 ```ts
 // Build the "Play otonal (4:5:6:7)" button inline. We don't use playInterval
@@ -103,16 +105,97 @@ const otonalBtn = (() => {
 
 Audition all four notes together: ${otonalBtn}
 
+### The mirror, visualized
+
+```ts
+// Paired partials chart — visual A/B of the otonal/utonal mirror.
+// Both charts share x ∈ [0, 1050]¢ and use horizontal rules from 0 to each
+// member's cents. Cents come from Interval.cents on the existing otonal/utonal
+// bindings (Pitfall #1 — kernel BigInt-Fraction is source of truth; cents is
+// a display projection read ONCE here at chart-build time).
+const partialsCharts = (() => {
+  const X_DOMAIN = [0, 1050];
+  const CHART_WIDTH = 360;
+  const CHART_HEIGHT = 220;
+
+  const otonalRows = otonal.map((iv) => ({
+    label: iv.toString(), // "1/1", "5/4", "3/2", "7/4"
+    cents: iv.cents, // display-boundary projection (Pitfall #1)
+  }));
+  const utonalRows = utonal.map((iv) => ({
+    label: iv.toString(), // "1/1", "8/7", "4/3", "8/5"
+    cents: iv.cents,
+  }));
+
+  // Y-axis domain: array order ascending (so 1/1 is the lowest pitch),
+  // reverse:true puts the higher pitch (7/4 / 8/5) at the TOP. That
+  // matches musical-staff intuition: higher pitch, higher on the chart.
+  const otonalChart = Plot.plot({
+    title: "Otonal — 4:5:6:7",
+    width: CHART_WIDTH,
+    height: CHART_HEIGHT,
+    marginLeft: 50,
+    marginRight: 20,
+    x: { label: "Cents from fundamental", domain: X_DOMAIN, grid: true },
+    y: { label: null, domain: otonalRows.map((r) => r.label), reverse: true },
+    marks: [
+      Plot.ruleY(otonalRows, { y: "label", x1: 0, x2: "cents", stroke: "#4269d0", strokeWidth: 3 }),
+      Plot.dot(otonalRows, { x: "cents", y: "label", fill: "#4269d0", r: 4, stroke: "white", strokeWidth: 1 }),
+    ],
+  });
+
+  const utonalChart = Plot.plot({
+    title: "Utonal — 1/1:8/7:4/3:8/5",
+    width: CHART_WIDTH,
+    height: CHART_HEIGHT,
+    marginLeft: 50,
+    marginRight: 20,
+    x: { label: "Cents from fundamental", domain: X_DOMAIN, grid: true },
+    y: { label: null, domain: utonalRows.map((r) => r.label), reverse: true },
+    marks: [
+      Plot.ruleY(utonalRows, { y: "label", x1: 0, x2: "cents", stroke: "#ef8e3a", strokeWidth: 3 }),
+      Plot.dot(utonalRows, { x: "cents", y: "label", fill: "#ef8e3a", r: 4, stroke: "white", strokeWidth: 1 }),
+    ],
+  });
+
+  // Flex container so the two charts read as a paired A/B on wide viewports
+  // and stack on narrow ones. createElement-only (no innerHTML with interpolated
+  // values — defense-in-depth T-02-22/T-02-23; nothing here is user-controlled
+  // but the pattern stays consistent with the rest of the codebase).
+  const wrapper = document.createElement("div");
+  wrapper.style.display = "flex";
+  wrapper.style.gap = "24px";
+  wrapper.style.flexWrap = "wrap";
+  wrapper.style.justifyContent = "center";
+  const leftBox = document.createElement("div");
+  leftBox.appendChild(otonalChart);
+  const rightBox = document.createElement("div");
+  rightBox.appendChild(utonalChart);
+  wrapper.appendChild(leftBox);
+  wrapper.appendChild(rightBox);
+  return wrapper;
+})();
+display(partialsCharts);
+```
+
+The two charts share the same cents axis. Read the spacing: the otonal chord
+stacks its 386¢ third near the bottom (close to the fundamental), then 702¢,
+then 969¢ — the gaps between members get smaller as you go up, the signature
+shape of the harmonic series. The utonal chord (re-rooted upward for direct
+A/B against the otonal root) stacks its 231¢ supermajor second near the
+bottom, then 498¢, then 814¢ — the gaps between members get *larger* as you
+go up. That divergent shape IS the otonal/utonal mirror.
+
 ## The utonal chord (under-N)
 
 As subharmonics: ${tex`\tfrac{1}{4} : \tfrac{1}{5} : \tfrac{1}{6} : \tfrac{1}{7}`}.
 Each subharmonic is inverted and octave-reduced so the chord can be played
 ascending from the same fundamental as the otonal chord above: ${tex`1 : \tfrac{8}{7} : \tfrac{4}{3} : \tfrac{8}{5}`}.
 
-- ${ratioPill(utonal[0])} — the guide tone (root, unchanged).
-- ${ratioPill(utonal[1])} — 7-limit "supermajor second" (inv of 7/4 → 4/7, octave-reduced to 8/7).
-- ${ratioPill(utonal[2])} — perfect fourth (inv of 3/2 → 2/3, octave-reduced to 4/3).
-- ${ratioPill(utonal[3])} — 5-limit minor sixth (inv of 5/4 → 4/5, octave-reduced to 8/5).
+- ${ratioPill(utonal[0])} — the guide tone (root, unchanged). ${playInterval(utonal[0], synth, { label: true })}
+- ${ratioPill(utonal[1])} — 7-limit "supermajor second" (inv of 7/4 → 4/7, octave-reduced to 8/7). ${playInterval(utonal[1], synth, { label: true })}
+- ${ratioPill(utonal[2])} — perfect fourth (inv of 3/2 → 2/3, octave-reduced to 4/3). ${playInterval(utonal[2], synth, { label: true })}
+- ${ratioPill(utonal[3])} — 5-limit minor sixth (inv of 5/4 → 4/5, octave-reduced to 8/5). ${playInterval(utonal[3], synth, { label: true })}
 
 ```ts
 // Truth-check: compute the utonal chord from the otonal one via .inv().octaveReduce().
@@ -205,3 +288,8 @@ from the Pythagorean major third (${tex`\tfrac{81}{64}`}) by exactly one
 comma a more general home: any time you swap a pure prime-${tex`p`} interval
 for a stack of pure prime-${tex`q`} intervals, the difference is a comma of
 the form ${tex`p^{\pm a} \cdot q^{\mp b}`}.
+
+## Further reading
+
+- [Otonality and utonality on the Xenharmonic Wiki](https://en.xen.wiki/w/Otonality_and_utonality) — community-curated reference covering Partch's duality in full, with worked tonality-diamond examples and the canonical numerator/denominator framing.
+- [Kyle Gann, "La Monte Young's *The Well-Tuned Piano*"](https://www.kylegann.com/wtp.html) — Gann's composer's-eye survey of Young's six-hour solo-piano cycle, the most-cited example of long-form otonal-chord-cluster composition; the dream-house tunings draw their pitch lattice from selected otonal chords on 7- and 11-limit harmonics.
