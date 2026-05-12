@@ -47,9 +47,13 @@ describe("spiralGeometry — pure 3/2", () => {
       expect(steps[k]!.ratio?.equals(new Interval(r))).toBe(true);
     });
   });
-  it("step 12 octave-reduces to 1/1 (exact) but lands at angle ≠ 0 (gap)", () => {
+  it("step 12 octave-reduces to 531441/524288 (Pythagorean comma) and lands at angle ≠ 0 (gap)", () => {
+    // octaveReduce brings the ratio into [1, 2). After 12 chained fifths the
+    // exact octave-reduced ratio is 3^12 / 2^19 = 531441/524288 — the Pythagorean
+    // comma above 1/1, NOT 1/1. The gap shows up both in the ratio and in the
+    // wrapped angle (≈0.1228 rad ≈ +23.46¢).
     const s = spiralGeometry(12, PURE_FIFTH)[12];
-    expect(s!.ratio?.equals(new Interval("1/1"))).toBe(true);
+    expect(s!.ratio?.equals(new Interval("531441/524288"))).toBe(true);
     const wrapped = s!.angleRad % (2 * Math.PI);
     expect(wrapped).toBeGreaterThan(0.12);
     expect(wrapped).toBeLessThan(0.13);
