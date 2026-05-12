@@ -7,6 +7,7 @@ import { Interval } from "../lib/interval.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -73,6 +74,107 @@ equal-tempered pitch: a 12-TET ear hears partial 7 as a noticeably flat minor 7t
 (−31.2¢), partial 11 as halfway between a perfect 4th and a tritone (−48.7¢),
 and partial 13 as a flat neutral 6th (−59.5¢). These are the prime-7, prime-11,
 and prime-13 entry points respectively.
+
+```ts
+// Vertical cents-vs-partial chart. y = partial number (1..16, top→bottom via reverse).
+// x = cents from fundamental (iv.cents — display-boundary projection only; Pitfall #1).
+// color = largest prime in the partial's monzo (2, 3, 5, 7, 11, 13, or "other" when
+// the monzo is empty, i.e. partial 1 = 1/1). Coordinates are derived ONCE here at
+// chart-build time from each Interval; no cents value is ever fed back into the kernel.
+const partialsChart = (() => {
+  // Map a monzo to its prime-category label. Empty monzo (1/1) → "other".
+  // For pure-integer partials n/1 the monzo has no negative entries, so the
+  // largest non-zero exponent is at the highest index. Prime axis order
+  // (xen-dev-utils toMonzo): [2, 3, 5, 7, 11, 13, 17, ...].
+  const PRIME_AXIS = [2, 3, 5, 7, 11, 13];
+  function primeCategory(monzo: number[]): "2" | "3" | "5" | "7" | "11" | "13" | "other" {
+    if (monzo.length === 0) return "other";
+    // Find the highest index with a non-zero exponent.
+    let hi = -1;
+    for (let i = 0; i < monzo.length; i++) {
+      if (monzo[i] !== 0) hi = i;
+    }
+    if (hi < 0 || hi >= PRIME_AXIS.length) return "other";
+    const p = PRIME_AXIS[hi];
+    return String(p) as "2" | "3" | "5" | "7" | "11" | "13";
+  }
+
+  // Build chart data — cents projected ONCE here at the display boundary.
+  const data = partials.map(({ n, iv }) => ({
+    n,
+    cents: iv.cents,
+    category: primeCategory(iv.monzo),
+  }));
+
+  // 7 perceptually distinct, color-blind-aware hues. Anchored on the project's
+  // existing D-33 palette (#4269d0 blue, #ef8e3a orange — used in scale-compare.ts),
+  // extended with green/purple/magenta/teal and a neutral gray for "other".
+  const COLOR_DOMAIN = ["2", "3", "5", "7", "11", "13", "other"] as const;
+  const COLOR_RANGE = [
+    "#4269d0", // 2 — blue (D-33)
+    "#ef8e3a", // 3 — orange (D-33)
+    "#3ca951", // 5 — green
+    "#9c6ade", // 7 — purple
+    "#d4378a", // 11 — magenta
+    "#1ca8a8", // 13 — teal
+    "#888888", // other — neutral gray (partial 1)
+  ];
+
+  return Plot.plot({
+    width: 640,
+    height: 360,
+    marginLeft: 60,
+    marginRight: 120, // room for legend
+    x: { label: "Cents from fundamental", grid: true, domain: [0, 4900] },
+    y: {
+      label: "Partial",
+      domain: data.map((d) => d.n), // 1..16 in array order
+      reverse: true, // partial 1 at top, 16 at bottom
+      tickFormat: (n) => String(n),
+    },
+    color: {
+      legend: true,
+      label: "Largest prime",
+      domain: [...COLOR_DOMAIN],
+      range: COLOR_RANGE,
+    },
+    marks: [
+      // Stem from 0 to each partial's cents — visually "vertical chart" reading.
+      Plot.ruleY(data, { y: "n", x1: 0, x2: "cents", stroke: "category", strokeWidth: 2 }),
+      // Dot at the partial's cents value.
+      Plot.dot(data, { x: "cents", y: "n", fill: "category", r: 5, stroke: "white", strokeWidth: 1 }),
+    ],
+  });
+})();
+display(partialsChart);
+```
+
+```ts
+// Single ▶ Sweep button — arpeggiates partials 1..16 against the fundamental.
+// freqs are computed via BigInt-Fraction → Number coercion at the audio boundary
+// (Pitfall #1: cents/Hz are projections, not kernel input — this Number cast is
+// acceptable HERE because we feed Hz directly into Web Audio).
+// playArpeggio is bounded internally (MAX_ARPEGGIO_LEN=256); 16 partials is well within.
+const sweepBtn = (() => {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "play-btn";
+  btn.textContent = "▶ Sweep partials 1→16";
+  btn.setAttribute("aria-label", "Sweep partials 1 through 16 as an arpeggio over the fundamental");
+  btn.addEventListener("click", () => {
+    const freqs = partials.map(({ iv }) => baseHz * Number(iv.fraction.valueOf()));
+    synth.playArpeggio(freqs, 0.35);
+  });
+  return btn;
+})();
+display(sweepBtn);
+```
+
+The chart above plots each partial's cents-from-fundamental, colored by the
+largest prime that appears in its ratio — the prime-2 stack stays on a single
+rhythm, prime-3 introduces the fifth, and primes 5/7/11/13 mark the entry of
+each new harmonic flavor. Click **Sweep** to arpeggiate all sixteen at 350 ms
+per step.
 
 ```ts
 // Partials table — manual DOM construction following src/components/scale-table.ts.
@@ -175,3 +277,8 @@ the partials above (and their inversions/multiplications). Try seeding a scale
 with ${tex`\{1/1,\ 5/4,\ 3/2,\ 7/4\}`} — the otonal tetrad on partial 4 — and
 audition it against the drone. What you're hearing is partials 4, 5, 6, 7 of
 the harmonic series, sounded together.
+
+## Further reading
+
+- [Harmonic series on the Xenharmonic Wiki](https://en.xen.wiki/w/Harmonic_series) — community-curated reference covering the harmonic series across JI, regular temperaments, and extended-prime music.
+- [Kyle Gann, "Just Intonation Explained"](https://www.kylegann.com/tuning.html) — Gann's introduction to JI from a composer's standpoint; the partials table on this page is the same scaffolding he walks through.
