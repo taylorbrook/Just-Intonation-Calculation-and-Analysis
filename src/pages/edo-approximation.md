@@ -286,6 +286,70 @@ signed deviation in cents.
   step 9 is ~+17.10¢. The 11-limit is where the gap between 12-EDO and
   microtonal EDOs becomes the most audible.
 
+## Live EDO explorer
+
+Sweep N from 5 to 72 to see which JI anchors snap into tune and which slip out.
+The row below uses the same five JI anchors and the same
+${tex`k = \mathrm{round}(c/s)`} nearest-step math as the static table above —
+only the EDO row changes.
+
+```ts
+const liveN = view(
+  Inputs.range([5, 72], { step: 1, value: 31, label: "EDO size N" }),
+);
+```
+
+```ts
+// Live deviation row — recomputes reactively when liveN changes.
+// Pitfall #1 discipline: the JI anchors stay as Interval (kernel-exact);
+// `iv.cents` is the display-layer projection only. No cents value ever
+// becomes kernel input.
+const liveDeviationTable = (() => {
+  const N = liveN;
+  const stepCents = 1200 / N;
+  const fmtErr = (e) => {
+    const rounded = Number(e.toFixed(2));
+    const sign = rounded > 0 ? "+" : rounded < 0 ? "−" : "";
+    return `${sign}${Math.abs(rounded).toFixed(2)}¢`;
+  };
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  const corner = document.createElement("th");
+  corner.textContent = "EDO";
+  headerRow.appendChild(corner);
+  for (const { label } of jiIntervals) {
+    const th = document.createElement("th");
+    th.textContent = label;
+    headerRow.appendChild(th);
+  }
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  const tr = document.createElement("tr");
+  const rowLabel = document.createElement("th");
+  rowLabel.scope = "row";
+  rowLabel.textContent = `${N}-EDO`;
+  tr.appendChild(rowLabel);
+  for (const { iv } of jiIntervals) {
+    const ideal = iv.cents; // display-layer projection (Pitfall #1)
+    const step = Math.round(ideal / stepCents);
+    const actual = step * stepCents;
+    const error = actual - ideal;
+    const td = document.createElement("td");
+    td.textContent = `${step} @ ${fmtErr(error)}`;
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+  table.appendChild(tbody);
+  return table;
+})();
+```
+
+```ts
+display(liveDeviationTable);
+```
+
 ## Audition — pure vs 31-EDO vs 12-EDO 7/4
 
 - ${playPure7} sounds the pure ${ratioPill(harm7)}
