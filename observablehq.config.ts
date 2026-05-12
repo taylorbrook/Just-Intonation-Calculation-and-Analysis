@@ -25,6 +25,7 @@ export default {
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
         { name: "Pythagorean tuning", path: "/pages/pythagorean-tuning" },
         { name: "Meantone", path: "/pages/meantone" },
+        { name: "EDO approximations", path: "/pages/edo-approximation" },
         { name: "The schisma", path: "/pages/schisma" },
         { name: "The septimal comma", path: "/pages/septimal-comma" },
       ],
