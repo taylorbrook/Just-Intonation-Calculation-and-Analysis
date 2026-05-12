@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: MVP
 status: shipped
 stopped_at: ""
-last_updated: "2026-05-11T21:25:00.000Z"
-last_activity: 2026-05-11 -- quick-260511-jyh: add septimal-comma theory page mirroring syntonic-comma.md
+last_updated: "2026-05-12T02:45:00.000Z"
+last_activity: 2026-05-12 -- quick-260511-rb4: add monzos theory page mirroring syntonic-comma.md
 progress:
   total_phases: 4
   completed_phases: 4
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
 
 Milestone: v1.0 MVP — SHIPPED 2026-05-07
 Phases: 4/4 complete (full archive at .planning/milestones/v1.0-ROADMAP.md)
-Last activity: 2026-05-11 -- quick-260511-jyh: add septimal-comma theory page mirroring syntonic-comma.md
+Last activity: 2026-05-12 -- quick-260511-rb4: add monzos theory page mirroring syntonic-comma.md
 
 Progress: [██████████] 100%
 
@@ -146,6 +146,7 @@ None yet.
 | 260511-j8l | add Pythagorean-comma theory page mirroring syntonic-comma.md; sidebar entry registered | 2026-05-11 | 4d06e66 | [260511-j8l-add-pythagorean-comma-theory-page-at-src](./quick/260511-j8l-add-pythagorean-comma-theory-page-at-src/) |
 | 260511-jbq | add schisma theory page (32805/32768) mirroring syntonic-comma.md; sidebar entry registered | 2026-05-11 | ddb15a4 | [260511-jbq-add-schisma-theory-page-at-src-pages-sch](./quick/260511-jbq-add-schisma-theory-page-at-src-pages-sch/) |
 | 260511-jyh | add septimal-comma theory page (64/63, Archytas) mirroring syntonic-comma.md; sidebar entry registered | 2026-05-11 | 924edb5 | [260511-jyh-add-septimal-comma-theory-page-at-src-pa](./quick/260511-jyh-add-septimal-comma-theory-page-at-src-pa/) |
+| 260511-rb4 | add monzos theory page (prime-factor vectors; 3/2, 5/4, 81/80, 7/6 worked examples) mirroring syntonic-comma.md; sidebar entry registered | 2026-05-12 | 9470db5 | [260511-rb4-add-monzos-theory-page-at-src-pages-monz](./quick/260511-rb4-add-monzos-theory-page-at-src-pages-monz/) |
 
 ## Deferred Items
 
