@@ -64,3 +64,23 @@ export function oddLimit(monzo: Monzo): number {
   const dOdd = stripTwos(denominator);
   return Number(nOdd > dOdd ? nOdd : dOdd);
 }
+
+/**
+ * Prime-limit of a monzo = the largest prime that appears with a non-zero
+ * exponent. Returns 1 for the unison (1/1 — no prime).
+ *
+ * Computed directly from the monzo array (NOT via xen-dev-utils' `primeLimit`,
+ * which takes a Fraction/integer and throws on the zero monzo). Diamond-cell
+ * diagonals octave-reduce to 1/1, so handling the zero monzo gracefully is a
+ * load-bearing invariant for callers like src/components/tonality-diamond.ts.
+ */
+export function primeLimitOfMonzo(monzo: Monzo): number {
+  let limit = 1;
+  for (let i = 0; i < monzo.length; i++) {
+    if (monzo[i] !== 0) {
+      const p = PRIMES[i];
+      if (p !== undefined && p > limit) limit = p;
+    }
+  }
+  return limit;
+}

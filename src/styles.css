@@ -91,3 +91,27 @@ textarea {
   background: color-mix(in oklab, var(--theme-red) 6%, var(--theme-background));
   margin-block: 12px;
 }
+
+/* odd-limits.md prime-vs-odd comparison table — tabular-nums on the numeric
+ * columns and a centered tick in the Agree? column. Inherits the rest from
+ * Framework's default table styling. */
+.limit-comparison-table td.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.limit-comparison-table td.agree {
+  text-align: center;
+  color: var(--theme-green);
+}
+
+/* Static tonality-diamond preview embedded in theory pages (renderDiamondSVG).
+ * Centers the SVG inside its block and caps width so the 11-odd-limit grid
+ * doesn't dominate the column. */
+.tonality-diamond-static {
+  display: flex;
+  justify-content: center;
+  margin-block: 16px;
+}
+.tonality-diamond-static svg.viz.diamond {
+  max-width: 100%;
+}

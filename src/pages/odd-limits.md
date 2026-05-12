@@ -4,10 +4,11 @@ Partch's parallel classification — how the largest odd factor of a ratio measu
 
 ```ts
 import { Interval } from "../lib/interval.js";
-import { oddLimit } from "../lib/monzo.js";
+import { oddLimit, primeLimitOfMonzo } from "../lib/monzo.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import { renderDiamondSVG } from "../components/tonality-diamond.js";
 ```
 
 ```ts
@@ -89,6 +90,98 @@ Audition the three worked examples back-to-back:
 Two ratios with the same prime-limit can have very different odd-limits, and
 that gap is the part of harmonic experience that prime-limit doesn't capture.
 
+## Prime-limit vs odd-limit, side by side
+
+Twelve canonical ratios from across the JI literature, sorted by ascending
+odd-limit. The **Agree?** column ticks when both classifications return the
+same number — read down the column to see the page's central thesis in one
+glance: the two limits agree as long as every prime axis enters at exponent
+${tex`1`}; the moment any prime enters with exponent ${tex`\ge 2`} (or a comma
+piles ${tex`3`}-axis steps on top of ${tex`5`}-axis ones), they diverge —
+sometimes by a lot.
+
+```ts
+// Table cell — sorts the canonical 12 by ascending odd-limit, tiebreaking on
+// prime-limit so the rows are reproducible across renders. Pitfall #1: each
+// Interval is constructed once from a ratio string; `.monzo` is read at the
+// data-row step, and oddLimit/primeLimitOfMonzo are pure monzo→Number
+// projections. No `.cents` access here — this table is about the two limits.
+// T-02-22/T-02-23: every dynamic surface uses createElement + textContent.
+const comparisonTable = (() => {
+  const ratioStrings = [
+    "9/8",
+    "5/4",
+    "7/6",
+    "81/80",
+    "25/24",
+    "15/8",
+    "9/7",
+    "11/8",
+    "13/8",
+    "81/64",
+    "7/4",
+    "16/15",
+  ];
+
+  const rows = ratioStrings
+    .map((s) => {
+      const iv = new Interval(s);
+      return { iv, ol: oddLimit(iv.monzo), pl: primeLimitOfMonzo(iv.monzo) };
+    })
+    .sort((a, b) => a.ol - b.ol || a.pl - b.pl);
+
+  const table = document.createElement("table");
+  table.className = "limit-comparison-table";
+
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  for (const h of ["Ratio", "Odd-limit", "Prime-limit", "Agree?"]) {
+    const th = document.createElement("th");
+    th.scope = "col";
+    th.textContent = h;
+    headRow.appendChild(th);
+  }
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  for (const { iv, ol, pl } of rows) {
+    const tr = document.createElement("tr");
+
+    const ratioCell = document.createElement("td");
+    ratioCell.appendChild(ratioPill(iv, { showCents: false }));
+    tr.appendChild(ratioCell);
+
+    const olCell = document.createElement("td");
+    olCell.className = "num";
+    olCell.textContent = String(ol);
+    tr.appendChild(olCell);
+
+    const plCell = document.createElement("td");
+    plCell.className = "num";
+    plCell.textContent = String(pl);
+    tr.appendChild(plCell);
+
+    const agreeCell = document.createElement("td");
+    agreeCell.className = "agree";
+    agreeCell.textContent = ol === pl ? "✓" : "";
+    tr.appendChild(agreeCell);
+
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  return table;
+})();
+```
+
+${comparisonTable}
+
+The five agreeing rows are exactly the ratios whose monzo has a single non-zero
+entry at exponent ${tex`\pm 1`} — the "axis-1" ratios. Everything else — the
+${tex`9/8`}, ${tex`9/7`}, ${tex`15/8`}, ${tex`81/64`}, ${tex`81/80`} of the
+literature — diverges because the prime is reused (${tex`9 = 3^{2}`},
+${tex`81 = 3^{4}`}) or two primes are mixed (${tex`15 = 3 \cdot 5`}).
+
 ## n-odd-limit tonality diamonds
 
 The set of all ratios ${tex`i/j`} for odd ${tex`i, j \le n`}, octave-reduced
@@ -154,6 +247,8 @@ Odd identities ${tex`\{1, 3, 5\}`}. Seven distinct octave-reduced pitches:
 
 ${row5}
 
+${renderDiamondSVG(5, { width: 280, height: 280 })}
+
 This is the world of the just major triad ${tex`4 : 5 : 6 \to 1 : 5/4 : 3/2`}
 and its utonal mirror ${tex`1/4 : 1/5 : 1/6 \to 1 : 8/5 : 4/3`}. Almost all of
 common-practice Western harmony — expressed in pure-just intonation — lives
@@ -166,6 +261,8 @@ Odd identities ${tex`\{1, 3, 5, 7\}`}. The 7-identity contributes six new
 pitches on top of the 5-odd-limit set:
 
 ${row7}
+
+${renderDiamondSVG(7, { width: 320, height: 320 })}
 
 Adding the ${tex`7`}-identity opens up the ${tex`4 : 5 : 6 : 7`} otonal tetrad
 (see [Otonality & utonality](/pages/otonality-utonality)) and its utonal mirror
@@ -180,6 +277,8 @@ Odd identities ${tex`\{1, 3, 5, 7, 9, 11\}`}. **Twenty-nine pitches** — this i
 would overwhelm the page; the interactive grid on the [dashboard](/) is the
 right place to explore the whole diamond. What's worth calling out here is
 which ratios the *new* identities contribute.
+
+${renderDiamondSVG(11, { width: 440, height: 440 })}
 
 **The 9-identity** adds six new pitches:
 
@@ -252,3 +351,11 @@ can build *within a single chord* drawn from the first eleven partials.
 The interactive **tonality diamond** on the [dashboard](/) is the live version
 of the three diamonds walked above — pick an odd-limit preset, click cells to
 audition them against your seed scale.
+
+## Further reading
+
+- [Odd limit](https://en.xen.wiki/w/Odd_limit) — Xenharmonic Wiki — community
+  reference for the odd-limit classification, including Partch's original
+  diamond construction, the *n*-odd-limit set sizes (7-odd-limit: 13 pitches;
+  9-odd-limit: 19; 11-odd-limit: 29; 15-odd-limit: 49), and the relationship
+  to prime-limit and to consonance metrics like Tenney height.

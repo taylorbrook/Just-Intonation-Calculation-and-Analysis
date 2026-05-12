@@ -19,8 +19,9 @@
 import type { Scale } from "../lib/scale.js";
 import type { SynthHandle } from "../audio/synth.js";
 import * as d3 from "d3";
+import { Interval } from "../lib/interval.js";
 import { enumerateDiamond, type DiamondCell } from "../lib/diamond.js";
-import { oddLimit, PRIMES } from "../lib/monzo.js";
+import { oddLimit, primeLimitOfMonzo } from "../lib/monzo.js";
 
 // ─── Public types ──────────────────────────────────────────────────────────
 
@@ -59,29 +60,6 @@ const PRIME_AXIS_CLASS = new Map<number, string>([
 
 function classForPrimeLimit(pl: number): string {
   return PRIME_AXIS_CLASS.get(pl) ?? "axis-default"; // primes ≥ 11 → foreground per D-22
-}
-
-/**
- * Compute the prime-limit (largest prime with non-zero exponent) of a monzo.
- *
- * Implementation note: xen-dev-utils' `primeLimit` accepts an integer, BigInt,
- * or Fraction-like input — NOT a monzo array — and throws on the zero/unison
- * monzo. Since the diamond's diagonal cells (i === j) octave-reduce to 1/1
- * (zero monzo), and we already have the monzo decomposition in hand, computing
- * the prime-limit directly from monzo[] is simpler and safer than threading
- * Fraction inputs back into xen-dev-utils.
- *
- * Returns 1 for the unison (1/1 — no prime, 1-limit by convention).
- */
-function primeLimitOfMonzo(monzo: number[]): number {
-  let limit = 1;
-  for (let i = 0; i < monzo.length; i++) {
-    if (monzo[i] !== 0) {
-      const p = PRIMES[i];
-      if (p !== undefined && p > limit) limit = p;
-    }
-  }
-  return limit;
 }
 
 // ─── deriveDiamondOddLimit (D-20) ──────────────────────────────────────────
@@ -281,5 +259,118 @@ export function tonalityDiamond(
 
   const svgNode = svg.node();
   if (svgNode) root.appendChild(svgNode);
+  return root;
+}
+
+// ─── renderDiamondSVG (pure-presentational) ────────────────────────────────
+
+export interface RenderDiamondSVGOpts {
+  /** SVG viewBox width. Default 320. */
+  width?: number;
+  /** SVG viewBox height. Default 320. */
+  height?: number;
+}
+
+/**
+ * renderDiamondSVG — pure-presentational static SVG preview of an N-odd-limit
+ * tonality diamond. No scale dependency, no synth, no zoom, no click handlers,
+ * no role="button" cells. Each cell is rendered in its dominant-prime axis
+ * color (reusing the same CSS classes as `tonalityDiamond` so theme tokens
+ * cascade), with an SVG `<title>` for hover/accessibility.
+ *
+ * Intended for theory pages (e.g. /pages/odd-limits.md) that want an inline
+ * picture of the 5-/7-/11-odd-limit diamond without dragging in audio or
+ * interaction. Callers wrap the result in their own layout / heading.
+ */
+export function renderDiamondSVG(oddLimitN: number, opts: RenderDiamondSVGOpts = {}): HTMLElement {
+  if (!Number.isInteger(oddLimitN) || oddLimitN < 1 || oddLimitN > 1023) {
+    throw new RangeError(
+      `renderDiamondSVG: oddLimit must be integer in [1, 1023] (got ${String(oddLimitN)})`,
+    );
+  }
+
+  const root = document.createElement("div");
+  root.className = "tonality-diamond-static";
+
+  const odds: number[] = [];
+  for (let k = 1; k <= oddLimitN; k += 2) odds.push(k);
+  const rankOf = new Map<number, number>();
+  odds.forEach((n, i) => rankOf.set(n, i));
+  const N = odds.length;
+
+  const width = opts.width ?? 320;
+  const height = opts.height ?? 320;
+  const padding = 24;
+  const fitStride = Math.max(1, (Math.min(width, height) - 2 * padding) / Math.max(1, 2 * (N - 1)));
+  const STRIDE = Math.min(CELL_SIZE * 0.78, fitStride);
+  const cellRectSize = Math.min(CELL_SIZE, STRIDE * 1.28);
+  const halfSpan = (N - 1) * STRIDE;
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "viz diamond diamond-static");
+  svg.setAttribute("viewBox", `0 0 ${String(width)} ${String(height)}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(height));
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", `${String(oddLimitN)}-odd-limit tonality diamond`);
+
+  const cx = width / 2;
+  const cy = (height - 2 * halfSpan) / 2;
+  const gNode = document.createElementNS(SVG_NS, "g");
+  gNode.setAttribute("transform", `translate(${String(cx)},${String(cy)})`);
+  svg.appendChild(gNode);
+
+  const half = (cellRectSize - 2) / 2;
+
+  for (const i of odds) {
+    for (const j of odds) {
+      const ratio = new Interval(`${String(i)}/${String(j)}`).octaveReduce();
+      const pl = primeLimitOfMonzo(ratio.monzo);
+      const axisClass = classForPrimeLimit(pl);
+
+      const row = rankOf.get(i) ?? 0;
+      const col = rankOf.get(j) ?? 0;
+      const x = (col - row) * STRIDE;
+      const y = (col + row) * STRIDE;
+
+      const cellGroup = document.createElementNS(SVG_NS, "g");
+      // Reuses `diamond-cell--in-scale diamond-cell--axis-N` so the existing
+      // tonality-diamond.css axis-color rules cascade. There is no concept of
+      // out-of-scale cells in the static preview — there is no scale.
+      cellGroup.setAttribute(
+        "class",
+        `diamond-cell diamond-cell--in-scale diamond-cell--${axisClass}`,
+      );
+      cellGroup.setAttribute("transform", `translate(${String(x)},${String(y)})`);
+      cellGroup.setAttribute("role", "presentation");
+
+      const rect = document.createElementNS(SVG_NS, "rect");
+      rect.setAttribute("x", String(-half));
+      rect.setAttribute("y", String(-half));
+      rect.setAttribute("width", String(cellRectSize - 2));
+      rect.setAttribute("height", String(cellRectSize - 2));
+      rect.setAttribute("rx", "4");
+      cellGroup.appendChild(rect);
+
+      const text = document.createElementNS(SVG_NS, "text");
+      text.setAttribute("class", "ratio");
+      text.setAttribute("x", "0");
+      text.setAttribute("y", "0");
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dy", "0.35em");
+      text.textContent = `${String(Number(ratio.fraction.n))}/${String(Number(ratio.fraction.d))}`;
+      cellGroup.appendChild(text);
+
+      const title = document.createElementNS(SVG_NS, "title");
+      title.textContent = `${ratio.fraction.toFraction()} | ${String(pl)}-limit`;
+      cellGroup.appendChild(title);
+
+      gNode.appendChild(cellGroup);
+    }
+  }
+
+  root.appendChild(svg);
   return root;
 }
