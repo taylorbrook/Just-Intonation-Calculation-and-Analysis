@@ -8,6 +8,7 @@ import { centsToRatio } from "../lib/cents.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -34,7 +35,7 @@ const jiIntervals = [
   { label: "9/8", iv: majorWhole },
   { label: "11/8", iv: harm11 },
 ];
-const edos = [12, 19, 31, 53];
+const edos = [12, 19, 22, 31, 41, 53, 72];
 ```
 
 ```ts
@@ -104,6 +105,57 @@ const deviationTable = (() => {
 ```
 
 ```ts
+// Scatter chart of signed cents error vs JI cents — one colored series per EDO.
+// Complements the deviation table: same data, different projection. Reads
+// directly from approxMatrix (already computed above); ji cents come from
+// jiIntervals[i].iv.cents at the data-row boundary (display-projection only,
+// Pitfall #1). Constant point radius — the point's POSITION encodes the error,
+// not its size.
+const scatterChart = (() => {
+  const data = approxMatrix.flatMap(({ N, cells }) =>
+    cells.map((c, i) => ({
+      edo: `${N}-EDO`,
+      jiLabel: c.label,
+      jiCents: jiIntervals[i].iv.cents,
+      error: c.error,
+    })),
+  );
+  return Plot.plot({
+    width: 720,
+    height: 360,
+    marginLeft: 60,
+    marginRight: 110,
+    marginBottom: 50,
+    x: {
+      label: "JI target (cents)",
+      grid: true,
+    },
+    y: {
+      label: "Signed deviation (cents from JI)",
+      grid: true,
+      tickFormat: (v) => (v > 0 ? `+${v}` : String(v)),
+    },
+    color: {
+      legend: true,
+      domain: edos.map((N) => `${N}-EDO`),
+    },
+    marks: [
+      Plot.ruleY([0], { stroke: "#888", strokeDasharray: "2,3" }),
+      Plot.dot(data, {
+        x: "jiCents",
+        y: "error",
+        fill: "edo",
+        stroke: "edo",
+        r: 5,
+        title: (d) =>
+          `${d.edo} ${d.jiLabel}: ${d.error >= 0 ? "+" : ""}${d.error.toFixed(2)}¢`,
+      }),
+    ],
+  });
+})();
+```
+
+```ts
 // Custom button for the irrational EDO-step pitch. Same pattern as meantone.md:
 // .play-btn class for global theming, centsToRatio at the audio boundary,
 // synth.playNotes called directly. Pitfall #1: the cents value never becomes
@@ -148,7 +200,7 @@ deviation is ${tex`\Delta = k \cdot s - c`} (positive = the EDO step is sharp
 of JI). This is the same nearest-step math used by the
 [analysis dashboard](/pages/analysis)'s EDO ↔ JI ranker.
 
-## The four canonical EDOs
+## The seven canonical EDOs
 
 Each row trades a different consonance:
 
@@ -158,10 +210,26 @@ Each row trades a different consonance:
 - **19-EDO** is the 5-limit specialist. Major thirds land closer to pure
   ${tex`5/4`} than 12-EDO does, and the minor third lands very close to pure
   ${tex`6/5`}. Used historically as a meantone-extension target.
+- **22-EDO** is the sharp-fifth 7-limit specialist. Its step size of
+  ${tex`\approx 54.55\text{¢}`} produces a 5th of ${tex`\approx 709.09\text{¢}`} —
+  ${tex`\approx +7.14\text{¢}`} sharp of pure, the largest 3-limit deviation
+  among these seven. The trade is a usable 7-limit: ${tex`7/4`} lands within
+  ${tex`\approx 13\text{¢}`}, and the system supports the "superpyth"
+  temperament family used in some 20th-century microtonal composition. Pick
+  22-EDO when you want 7-limit harmony in a smaller closed system than 31 and
+  are willing to accept conspicuously sharp 5ths.
 - **31-EDO** is the 7-limit revelation. Step 25 lands within ~1.08¢ of pure
   ${tex`7/4`} and step 10 within ~0.78¢ of pure ${tex`5/4`} — both essentially
   just-intoned. 31-EDO is what microtonal composers reach for when they want a
   closed system that does 7-limit harmony.
+- **41-EDO** is the strong 5- and 7-limit performer. Its 5th is within
+  ${tex`\approx 0.48\text{¢}`} of pure — second only to 53-EDO among these
+  seven — and ${tex`7/4`} lands within ${tex`\approx 3\text{¢}`}. The direct
+  nearest-step ${tex`5/4`} sits ${tex`\approx 5.8\text{¢}`} flat (the
+  schismatic-temperament mapping via a chain of 5ths brings it much closer,
+  but that is beyond this page's straight-quantization framing). 41-EDO is
+  the microtonal choice when you want excellent 3-limit AND 7-limit at a step
+  size about half of 22-EDO's.
 - **53-EDO** closes the cycle of 5ths. Step 31 lands within ~0.07¢ of pure
   ${tex`3/2`}; stack 53 of them and you arrive within a few cents of 31
   octaves. The leftover — ${tex`(3/2)^{53} / 2^{31} \approx 3.615\text{¢}`} —
@@ -169,6 +237,27 @@ Each row trades a different consonance:
   [Pythagorean comma](/pages/pythagorean-comma) (Pythagorean's 12 pure 5ths vs
   7 octaves becomes Mercator's 53 pure 5ths vs 31 octaves). 53-EDO IS the
   closure of that longer chain.
+- **72-EDO** is the modern microtonal reference and an exact superset of
+  12-EDO (${tex`72 = 6 \times 12`}, so every 12-EDO pitch is a 72-EDO step).
+  With a ${tex`\approx 16.67\text{¢}`} step it lands within
+  ${tex`\approx 3\text{¢}`} of every JI anchor on this page. The compromise
+  is size: 72 pitches per octave is at the edge of what is practical to
+  notate or perform on a fixed-pitch instrument, which is why 72-EDO is more
+  often used as a *theoretical* common ground (intersection of 12-, 24-, 36-,
+  and many microtonal mappings) than as a target keyboard layout.
+
+## Visualizing the deviations
+
+The scatter chart below shows the same data as the table: x = JI target in
+cents, y = signed cents deviation of each EDO's nearest step, one colored
+series per EDO. The dashed zero line is pure JI; points above are sharp,
+points below are flat. Reading down a vertical column compares all seven EDOs
+at one JI target; reading along a series shows how consistently one EDO tracks
+JI across the five anchors.
+
+```ts
+display(scatterChart);
+```
 
 ## The deviation table
 
@@ -234,3 +323,16 @@ closure gap. Mercator's comma is the same idea at a longer chain (53 fifths vs
 [Meantone](/pages/meantone) — the temperament-thread precursor. Meantone
 narrows the 5th to absorb the syntonic comma; EDOs go further and quantize
 everything to ${tex`N`} equal steps.
+
+## Further reading
+
+- [EDO on the Xenharmonic Wiki](https://en.xen.wiki/w/EDO) — community-curated
+  reference for equal divisions of the octave, with the full mapping space
+  from trivial small EDOs to extreme high-resolution divisions.
+- Per-EDO pages: [12edo](https://en.xen.wiki/w/12edo) ·
+  [19edo](https://en.xen.wiki/w/19edo) ·
+  [22edo](https://en.xen.wiki/w/22edo) ·
+  [31edo](https://en.xen.wiki/w/31edo) ·
+  [41edo](https://en.xen.wiki/w/41edo) ·
+  [53edo](https://en.xen.wiki/w/53edo) ·
+  [72edo](https://en.xen.wiki/w/72edo).
