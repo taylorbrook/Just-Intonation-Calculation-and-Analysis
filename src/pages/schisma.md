@@ -8,6 +8,8 @@ import { commaByName } from "../lib/commas.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import { playDyad } from "../components/play-dyad.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -27,6 +29,13 @@ invalidation.then(() => synth.dispose());
 const schisma = commaByName("schisma")!; //                 32805/32768
 const syntonic = commaByName("syntonic comma")!; //         81/80
 const pythagorean = commaByName("Pythagorean comma")!; //   531441/524288
+// Schismatic temperament identifies these two thirds (1 schisma apart):
+// - schismaticThird = (3/2)^-8 reduced up by 5 octaves = (4/3)^8 / 2^3 ≈ 384.36¢
+// - fiveLimitThird = pure 5-limit major third = 5/4 ≈ 386.31¢
+// Difference: 386.31 − 384.36 = 1.95¢ = one schisma. BigInt-Fraction is the
+// source of truth; .cents is the display projection only (Pitfall #1).
+const schismaticThird = new Interval("8192/6561");
+const fiveLimitThird = new Interval("5/4");
 ```
 
 The **schisma** is ${tex`\frac{32805}{32768} \approx 1.95\text{¢}`}, the difference
@@ -43,10 +52,85 @@ Audition the size gradient, wide to narrow:
 - ${playInterval(syntonic, synth, { label: true })} sounds the syntonic comma (~21.5¢) — about 2¢ narrower than the Pythagorean.
 - ${playInterval(schisma, synth, { label: true })} sounds the schisma itself (~1.95¢) — the residue. Right at the threshold of audibility; you may hear it as a faint beating rather than a definite pitch.
 
-Tempering out the schisma (treating ${ratioPill(schisma)} as a unison) yields
-*schismatic temperament*, which identifies a stack of eight pure fifths reduced by
-five octaves with a 5-limit major third — collapsing the Pythagorean/5-limit
-distinction at the cost of slightly detuned fifths.
+## The three commas at scale
+
+The bar chart below plots all three commas on a shared cents axis. The
+Pythagorean and syntonic commas are within ~2¢ of each other — the chart
+makes their near-equality visible. The schisma — the gap *between* them —
+sits roughly an order of magnitude shorter, right at the just-noticeable
+difference for pitch. Cents values are read from the existing `Interval`
+bindings (the BigInt fraction is the source of truth; `.cents` is taken
+once per row at the data-construction boundary).
+
+```ts
+const commaBarChart = (() => {
+  const data = [
+    { name: "Pythagorean", cents: pythagorean.cents }, // ≈ 23.4600
+    { name: "syntonic",    cents: syntonic.cents },    // ≈ 21.5063
+    { name: "schisma",     cents: schisma.cents },     // ≈  1.9537
+  ];
+  return Plot.plot({
+    width: 640,
+    height: 200,
+    marginLeft: 110,
+    marginRight: 70,
+    marginBottom: 50,
+    x: {
+      label: "Cents",
+      domain: [0, 26],
+      grid: true,
+      tickFormat: (v) => `${v}¢`,
+    },
+    y: {
+      label: null,
+      domain: ["Pythagorean", "syntonic", "schisma"], // wide → narrow
+    },
+    marks: [
+      Plot.barX(data, {
+        x: "cents",
+        y: "name",
+        fill: (d) => (d.name === "schisma" ? "#c45656" : "#4269d0"),
+      }),
+      Plot.text(data, {
+        x: "cents",
+        y: "name",
+        text: (d) => `${d.cents.toFixed(2)}¢`,
+        dx: 6,
+        textAnchor: "start",
+        fontSize: 12,
+        fill: "currentColor",
+      }),
+      Plot.ruleX([0]),
+    ],
+  });
+})();
+display(commaBarChart);
+```
+
+## Schismatic temperament
+
+Tempering out the schisma — treating ${ratioPill(schisma)} as a unison —
+yields *schismatic temperament*, which identifies a stack of eight pure
+fifths (octave-reduced) with a 5-limit major third. The
+**Pythagorean diminished fourth** ${ratioPill(schismaticThird)} — eight pure
+fifths *below* the tonic, raised by five octaves; equivalently
+${tex`(4/3)^{8}/2^{3}`} — sits at ${tex`\approx 384.36\text{¢}`}, exactly
+one schisma flat of the just major third ${ratioPill(fiveLimitThird)}
+(${tex`\approx 386.31\text{¢}`}). Helmholtz exploited this: narrow each of
+the eight fifths by ${tex`1.95/8 \approx 0.24\text{¢}`} and the chain lands
+on a pure ${tex`5/4`} — a near-Pythagorean tuning with usable 5-limit
+thirds, at the cost of slightly detuned fifths (701.71¢ instead of
+701.96¢).
+
+Sound the two thirds together to hear the schisma directly:
+
+${playDyad(schismaticThird, fiveLimitThird, synth, { label: "8192/6561 + 5/4 (schisma beat)" })}
+
+Against the dyad you should hear a slow ~2 Hz beating riding on top of the
+major-third chord — that's the schisma. The two pitches are within the
+just-noticeable difference for melodic pitch (~5¢ in slow contexts), yet
+the difference IS audible when both are sustained simultaneously, because
+the ear locks onto the beat-rate of their shared partials.
 
 ## In monzos
 
@@ -65,3 +149,22 @@ the difference between Pythagorean and 5-limit major thirds. The
 [Pythagorean comma](/pages/pythagorean-comma) note covers the 3-limit closure gap —
 the overshoot of twelve pure fifths past seven octaves. The dashboard at [/](/)
 lets you build any JI scale containing these commas and audition it against a drone.
+
+## Further reading
+
+- [Schisma on the Xenharmonic Wiki](https://en.xen.wiki/w/Schisma) —
+  community-curated reference for ${tex`32805/32768`} and its role as the
+  difference between the Pythagorean and syntonic commas. Covers the
+  family of *schismatic temperaments* built by tempering it to a unison
+  (Helmholtz, Groven, Garibaldi), related commas (kleisma, diaschisma,
+  Mercator's comma), and the precise mappings that put the schisma at the
+  edge of the audible while making it musically consequential.
+
+- [Helmholtz, *Die Lehre von den Tonempfindungen* / *On the Sensations of
+  Tone* (IMSLP)](https://imslp.org/wiki/Die_Lehre_von_den_Tonempfindungen_(Helmholtz,_Hermann_von)) —
+  the 1863 founding text of psychoacoustics, including Helmholtz's own
+  treatment of the schisma and the schismic temperament that bears his
+  name (the narrow-by-0.24¢ fifth recipe described above). The Alexander
+  Ellis 1875 English translation, *On the Sensations of Tone as a
+  Physiological Basis for the Theory of Music*, is hosted on the same
+  IMSLP page and is in the public domain.
