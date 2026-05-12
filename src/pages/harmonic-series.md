@@ -162,8 +162,7 @@ ratios in the harmonic series:
 - **Prime-limits** classify scales by the *largest prime partial* they need.
   3-limit JI (Pythagorean) only uses partials 1, 2, 3 and their multiples;
   5-limit reaches partial 5; 7-limit reaches partial 7; and so on. See
-  [Prime-limits](/pages/prime-limits) — *(forward link: page lands in a later
-  quick task; the harmonic series is the prerequisite.)*
+  [Prime-limits](/pages/prime-limits).
 - **Odd-limits** (Partch's classification) ask: of the *odd-numbered* partials
   in numerator or denominator, what's the largest? The 7-odd-limit diamond
   is built from odd partials ${tex`\{1, 3, 5, 7\}`}; the 11-odd-limit adds

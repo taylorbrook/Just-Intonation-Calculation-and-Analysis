@@ -17,6 +17,7 @@ export default {
       pages: [
         { name: "The harmonic series", path: "/pages/harmonic-series" },
         { name: "Monzos", path: "/pages/monzos" },
+        { name: "Prime-limits", path: "/pages/prime-limits" },
         { name: "Otonality & utonality", path: "/pages/otonality-utonality" },
         { name: "The syntonic comma", path: "/pages/syntonic-comma" },
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
