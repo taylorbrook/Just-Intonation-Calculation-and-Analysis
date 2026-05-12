@@ -166,8 +166,7 @@ ratios in the harmonic series:
 - **Odd-limits** (Partch's classification) ask: of the *odd-numbered* partials
   in numerator or denominator, what's the largest? The 7-odd-limit diamond
   is built from odd partials ${tex`\{1, 3, 5, 7\}`}; the 11-odd-limit adds
-  partial 11. See [Odd-limits](/pages/odd-limits) — *(forward link: page
-  lands in a later quick task.)*
+  partial 11. See [Odd-limits](/pages/odd-limits).
 
 ## See also
 
