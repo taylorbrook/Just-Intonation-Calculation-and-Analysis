@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: MVP
 status: shipped
 stopped_at: ""
-last_updated: "2026-05-12T08:40:00.000Z"
-last_activity: 2026-05-12 -- quick-260512-ce6: add comma-pump theory page (5-limit I-vi-ii-V-I cadence; 80/81 drift per cycle; two setTimeout-chained playNotes buttons: drifting + re-anchored; sidebar entry after The syntonic comma)
+last_updated: "2026-05-12T16:25:00.000Z"
+last_activity: 2026-05-12 -- quick-260512-cst: add pythagorean-tuning theory page (12-note chain of pure 3/2 fifths; inline chainOfFifths(n) with octaveReduce; scaleTable render at baseHz 261.625; wolf 5th 262144/177147 audited against pure 3/2 via playInterval; sidebar entry after The Pythagorean comma)
 progress:
   total_phases: 4
   completed_phases: 4
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
 
 Milestone: v1.0 MVP — SHIPPED 2026-05-07
 Phases: 4/4 complete (full archive at .planning/milestones/v1.0-ROADMAP.md)
-Last activity: 2026-05-12 -- quick-260512-ce6: add comma-pump theory page (5-limit I-vi-ii-V-I cadence; 80/81 drift per cycle; two setTimeout-chained playNotes buttons: drifting + re-anchored; sidebar entry after The syntonic comma)
+Last activity: 2026-05-12 -- quick-260512-cst: add pythagorean-tuning theory page (12-note chain of pure 3/2 fifths; inline chainOfFifths(n) with octaveReduce; scaleTable render at baseHz 261.625; wolf 5th 262144/177147 audited against pure 3/2 via playInterval; sidebar entry after The Pythagorean comma)
 
 Progress: [██████████] 100%
 
@@ -152,6 +152,7 @@ None yet.
 | 260512-aph | add prime-limits theory page (3-limit 3/2,9/8 -> 5-limit 4:5:6 triad -> 7-limit 7/4 -> 11-limit 11/8 with playInterval at each rung; references commas.ts 5/7/11-limit grouping); sidebar entry after Monzos; harmonic-series.md forward-link parenthetical dropped | 2026-05-12 | fb5a736 | [260512-aph-add-prime-limits-theory-page](./quick/260512-aph-add-prime-limits-theory-page/) |
 | 260512-cv2 | add odd-limits theory page (Partch's classification; 7/4 odd-limit-7 vs 9/8 odd-limit-9 vs 16/15 odd-limit-15 worked examples with playInterval + kernel round-trip via oddLimit(); 5-/7-/11-odd-limit diamond walks with ratioPill rows; 11-identity adds 10 new pitches headline; links to interactive diamond on /); sidebar entry after Prime-limits; harmonic-series.md forward-link parenthetical dropped | 2026-05-12 | 0ff3958 | [260512-cv2-add-odd-limits-theory-page](./quick/260512-cv2-add-odd-limits-theory-page/) |
 | 260512-ce6 | add comma-pump theory page (5-limit I-vi-ii-V-I cadence; root motion 1/1 -> 5/3 -> 10/9 -> 40/27 -> 80/81 accumulates one syntonic comma flat per cycle; two setTimeout-chained playNotes buttons: drifting cycle (pure 5-limit) + re-anchored cycle (final I forced back to 1/1)); sidebar entry after The syntonic comma | 2026-05-12 | 975cf38 | [260512-ce6-add-comma-pump-theory-page](./quick/260512-ce6-add-comma-pump-theory-page/) |
+| 260512-cst | add pythagorean-tuning theory page (12-note chain of pure 3/2 fifths; inline chainOfFifths(n) building a Scale via Interval.mul + octaveReduce, sort by cents, append 2/1 period; scaleTable render at baseHz 261.625 (C4) shows the 13 rows; wolf 5th derived as 262144/177147 ≈ 678.49¢ = (2/1)^7 / (3/2)^11 and auditioned against pure 3/2 via two playInterval buttons); sidebar entry after The Pythagorean comma | 2026-05-12 | ee2cbdf | [260512-cst-add-pythagorean-tuning-theory-page](./quick/260512-cst-add-pythagorean-tuning-theory-page/) |
 
 ## Deferred Items
 
