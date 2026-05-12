@@ -1,0 +1,236 @@
+# EDO approximations of JI
+
+How 12-, 19-, 31-, and 53-EDO map onto 5-limit and 7-limit just intonation.
+
+```ts
+import { Interval } from "../lib/interval.js";
+import { centsToRatio } from "../lib/cents.js";
+import { createSynth } from "../audio/synth.js";
+import { ratioPill } from "../components/ratio-pill.js";
+import { playInterval } from "../components/play-interval.js";
+```
+
+```ts
+// Synth cell — owns this page's AudioContext (ARCHITECTURE Pattern 4 / Pitfall #2).
+// Must NOT depend on any other cell. The lazy createSynth() does not allocate the
+// AudioContext until the first playNote / playNotes call (i.e. the first user click),
+// so simply rendering this page does not create an AudioContext.
+const synth = createSynth();
+invalidation.then(() => synth.dispose());
+```
+
+```ts
+// Kernel-exact JI anchors (Pitfall #1: BigInt Fraction is the source of truth).
+// The five intervals we ask each EDO to hit:
+const fifth = new Interval("3/2"); //   701.955¢ — 3-limit
+const majorThird = new Interval("5/4"); //   386.314¢ — 5-limit
+const harm7 = new Interval("7/4"); //   968.826¢ — 7-limit ("harmonic 7th")
+const majorWhole = new Interval("9/8"); //   203.910¢ — 5-limit major whole tone
+const harm11 = new Interval("11/8"); //   551.318¢ — 11-limit (tritone neighbour)
+const jiIntervals = [
+  { label: "3/2", iv: fifth },
+  { label: "5/4", iv: majorThird },
+  { label: "7/4", iv: harm7 },
+  { label: "9/8", iv: majorWhole },
+  { label: "11/8", iv: harm11 },
+];
+const edos = [12, 19, 31, 53];
+```
+
+```ts
+// Cents-layer nearest-step calc (Pitfall #1: NEVER used as kernel input).
+// Mirrors the math in src/lib/edo.ts bestEdosForScale:
+//   stepCents = 1200 / N
+//   nearest   = Math.round(idealCents / stepCents)
+//   error     = nearest * stepCents − idealCents   (signed; positive = EDO step is sharp of JI)
+//
+// For each EDO N and each JI anchor we record the step number and the signed
+// cents deviation; cells render as "k @ ±Δ¢".
+const approxMatrix = edos.map((N) => {
+  const stepCents = 1200 / N;
+  const cells = jiIntervals.map(({ label, iv }) => {
+    const ideal = iv.cents;
+    const step = Math.round(ideal / stepCents);
+    const actual = step * stepCents;
+    const error = actual - ideal;
+    return { label, step, error };
+  });
+  return { N, cells };
+});
+```
+
+```ts
+// Plain DOM table — no component, no innerHTML interpolation (Pitfall: T-02-22 XSS).
+// All cell contents are textContent on real elements. Precision 2 decimals on the
+// cents error (Pitfall #16 — 0.1¢ is the minimum; 2 decimals is enough resolution
+// to separate 31-EDO's 5/4 deviation (~+0.78¢) from its 7/4 deviation (~−1.08¢)
+// without visual noise).
+const deviationTable = (() => {
+  const fmtErr = (e) => {
+    const rounded = Number(e.toFixed(2));
+    const sign = rounded > 0 ? "+" : rounded < 0 ? "−" : "";
+    return `${sign}${Math.abs(rounded).toFixed(2)}¢`;
+  };
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  const corner = document.createElement("th");
+  corner.textContent = "EDO";
+  headerRow.appendChild(corner);
+  for (const { label } of jiIntervals) {
+    const th = document.createElement("th");
+    th.textContent = label;
+    headerRow.appendChild(th);
+  }
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  for (const { N, cells } of approxMatrix) {
+    const tr = document.createElement("tr");
+    const rowLabel = document.createElement("th");
+    rowLabel.scope = "row";
+    rowLabel.textContent = `${N}-EDO`;
+    tr.appendChild(rowLabel);
+    for (const c of cells) {
+      const td = document.createElement("td");
+      td.textContent = `${c.step} @ ${fmtErr(c.error)}`;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  return table;
+})();
+```
+
+```ts
+// Custom button for the irrational EDO-step pitch. Same pattern as meantone.md:
+// .play-btn class for global theming, centsToRatio at the audio boundary,
+// synth.playNotes called directly. Pitfall #1: the cents value never becomes
+// kernel input.
+const playStepAt = (label, cents) => {
+  const btn = document.createElement("button");
+  btn.className = "play-btn";
+  btn.type = "button";
+  btn.textContent = `▶ ${label}`;
+  btn.setAttribute("aria-label", label);
+  btn.addEventListener("click", () => {
+    const baseHz = 440; // D-08
+    const ratio = centsToRatio(cents); // display/audio projection
+    synth.playNotes([baseHz, baseHz * ratio], 1.5); // D-18 default duration
+  });
+  return btn;
+};
+
+// 31-EDO step 25 = (25/31) * 1200 = 967.741935...¢ — ~1.08¢ flat of pure 7/4.
+// 12-EDO step 10 = (10/12) * 1200 = 1000¢ — +31.17¢ sharp of pure 7/4.
+const cents31_25 = (25 / 31) * 1200;
+const cents12_10 = (10 / 12) * 1200;
+
+const playPure7 = playInterval(harm7, synth, { label: true });
+const play31_7 = playStepAt("Play 31-EDO step 25 (≈ 967.74¢)", cents31_25);
+const play12_7 = playStepAt("Play 12-EDO step 10 (1000¢)", cents12_10);
+```
+
+A [chain of pure 5ths](/pages/pythagorean-tuning) does not close into octaves;
+[meantone](/pages/meantone) narrows each 5th to absorb the
+[syntonic comma](/pages/syntonic-comma). An **equal division of the octave**
+(EDO) goes one step further: divide ${tex`2/1`} into ${tex`N`} equal steps of
+${tex`1200/N`} cents and quantize *every* interval to the nearest step. The
+question becomes: for a given ${tex`N`}, how good is the approximation of the
+JI ratios we care about?
+
+## The construction
+
+For an N-EDO with step size ${tex`s = 1200/N`} cents and a JI target at
+${tex`c`} cents, the nearest step is ${tex`k = \mathrm{round}(c/s)`} and the
+deviation is ${tex`\Delta = k \cdot s - c`} (positive = the EDO step is sharp
+of JI). This is the same nearest-step math used by the
+[analysis dashboard](/pages/analysis)'s EDO ↔ JI ranker.
+
+## The four canonical EDOs
+
+Each row trades a different consonance:
+
+- **12-EDO** is the modern default. ${tex`5/4`} and ${tex`9/8`} land within
+  ~14¢ and ~4¢ respectively — usable for 5-limit harmony in passing, though no
+  5-limit triad is just-intoned. ${tex`7/4`} and ${tex`11/8`} are out of reach.
+- **19-EDO** is the 5-limit specialist. Major thirds land closer to pure
+  ${tex`5/4`} than 12-EDO does, and the minor third lands very close to pure
+  ${tex`6/5`}. Used historically as a meantone-extension target.
+- **31-EDO** is the 7-limit revelation. Step 25 lands within ~1.08¢ of pure
+  ${tex`7/4`} and step 10 within ~0.78¢ of pure ${tex`5/4`} — both essentially
+  just-intoned. 31-EDO is what microtonal composers reach for when they want a
+  closed system that does 7-limit harmony.
+- **53-EDO** closes the cycle of 5ths. Step 31 lands within ~0.07¢ of pure
+  ${tex`3/2`}; stack 53 of them and you arrive within a few cents of 31
+  octaves. The leftover — ${tex`(3/2)^{53} / 2^{31} \approx 3.615\text{¢}`} —
+  is **Mercator's comma**, the 3-limit cousin of the
+  [Pythagorean comma](/pages/pythagorean-comma) (Pythagorean's 12 pure 5ths vs
+  7 octaves becomes Mercator's 53 pure 5ths vs 31 octaves). 53-EDO IS the
+  closure of that longer chain.
+
+## The deviation table
+
+```ts
+display(deviationTable);
+```
+
+Rows are EDOs, columns are JI targets; each cell shows the nearest step and the
+signed deviation in cents.
+
+## What the table says
+
+- **31-EDO is the 7-limit winner.** Compare the ${tex`7/4`} column across the
+  four rows: 12-EDO's step 10 is +31.17¢ off pure ${tex`7/4`} — completely
+  uninflected, this is why 12-TET has no 7-limit harmony. 19-EDO's step 15 is
+  ~−21¢ off, still too far. 31-EDO's step 25 lands within ~1.08¢ — essentially
+  just-intoned. 53-EDO's step 43 is also close (~+4.76¢), but 31-EDO is the
+  smallest closed system that gets here.
+- **53-EDO is the 3-limit winner.** The ${tex`3/2`} column tells the story:
+  12-EDO's 5th is ~−1.96¢ off pure; 19-EDO's is ~−7.22¢; 31-EDO's is ~−5.18¢;
+  53-EDO's is ~−0.07¢. For ear training, drone music, and any context where
+  pure 5ths matter, 53-EDO is essentially indistinguishable from JI.
+- **12-EDO can't do 11.** ${tex`11/8`} sits at ${tex`\approx 551.3\text{¢}`};
+  12-EDO's nearest step is the tritone at 600¢, off by ~+48.68¢ — that's
+  nearly half a semitone. 31-EDO's step 14 lands within ~9.38¢, and 19-EDO's
+  step 9 is ~+17.10¢. The 11-limit is where the gap between 12-EDO and
+  microtonal EDOs becomes the most audible.
+
+## Audition — pure vs 31-EDO vs 12-EDO 7/4
+
+- ${playPure7} sounds the pure ${ratioPill(harm7)}
+  (${tex`\approx 968.83\text{¢}`}) — kernel-exact via `Interval`.
+- ${play31_7} sounds 31-EDO's nearest step (step 25 ≈ 967.74¢). It should
+  sound audibly identical to the pure ${tex`7/4`} — the deviation is ~1.08¢,
+  below the just-noticeable difference for most listeners.
+- ${play12_7} sounds 12-EDO's nearest step (step 10 = 1000¢, the "minor
+  7th"). It should sound audibly different — +31.17¢ sharp, well past the
+  ~5–10¢ threshold where the ear starts hearing two distinct pitches.
+
+The contrast is the point of the page: 31-EDO is what "7-limit harmony in a
+closed system" sounds like; 12-EDO cannot do it.
+
+## Why this matters
+
+Equal divisions are the modern composer's bridge between JI's open chain and a
+finite, modulation-friendly keyboard. The choice of ${tex`N`} is a choice about
+which JI intervals you are willing to lose. 12-EDO trades away 7- and 11-limit
+consonance for ergonomics; 31-EDO buys back the 7-limit (and most of the
+11-limit); 53-EDO buys back essentially perfect 3- and 5-limit. The math at the
+top of this page is the lens through which all such tradeoffs are visible.
+
+## See also
+
+The [analysis dashboard](/pages/analysis) — the same nearest-step calculation
+as this page, but interactive: pick any ${tex`N`} from 5 to 1000, any prime- or
+odd-limit, and rank by max / RMS / Tenney-weighted error. This page picks four
+EDOs and five intervals; the dashboard explores the full space.
+
+The [Pythagorean comma](/pages/pythagorean-comma) — the 12-fifths-vs-7-octaves
+closure gap. Mercator's comma is the same idea at a longer chain (53 fifths vs
+31 octaves); 53-EDO is the smallest EDO that closes that longer cycle.
+
+[Meantone](/pages/meantone) — the temperament-thread precursor. Meantone
+narrows the 5th to absorb the syntonic comma; EDOs go further and quantize
+everything to ${tex`N`} equal steps.
