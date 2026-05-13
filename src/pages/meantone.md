@@ -56,7 +56,10 @@ const tempered = (n) => {
 const quarter = tempered(4);
 const third = tempered(3);
 const sixth = tempered(6);
-const variants = [quarter, third, sixth];
+const verheijen = tempered(5);     // 1/5-comma (Verheijen, 1599)
+const eighth = tempered(8);        // 1/8-comma
+const zarlino = tempered(7 / 2);   // 2/7-comma (Zarlino, 1558) — n = 7/2 ⇒ comma fraction 1/n = 2/7
+const variants = [quarter, third, sixth, verheijen, eighth, zarlino];
 ```
 
 ```ts
@@ -67,9 +70,12 @@ const variants = [quarter, third, sixth];
 const variantsTable = (() => {
   const fmt = (c) => c.toFixed(3);
   const rows = [
-    { label: "1/4-comma (Aron)",       v: quarter, sig: "pure 5/4 major third" },
-    { label: "1/3-comma (Salinas)",    v: third,   sig: "pure 6/5 minor third" },
-    { label: "1/6-comma (Silbermann)", v: sixth,   sig: "softer — between 1/4-comma and 12-TET" },
+    { label: "1/4-comma (Aron)",                v: quarter,   sig: "pure 5/4 major third" },
+    { label: "1/3-comma (Salinas)",             v: third,     sig: "pure 6/5 minor third" },
+    { label: "1/6-comma (Silbermann)",          v: sixth,     sig: "softer — between 1/4-comma and 12-TET" },
+    { label: "1/5-comma (Verheijen, 1599)",     v: verheijen, sig: "fifths only ~4.3¢ flat; major 3rd ~6.9¢ sharp of pure 5/4 — milder than 1/4-comma" },
+    { label: "2/7-comma (Zarlino, 1558)",       v: zarlino,   sig: "equalizes the major-3rd and minor-3rd deviations from pure (both ~5.4¢ off)" },
+    { label: "1/8-comma",                       v: eighth,    sig: "softest meantone — closest variant to 12-TET (fifths only ~2.7¢ flat)" },
   ];
   const table = document.createElement("table");
   const thead = document.createElement("thead");
