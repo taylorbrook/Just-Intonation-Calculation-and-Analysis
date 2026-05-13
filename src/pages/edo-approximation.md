@@ -20,6 +20,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./prime-limits">prime-limits</a>, <a href="./pythagorean-tuning">Pythagorean tuning</a>, <a href="./meantone">meantone</a>
+</aside>
+
 ```ts
 // Kernel-exact JI anchors (Pitfall #1: BigInt Fraction is the source of truth).
 // The five intervals we ask each EDO to hit:
@@ -218,8 +223,8 @@ Each row trades a different consonance:
   temperament family used in some 20th-century microtonal composition. Pick
   22-EDO when you want 7-limit harmony in a smaller closed system than 31 and
   are willing to accept conspicuously sharp 5ths.
-- **31-EDO** is the 7-limit revelation. Step 25 lands within ~1.08¢ of pure
-  ${tex`7/4`} and step 10 within ~0.78¢ of pure ${tex`5/4`} — both essentially
+- **31-EDO** is the 7-limit revelation. Step 25 lands within ~1.1¢ of pure
+  ${tex`7/4`} and step 10 within ~0.8¢ of pure ${tex`5/4`} — both essentially
   just-intoned. 31-EDO is what microtonal composers reach for when they want a
   closed system that does 7-limit harmony.
 - **41-EDO** is the strong 5- and 7-limit performer. Its 5th is within
@@ -230,7 +235,7 @@ Each row trades a different consonance:
   but that is beyond this page's straight-quantization framing). 41-EDO is
   the microtonal choice when you want excellent 3-limit AND 7-limit at a step
   size about half of 22-EDO's.
-- **53-EDO** closes the cycle of 5ths. Step 31 lands within ~0.07¢ of pure
+- **53-EDO** closes the cycle of 5ths. Step 31 lands within ~0.1¢ of pure
   ${tex`3/2`}; stack 53 of them and you arrive within a few cents of 31
   octaves. The leftover — ${tex`(3/2)^{53} / 2^{31} \approx 3.615\text{¢}`} —
   is **Mercator's comma**, the 3-limit cousin of the
@@ -271,19 +276,19 @@ signed deviation in cents.
 ## What the table says
 
 - **31-EDO is the 7-limit winner.** Compare the ${tex`7/4`} column across the
-  four rows: 12-EDO's step 10 is +31.17¢ off pure ${tex`7/4`} — completely
+  four rows: 12-EDO's step 10 is +31.2¢ off pure ${tex`7/4`} — completely
   uninflected, this is why 12-TET has no 7-limit harmony. 19-EDO's step 15 is
-  ~−21¢ off, still too far. 31-EDO's step 25 lands within ~1.08¢ — essentially
-  just-intoned. 53-EDO's step 43 is also close (~+4.76¢), but 31-EDO is the
+  ~−21¢ off, still too far. 31-EDO's step 25 lands within ~1.1¢ — essentially
+  just-intoned. 53-EDO's step 43 is also close (~+4.8¢), but 31-EDO is the
   smallest closed system that gets here.
 - **53-EDO is the 3-limit winner.** The ${tex`3/2`} column tells the story:
-  12-EDO's 5th is ~−1.96¢ off pure; 19-EDO's is ~−7.22¢; 31-EDO's is ~−5.18¢;
-  53-EDO's is ~−0.07¢. For ear training, drone music, and any context where
+  12-EDO's 5th is ~−2.0¢ off pure; 19-EDO's is ~−7.2¢; 31-EDO's is ~−5.2¢;
+  53-EDO's is ~−0.1¢. For ear training, drone music, and any context where
   pure 5ths matter, 53-EDO is essentially indistinguishable from JI.
 - **12-EDO can't do 11.** ${tex`11/8`} sits at ${tex`\approx 551.3\text{¢}`};
-  12-EDO's nearest step is the tritone at 600¢, off by ~+48.68¢ — that's
-  nearly half a semitone. 31-EDO's step 14 lands within ~9.38¢, and 19-EDO's
-  step 9 is ~+17.10¢. The 11-limit is where the gap between 12-EDO and
+  12-EDO's nearest step is the tritone at 600¢, off by ~+48.7¢ — that's
+  nearly half a semitone. 31-EDO's step 14 lands within ~9.4¢, and 19-EDO's
+  step 9 is ~+17.1¢. The 11-limit is where the gap between 12-EDO and
   microtonal EDOs becomes the most audible.
 
 ## Live EDO explorer
@@ -355,10 +360,10 @@ display(liveDeviationTable);
 - ${playPure7} sounds the pure ${ratioPill(harm7)}
   (${tex`\approx 968.83\text{¢}`}) — kernel-exact via `Interval`.
 - ${play31_7} sounds 31-EDO's nearest step (step 25 ≈ 967.74¢). It should
-  sound audibly identical to the pure ${tex`7/4`} — the deviation is ~1.08¢,
+  sound audibly identical to the pure ${tex`7/4`} — the deviation is ~1.1¢,
   below the just-noticeable difference for most listeners.
 - ${play12_7} sounds 12-EDO's nearest step (step 10 = 1000¢, the "minor
-  7th"). It should sound audibly different — +31.17¢ sharp, well past the
+  7th"). It should sound audibly different — +31.2¢ sharp, well past the
   ~5–10¢ threshold where the ear starts hearing two distinct pitches.
 
 The contrast is the point of the page: 31-EDO is what "7-limit harmony in a
