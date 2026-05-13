@@ -8,6 +8,7 @@ import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
 import * as Plot from "npm:@observablehq/plot";
+import { furtherReading } from "../components/further-reading.js";
 ```
 
 ```ts
@@ -291,5 +292,17 @@ the form ${tex`p^{\pm a} \cdot q^{\mp b}`}.
 
 ## Further reading
 
-- [Otonality and utonality on the Xenharmonic Wiki](https://en.xen.wiki/w/Otonality_and_utonality) — community-curated reference covering Partch's duality in full, with worked tonality-diamond examples and the canonical numerator/denominator framing.
-- [Kyle Gann, "La Monte Young's *The Well-Tuned Piano*"](https://www.kylegann.com/wtp.html) — Gann's composer's-eye survey of Young's six-hour solo-piano cycle, the most-cited example of long-form otonal-chord-cluster composition; the dream-house tunings draw their pitch lattice from selected otonal chords on 7- and 11-limit harmonics.
+```js
+furtherReading([
+  {
+    title: "Otonality and utonality on the Xenharmonic Wiki",
+    url: "https://en.xen.wiki/w/Otonality_and_utonality",
+    note: "community-curated reference covering Partch's duality in full, with worked tonality-diamond examples and the canonical numerator/denominator framing."
+  },
+  {
+    title: "Kyle Gann — \"La Monte Young's The Well-Tuned Piano\"",
+    url: "https://www.kylegann.com/wtp.html",
+    note: "Gann's composer's-eye survey of Young's six-hour solo-piano cycle — the most-cited example of long-form otonal-chord-cluster composition; the dream-house tunings draw their pitch lattice from selected otonal chords on 7- and 11-limit harmonics."
+  }
+])
+```
