@@ -22,6 +22,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./prime-limits">prime-limits</a>
+</aside>
+
 ```ts
 // commaByName returns Interval | undefined. The "Pythagorean comma" key is hand-verified
 // in src/lib/commas.ts (Plan 02), so the lookup is total at construction time; we
@@ -70,7 +75,7 @@ cumulative cents by which the pure-fifth chain has run *ahead* of an
 imaginary chain of 12-TET fifths (which would land exactly on each octave).
 Every step adds the same ~1.955¢ — the difference between a pure fifth
 (701.955¢) and a 12-TET fifth (700¢) — so the line rises in a straight ramp
-and lands at +23.46¢ at fifth 12: a single Pythagorean comma above the
+and lands at +23.460¢ at fifth 12: a single Pythagorean comma above the
 closed-cycle zero line.
 
 ```ts
@@ -133,7 +138,7 @@ out of pure fifths alone.
 > **Tempered out by.** 12-EDO, 24-EDO, 36-EDO — and more broadly, any
 > 12-stable EDO whose patent val maps twelve fifths to seven octaves.
 > Tempering 531441/524288 to a unison is precisely what lets a 12-note
-> cycle of fifths close: the comma's ~23.46¢ overshoot is absorbed back
+> cycle of fifths close: the comma's ~23.460¢ overshoot is absorbed back
 > into the octave. By contrast, 53-EDO (and finer Pythagorean-friendly
 > divisions like 665-EDO) preserve the Pythagorean comma as a distinct,
 > audible step — twelve fifths and seven octaves remain non-equivalent.
