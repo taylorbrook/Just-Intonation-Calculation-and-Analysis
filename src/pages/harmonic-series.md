@@ -200,7 +200,7 @@ const partialsTable = (() => {
     const textCells: string[] = [
       String(n),
       iv.fraction.toFraction(),
-      (delta > 0 ? "+" : "") + delta.toFixed(1),
+      (delta > 0 ? "+" : "") + delta.toFixed(2),
       name,
     ];
     for (const value of textCells) {
@@ -225,7 +225,7 @@ display(partialsTable);
 A few things to notice as you scan the table:
 
 - **Octaves stay exact.** Partials 2, 4, 8, 16 are pure powers of 2, so their
-  cents-from-12-TET column reads `+0.0`. Octave equivalence is the one thing
+  cents-from-12-TET column reads `+0.00`. Octave equivalence is the one thing
   12-TET and JI agree on without compromise.
 - **Pure fifths land at +2¢.** Partial 3 — and every multiple-of-3 partial
   whose only other factor is 2 — sits ~2¢ sharp of its 12-TET counterpart.
