@@ -35,3 +35,21 @@
   /* Reserved variant — same visual as base for now; lets pages target the
      scale-arpeggiate button specifically without restyling the inline play. */
 }
+
+/* `.play-cell` — table cell holding a cluster of compact `.play-btn`s
+ * (e.g. per-interval audition buttons inside meantone.md's variants table).
+ * Smaller padding + font keep 3 buttons per row visually compact; nowrap
+ * + small inter-button gap keeps them on one line wherever the row width allows. */
+.play-cell {
+  white-space: nowrap;
+}
+
+.play-cell > .play-btn {
+  padding: 3px 8px;
+  font-size: 12px;
+  margin-right: 0.25rem;
+}
+
+.play-cell > .play-btn:last-child {
+  margin-right: 0;
+}

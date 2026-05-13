@@ -134,6 +134,18 @@ function majorThirdAt(fifths, keyIndex) {
   return (((sum - 2400) % 1200) + 1200) % 1200;
 }
 
+// Minor third of key at keyIndex: 9 consecutive fifths starting at keyIndex,
+// reduced by 5 octaves into [0, 1200). The canonical chain-derived "m3 above
+// the tonic" — equivalent to descending 3 fifths and inverting into the
+// octave (mirrors meantone.md's `minor3 = 1200 − (3*fifth − 1200)` formula,
+// generalized to the nonuniform-fifth case where each fifth in the chain
+// may carry a different tempering).
+function minorThirdAt(fifths, keyIndex) {
+  let sum = 0;
+  for (let k = 0; k < 9; k++) sum += fifths[(keyIndex + k) % 12].cents;
+  return (((sum - 6000) % 1200) + 1200) % 1200;
+}
+
 const werckThirds    = KEYS.map((k, i) => ({ key: k, cents: majorThirdAt(werckFifths,    i) }));
 const kirnThirds     = KEYS.map((k, i) => ({ key: k, cents: majorThirdAt(kirnFifths,     i) }));
 const vallottiThirds = KEYS.map((k, i) => ({ key: k, cents: majorThirdAt(vallottiFifths, i) }));
@@ -274,6 +286,27 @@ const playTriadAt = (label, rootCents, thirdCents, fifthCents) => {
     const third = baseHz * centsToRatio(thirdCents);
     const fifth = baseHz * centsToRatio(fifthCents);
     synth.playNotes([root, third, fifth], 1.5);
+  });
+  return btn;
+};
+
+// Per-interval audition button factory — mirrors meantone.md's playTempered
+// (single-cent dyad: baseHz + baseHz × centsToRatio(cents)). Used by the
+// comparison table's Play column to audition the cleanest key's fifth /
+// major 3rd / minor 3rd in each scheme. `ariaLabel` defaults to `label` for
+// the standalone-button call shape; the comparison table supplies a
+// descriptive aria string so the short button text ("5th" / "M3" / "m3")
+// stays compact without hurting screen-reader accessibility.
+const playTempered = (label, cents, ariaLabel) => {
+  const btn = document.createElement("button");
+  btn.className = "play-btn";
+  btn.type = "button";
+  btn.textContent = `▶ ${label}`;
+  btn.setAttribute("aria-label", ariaLabel ?? label);
+  btn.addEventListener("click", () => {
+    const baseHz = 440;
+    const ratio = centsToRatio(cents);
+    synth.playNotes([baseHz, baseHz * ratio], 1.5);
   });
   return btn;
 };
@@ -464,33 +497,44 @@ const comparisonTable = (() => {
   const fmt = (c) => c.toFixed(3);
   const minThird = (thirds) => thirds.reduce((a, b) => (a.cents < b.cents ? a : b));
   const maxThird = (thirds) => thirds.reduce((a, b) => (a.cents > b.cents ? a : b));
+  // Index of the cleanest key (lowest tempered major third) — needed to look
+  // up the corresponding fifth + minor third for the Play column. Ties resolve
+  // to the first occurrence (e.g. Vallotti's F, C, G are equally clean — C wins).
+  const cleanestIndex = (thirds) =>
+    thirds.reduce((best, t, i, arr) => (t.cents < arr[best].cents ? i : best), 0);
   const rows = [
     {
       name: "Werckmeister III",
       year: "1691",
       comma: "1 Pythagorean comma split as 4 × ¼ PC",
+      fifths: werckFifths,
       clean: minThird(werckThirds),
       rough: maxThird(werckThirds),
+      cleanIdx: cleanestIndex(werckThirds),
     },
     {
       name: "Kirnberger III",
       year: "1779",
       comma: "1 syntonic comma split as 4 × ¼ SC, plus 1 schisma",
+      fifths: kirnFifths,
       clean: minThird(kirnThirds),
       rough: maxThird(kirnThirds),
+      cleanIdx: cleanestIndex(kirnThirds),
     },
     {
       name: "Vallotti",
       year: "1779",
       comma: "1 Pythagorean comma split as 6 × ⅙ PC",
+      fifths: vallottiFifths,
       clean: minThird(vallottiThirds),
       rough: maxThird(vallottiThirds),
+      cleanIdx: cleanestIndex(vallottiThirds),
     },
   ];
   const table = document.createElement("table");
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
-  ["Temperament", "Year", "Comma distributed", "Cleanest key (¢)", "Roughest key (¢)"].forEach((h) => {
+  ["Temperament", "Year", "Comma distributed", "Cleanest key (¢)", "Roughest key (¢)", "Play (cleanest key)"].forEach((h) => {
     const th = document.createElement("th");
     th.textContent = h;
     headerRow.appendChild(th);
@@ -511,6 +555,20 @@ const comparisonTable = (() => {
       td.textContent = c;
       tr.appendChild(td);
     });
+    // Play cell — 3 inline buttons auditioning the cleanest key's tempered
+    // fifth, major 3rd, minor 3rd as 440 Hz dyads. The M3 cents value equals
+    // r.clean.cents by construction (clean comes from majorThirdAt over the
+    // same fifths and index); m3 derives from minorThirdAt at the same index.
+    const fifthCents = r.fifths[r.cleanIdx].cents;
+    const majorCents = r.clean.cents;
+    const minorCents = minorThirdAt(r.fifths, r.cleanIdx);
+    const cleanKey = r.clean.key;
+    const playTd = document.createElement("td");
+    playTd.className = "play-cell";
+    playTd.appendChild(playTempered("5th", fifthCents, `Play ${r.name} tempered fifth above ${cleanKey}`));
+    playTd.appendChild(playTempered("M3",  majorCents, `Play ${r.name} tempered major 3rd above ${cleanKey}`));
+    playTd.appendChild(playTempered("m3",  minorCents, `Play ${r.name} tempered minor 3rd above ${cleanKey}`));
+    tr.appendChild(playTd);
     tbody.appendChild(tr);
   }
   table.appendChild(tbody);

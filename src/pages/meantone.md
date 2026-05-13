@@ -88,7 +88,7 @@ const variantsTable = (() => {
   const table = document.createElement("table");
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
-  ["Variant", "Tempered 5th (¢)", "Major 3rd (¢)", "Minor 3rd (¢)", "Signature property"].forEach((h) => {
+  ["Variant", "Tempered 5th (¢)", "Major 3rd (¢)", "Minor 3rd (¢)", "Signature property", "Play"].forEach((h) => {
     const th = document.createElement("th");
     th.textContent = h;
     headerRow.appendChild(th);
@@ -103,6 +103,15 @@ const variantsTable = (() => {
       td.textContent = c;
       tr.appendChild(td);
     });
+    // Play cell — 3 inline buttons (5th, M3, m3) auditioning this variant's
+    // tempered intervals as 440 Hz dyads via playTempered (defined below).
+    // Compact button text via short labels; descriptive aria-label preserved.
+    const playTd = document.createElement("td");
+    playTd.className = "play-cell";
+    playTd.appendChild(playTempered("5th", r.v.fifth, `Play ${r.label} tempered fifth`));
+    playTd.appendChild(playTempered("M3",  r.v.major3, `Play ${r.label} tempered major 3rd`));
+    playTd.appendChild(playTempered("m3",  r.v.minor3, `Play ${r.label} tempered minor 3rd`));
+    tr.appendChild(playTd);
     tbody.appendChild(tr);
   }
   table.appendChild(tbody);
@@ -114,12 +123,12 @@ const variantsTable = (() => {
 // Custom button for the irrational tempered third. Mirrors playInterval's
 // .play-btn class so it inherits the global theme (--theme-blue, focus ring,
 // typographic ▶).
-const playTempered = (label, cents) => {
+const playTempered = (label, cents, ariaLabel) => {
   const btn = document.createElement("button");
   btn.className = "play-btn";
   btn.type = "button";
   btn.textContent = `▶ ${label}`;
-  btn.setAttribute("aria-label", label);
+  btn.setAttribute("aria-label", ariaLabel ?? label);
   btn.addEventListener("click", () => {
     const baseHz = 440;                                  // D-08
     const ratio = centsToRatio(cents);                   // display/audio projection
