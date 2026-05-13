@@ -21,6 +21,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./pythagorean-comma">the Pythagorean comma</a>, <a href="./syntonic-comma">the syntonic comma</a>
+</aside>
+
 ```ts
 // commaByName returns Interval | undefined. The "schisma", "syntonic comma", and
 // "Pythagorean comma" keys are hand-verified in src/lib/commas.ts (Plan 02), so the
@@ -48,9 +53,9 @@ step.
 
 Audition the size gradient, wide to narrow:
 
-- ${playInterval(pythagorean, synth, { label: true })} sounds the Pythagorean comma (~23.46¢) — the wider of the two parent commas; clearly audible as a microtonal step.
-- ${playInterval(syntonic, synth, { label: true })} sounds the syntonic comma (~21.5¢) — about 2¢ narrower than the Pythagorean.
-- ${playInterval(schisma, synth, { label: true })} sounds the schisma itself (~1.95¢) — the residue. Right at the threshold of audibility; you may hear it as a faint beating rather than a definite pitch.
+- ${playInterval(pythagorean, synth, { label: true })} sounds the Pythagorean comma (~23.460¢) — the wider of the two parent commas; clearly audible as a microtonal step.
+- ${playInterval(syntonic, synth, { label: true })} sounds the syntonic comma (~21.506¢) — about 2¢ narrower than the Pythagorean.
+- ${playInterval(schisma, synth, { label: true })} sounds the schisma itself (~1.954¢) — the residue. Right at the threshold of audibility; you may hear it as a faint beating rather than a definite pitch.
 
 ## The three commas at scale
 
@@ -119,8 +124,8 @@ one schisma flat of the just major third ${ratioPill(fiveLimitThird)}
 (${tex`\approx 386.31\text{¢}`}). Helmholtz exploited this: narrow each of
 the eight fifths by ${tex`1.95/8 \approx 0.24\text{¢}`} and the chain lands
 on a pure ${tex`5/4`} — a near-Pythagorean tuning with usable 5-limit
-thirds, at the cost of slightly detuned fifths (701.71¢ instead of
-701.96¢).
+thirds, at the cost of slightly detuned fifths (701.711¢ instead of
+701.955¢).
 
 Sound the two thirds together to hear the schisma directly:
 
@@ -143,11 +148,11 @@ ${tex`\begin{bmatrix} -19 & 12 & 0 \end{bmatrix}\rangle`} and the schisma's monz
 ${tex`\begin{bmatrix} -15 & 8 & 1 \end{bmatrix}\rangle`} falls out exactly.
 
 > **Tempered out by.** Schismatic temperament (Helmholtz / Groven /
-> Garibaldi — narrow each fifth by ~0.24¢ so a chain of eight fifths
+> Garibaldi — narrow each fifth by ~0.244¢ so a chain of eight fifths
 > lands on a pure 5/4), 53-EDO, and 41-EDO. These mappings identify
 > 8192/6561 with 5/4 — the Pythagorean diminished fourth and the
 > 5-limit major third collapse onto the same scale degree, and the
-> ~1.95¢ schisma vanishes from the system.
+> ~1.954¢ schisma vanishes from the system.
 
 ## See also
 
@@ -171,7 +176,7 @@ lets you build any JI scale containing these commas and audition it against a dr
   Tone* (IMSLP)](https://imslp.org/wiki/Die_Lehre_von_den_Tonempfindungen_(Helmholtz,_Hermann_von)) —
   the 1863 founding text of psychoacoustics, including Helmholtz's own
   treatment of the schisma and the schismic temperament that bears his
-  name (the narrow-by-0.24¢ fifth recipe described above). The Alexander
+  name (the narrow-by-0.244¢ fifth recipe described above). The Alexander
   Ellis 1875 English translation, *On the Sensations of Tone as a
   Physiological Basis for the Theory of Music*, is hosted on the same
   IMSLP page and is in the public domain.
