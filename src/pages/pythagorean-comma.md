@@ -130,7 +130,7 @@ Only the primes 2 and 3 appear — this is a 3-limit comma. Twelve 3's stacked u
 nineteen 2's brought back down is the exact cost of trying to close a 12-note cycle
 out of pure fifths alone.
 
-> **Tempered out by.** 12-EDO, 19-EDO, 24-EDO — and more broadly, any
+> **Tempered out by.** 12-EDO, 24-EDO, 36-EDO — and more broadly, any
 > 12-stable EDO whose patent val maps twelve fifths to seven octaves.
 > Tempering 531441/524288 to a unison is precisely what lets a 12-note
 > cycle of fifths close: the comma's ~23.46¢ overshoot is absorbed back
