@@ -22,6 +22,7 @@ export default {
         { name: "Otonality & utonality", path: "/pages/otonality-utonality" },
         { name: "The syntonic comma", path: "/pages/syntonic-comma" },
         { name: "Comma pump", path: "/pages/comma-pump" },
+        { name: "Commas (glossary)", path: "/pages/commas" },
         { name: "The Pythagorean comma", path: "/pages/pythagorean-comma" },
         { name: "Pythagorean tuning", path: "/pages/pythagorean-tuning" },
         { name: "Meantone", path: "/pages/meantone" },
