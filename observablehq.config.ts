@@ -30,6 +30,7 @@ export default {
         { name: "EDO approximations", path: "/pages/edo-approximation" },
         { name: "The schisma", path: "/pages/schisma" },
         { name: "The septimal comma", path: "/pages/septimal-comma" },
+        { name: "Tenney height", path: "/pages/tenney-height" },
       ],
     },
   ],
