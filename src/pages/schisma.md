@@ -142,6 +142,13 @@ ${tex`\begin{bmatrix} -4 & 4 & -1 \end{bmatrix}\rangle`} from the Pythagorean mo
 ${tex`\begin{bmatrix} -19 & 12 & 0 \end{bmatrix}\rangle`} and the schisma's monzo
 ${tex`\begin{bmatrix} -15 & 8 & 1 \end{bmatrix}\rangle`} falls out exactly.
 
+> **Tempered out by.** Schismatic temperament (Helmholtz / Groven /
+> Garibaldi — narrow each fifth by ~0.24¢ so a chain of eight fifths
+> lands on a pure 5/4), 53-EDO, and 41-EDO. These mappings identify
+> 8192/6561 with 5/4 — the Pythagorean diminished fourth and the
+> 5-limit major third collapse onto the same scale degree, and the
+> ~1.95¢ schisma vanishes from the system.
+
 ## See also
 
 The [syntonic comma](/pages/syntonic-comma) note covers the 5-limit closure gap —
