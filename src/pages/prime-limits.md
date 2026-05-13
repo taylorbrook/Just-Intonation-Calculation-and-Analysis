@@ -8,6 +8,7 @@ import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
 import * as Plot from "npm:@observablehq/plot";
+import { furtherReading } from "../components/further-reading.js";
 ```
 
 ```ts
@@ -332,13 +333,17 @@ characteristic closure-gap comma; `commas.ts` is the catalog.
 
 ## Further reading
 
-- [Xenharmonic wiki — Prime limit](https://en.xen.wiki/w/Prime_limit) —
-  community-curated reference for prime-limit classification, covering the
-  monzo-axis interpretation, the relationship to odd-limit, and the chain of
-  named commas that each prime introduces as its smallest closure gap.
-- Harry Partch, *[Genesis of a Music](https://archive.org/details/genesisofmusicac0000part)*
-  (2nd ed., Da Capo Press, 1974) — the canonical English-language treatise on
-  just intonation. Partch's 43-tone scale walks the prime-limit ladder all the
-  way to 11-limit, and the book lays out the philosophical and acoustic
-  reasoning for stopping there. The Internet Archive copy is the 1974 second
-  edition (xxv + 517 pp.).
+```js
+furtherReading([
+  {
+    title: "Prime limit on the Xenharmonic Wiki",
+    url: "https://en.xen.wiki/w/Prime_limit",
+    note: "community-curated reference for prime-limit classification, covering the monzo-axis interpretation, the relationship to odd-limit, and the chain of named commas that each prime introduces as its smallest closure gap."
+  },
+  {
+    title: "Harry Partch — Genesis of a Music (2nd ed., Da Capo Press, 1974)",
+    url: "https://archive.org/details/genesisofmusicac0000part",
+    note: "the canonical English-language treatise on just intonation. Partch's 43-tone scale walks the prime-limit ladder all the way to 11-limit, and the book lays out the philosophical and acoustic reasoning for stopping there. The Internet Archive copy is the 1974 second edition (xxv + 517 pp.)."
+  }
+])
+```
