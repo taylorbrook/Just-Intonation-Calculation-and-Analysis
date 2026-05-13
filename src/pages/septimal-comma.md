@@ -21,6 +21,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./prime-limits">prime-limits</a>, <a href="./syntonic-comma">the syntonic comma</a>
+</aside>
+
 ```ts
 // commaByName returns Interval | undefined. The "septimal comma" key is hand-verified
 // in src/lib/commas.ts (Plan 02), so the lookup is total at construction time; we
@@ -59,7 +64,7 @@ const beatHz = (() => {
 Beat frequency at A = 440 Hz: ${beatHz.toFixed(3)} Hz. The harmonic 7th lands
 at 770 Hz and the Pythagorean minor 7th at 782.222 Hz; their near-coincident
 upper partials fall in and out of phase at that rate. The septimal comma's
-~27.26¢ size, scaled to this anchor, is exactly this audible Hz signature —
+~27.264¢ size, scaled to this anchor, is exactly this audible Hz signature —
 roughly twice as fast as the syntonic comma's beat at the same reference,
 matching the comma's roughly-twice-as-large cents value.
 
