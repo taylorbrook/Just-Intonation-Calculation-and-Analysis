@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { spiralOfFifths, spiralGeometry, closingErrorCents } from "../spiral-of-fifths.js";
+import type { SpiralStep } from "../spiral-of-fifths.js";
 import { Interval } from "../../lib/interval.js";
 
 const PURE_FIFTH = 1200 * Math.log2(1.5);
@@ -105,5 +106,59 @@ describe("spiralOfFifths factory (DOM smoke)", () => {
     const el = spiralOfFifths(12, { width: 600 });
     const svg = el.querySelector("svg");
     expect(svg?.getAttribute("width")).toBe("600");
+  });
+});
+
+describe("spiralOfFifths factory — onStepClick prop", () => {
+  it("omitting onStepClick: root className does NOT contain 'is-clickable'", () => {
+    const el = spiralOfFifths(12);
+    expect(el.className).toBe("spiral-of-fifths-widget");
+    expect(el.classList.contains("is-clickable")).toBe(false);
+  });
+
+  it("supplying onStepClick: root className contains 'is-clickable'", () => {
+    const el = spiralOfFifths(12, { onStepClick: () => {} });
+    expect(el.classList.contains("is-clickable")).toBe(true);
+    expect(el.classList.contains("spiral-of-fifths-widget")).toBe(true);
+  });
+
+  it("click on k=1 node fires callback with the pure 3/2 SpiralStep", () => {
+    const cb = vi.fn<(step: SpiralStep) => void>();
+    const el = spiralOfFifths(12, { onStepClick: cb });
+    const nodes = el.querySelectorAll<SVGGElement>(".spiral-of-fifths__node");
+    expect(nodes.length).toBe(13);
+    const k1 = nodes[1];
+    expect(k1).toBeDefined();
+    k1!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(cb).toHaveBeenCalledTimes(1);
+    const step = cb.mock.calls[0]![0];
+    expect(step.k).toBe(1);
+    expect(step.ratio?.equals(new Interval("3/2"))).toBe(true);
+    expect(step.cumulativeCents).toBeGreaterThan(0);
+    expect(step.centsFrom12tet).toBeGreaterThan(1.9);
+    expect(step.centsFrom12tet).toBeLessThan(2.0);
+  });
+
+  it("tempered branch (700¢): click on k=1 node fires callback with ratio:null and centsFrom12tet=0", () => {
+    const cb = vi.fn<(step: SpiralStep) => void>();
+    const el = spiralOfFifths(12, { temperedFifthCents: 700, onStepClick: cb });
+    const nodes = el.querySelectorAll<SVGGElement>(".spiral-of-fifths__node");
+    const k1 = nodes[1];
+    expect(k1).toBeDefined();
+    k1!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(cb).toHaveBeenCalledTimes(1);
+    const step = cb.mock.calls[0]![0];
+    expect(step.k).toBe(1);
+    expect(step.ratio).toBeNull();
+    expect(step.cumulativeCents).toBe(700);
+    expect(step.centsFrom12tet).toBe(0);
+  });
+
+  it("omitting onStepClick: clicks on nodes do NOT throw and have no listener-side effect", () => {
+    const el = spiralOfFifths(12);
+    const k1 = el.querySelectorAll<SVGGElement>(".spiral-of-fifths__node")[1];
+    expect(k1).toBeDefined();
+    // Should be a no-op — no handler attached. Just verify dispatch doesn't throw.
+    expect(() => k1!.dispatchEvent(new MouseEvent("click", { bubbles: true }))).not.toThrow();
   });
 });

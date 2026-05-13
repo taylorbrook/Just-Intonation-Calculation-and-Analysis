@@ -49,3 +49,10 @@ svg.viz.spiral-of-fifths .spiral-of-fifths__gap {
   stroke-dasharray: 2 3;
   fill: none;
 }
+
+/* Cursor toggle: only when the consumer wires an onStepClick handler does the
+ * widget root get `is-clickable`, which switches node groups to a pointer
+ * cursor. Backwards-compatible — omitted prop leaves cursor untouched. */
+.spiral-of-fifths-widget.is-clickable svg.viz.spiral-of-fifths .spiral-of-fifths__node {
+  cursor: pointer;
+}
