@@ -116,3 +116,30 @@ textarea {
 .tonality-diamond-static svg.viz.diamond {
   max-width: 100%;
 }
+
+/* Theory-page Prerequisites callout — sits between the synth cell and the
+ * first kernel cell. Visually quiet (left rule + muted text) so it reads as
+ * scaffolding rather than as a warning. */
+aside.prereq {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  color: var(--theme-foreground-muted);
+  padding: 8px 12px;
+  border-left: 3px solid var(--theme-foreground-faint, var(--theme-foreground-muted));
+  background: color-mix(in oklab, var(--theme-foreground-muted) 4%, var(--theme-background));
+  margin-block: 16px;
+  border-radius: 0 4px 4px 0;
+}
+aside.prereq strong {
+  color: var(--theme-foreground);
+  margin-right: 4px;
+}
+aside.prereq a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--theme-foreground-faint, currentColor);
+  text-underline-offset: 2px;
+}
+aside.prereq a:hover {
+  color: var(--theme-foreground);
+}
