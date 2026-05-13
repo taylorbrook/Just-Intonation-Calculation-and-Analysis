@@ -21,6 +21,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./harmonic-series">the harmonic series</a>
+</aside>
+
 ```ts
 // The four worked examples used throughout the page. Built from string ratios so the
 // BigInt Fraction path is exercised end-to-end (R-01 — no float-as-source-of-truth).
