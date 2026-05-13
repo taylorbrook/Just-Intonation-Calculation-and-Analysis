@@ -23,6 +23,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./syntonic-comma">the syntonic comma</a>, <a href="./pythagorean-tuning">Pythagorean tuning</a>
+</aside>
+
 ```ts
 // Kernel-exact anchors (Pitfall #1: BigInt Fraction is the source of truth).
 const pureFifth = new Interval("3/2");                  //  701.955¢
@@ -267,7 +272,7 @@ on the chain.
 ${spiralOfFifths(12, { temperedFifthCents: quarter.fifth, highlightWolf: true })}
 
 For reference: a chain of [pure 3/2 fifths overshoots the octave by a
-Pythagorean comma (+23.46¢)](/pages/pythagorean-comma); 1/4-comma
+Pythagorean comma (+23.460¢)](/pages/pythagorean-comma); 1/4-comma
 meantone's wolf goes the other way — twelve fifths come up short of seven
 octaves by ≈ 40.7¢.
 
@@ -291,7 +296,7 @@ precision of the cents projection itself.
 
 ${playPythMajor3} sounds the Pythagorean major third ${ratioPill(pythThird)}
 for contrast. Sound it against the pure 5/4 above and the syntonic comma is
-audible as a beat-rate: ~21.5¢ wide.
+audible as a beat-rate: ~21.506¢ wide.
 
 ## Why this layering matters
 
