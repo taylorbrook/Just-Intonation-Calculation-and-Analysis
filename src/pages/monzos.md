@@ -9,6 +9,7 @@ import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
 import * as Plot from "npm:@observablehq/plot";
 import { monzoBuilder } from "../components/monzo-builder.js";
+import { furtherReading } from "../components/further-reading.js";
 ```
 
 ```ts
@@ -216,7 +217,17 @@ that happens to spell out the gap between two ways of building a major third.
 
 ## Further reading
 
-- [Monzo on the Xenharmonic Wiki](https://en.xen.wiki/w/Monzo) —
-  community-curated reference for the prime-factor vector notation. Covers
-  the bra-ket form, monzo arithmetic, prime limits, and the relationship to
-  vals (the dual lattice used in regular-temperament theory).
+```js
+furtherReading([
+  {
+    title: "Monzo on the Xenharmonic Wiki",
+    url: "https://en.xen.wiki/w/Monzo",
+    note: "community-curated reference for the prime-factor vector notation. Covers the bra-ket form, monzo arithmetic, prime limits, and the relationship to vals (the dual lattice used in regular-temperament theory)."
+  },
+  {
+    title: "David B. Doty — The Just Intonation Primer (3rd ed., Just Intonation Network, 2002)",
+    url: "https://www.justintonation.net/primer.html",
+    note: "the canonical practitioner's introduction to JI. Doty's chapter on the harmonic lattice walks the prime-factor framing — what monzos describe in compact form — and the book is the standard English-language entry point into the xenharmonic-devs community's working vocabulary."
+  }
+])
+```
