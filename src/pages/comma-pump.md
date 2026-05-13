@@ -19,6 +19,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./syntonic-comma">the syntonic comma</a>
+</aside>
+
 ```ts
 // Five chord roots in the 5-limit I-vi-ii-V-I cadence (NOT octave-reduced — the
 // drift is the point). Each root is the previous root × the just root motion:
@@ -127,7 +132,7 @@ cannot underpin a stable global tonality. Played in pure 5-limit JI, the
 cadence accumulates exactly one [syntonic comma](/pages/syntonic-comma)
 (${tex`81/80 \approx 21.5\text{¢}`}) of downward drift per cycle. Repeat the
 progression and the tonic walks away from itself: after one cycle the "home"
-chord sits 21.5¢ below where it started; after two, 43¢; after four, almost
+chord sits 21.506¢ below where it started; after two, 43¢; after four, almost
 exactly a 12-TET semitone gone.
 
 ## The chord-root math
@@ -295,7 +300,7 @@ display(reanchoredChart);
 ## Audition
 
 - ${playDrifting} — pure 5-limit roots throughout. Listen to the final tonic
-  chord against your memory of the opening one: it sits ~21.5¢ flat. The drift
+  chord against your memory of the opening one: it sits ~21.506¢ flat. The drift
   is small per cycle but cumulative across a piece — this is what makes pure
   JI globally unstable for any music that modulates.
 - ${playReanchored} — identical chords EXCEPT the final I is forced back to
@@ -306,7 +311,7 @@ display(reanchoredChart);
   that every cycle closes, at the cost of every fifth being slightly impure.
 - ${playDrift3} — three full cadences chained back-to-back. Each cycle's chord
   roots are multiplied by ${tex`80/81`} relative to the previous, so the drift
-  is cumulative: ~21.5¢ after cycle 1, ~43¢ after cycle 2, ~64.5¢ after cycle 3.
+  is cumulative: ~21.506¢ after cycle 1, ~43¢ after cycle 2, ~64.5¢ after cycle 3.
   By the third cycle the "home" chord sits more than half a 12-TET semitone
   flat — the cadence has walked off the page. The full 15-chord run takes ~16
   seconds; listen for the final I against your memory of the opening one.
@@ -332,9 +337,9 @@ microtonal accidentals), or chooses one tonic and refuses to modulate.
 ## Octave-reduction footnote
 
 The chord roots above are NOT octave-reduced inside the cycle — the drift
-accumulates over absolute Hz, and the final I' really does play 21.5¢ below
+accumulates over absolute Hz, and the final I' really does play 21.506¢ below
 the opening I in absolute pitch. If we octave-reduced ${tex`80/81`} back into
-${tex`[1, 2)`} we'd get ${tex`80/81 \times 2 = 160/81`}, ~21.5¢ below ${tex`2/1`}
+${tex`[1, 2)`} we'd get ${tex`80/81 \times 2 = 160/81`}, ~21.506¢ below ${tex`2/1`}
 — but the *drift* is the same either way: the I' triad is a syntonic comma
 flat of where the opening I lived, octave-equivalent or not.
 
