@@ -20,6 +20,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./harmonic-series">the harmonic series</a>, <a href="./prime-limits">prime-limits</a>
+</aside>
+
 ```ts
 // commaByName returns Interval | undefined. The "syntonic comma" key is hand-verified
 // in src/lib/commas.ts (Plan 02), so the lookup is total at construction time; we
@@ -55,7 +60,7 @@ const beatHz = (() => {
 
 Beat frequency at A = 440 Hz: ${beatHz.toFixed(3)} Hz. The 5/4 third lands at
 550 Hz and the 81/64 third at 556.875 Hz; their near-coincident upper partials
-fall in and out of phase at that rate. The syntonic comma's ~21.5¢ size,
+fall in and out of phase at that rate. The syntonic comma's ~21.506¢ size,
 scaled to this anchor, is exactly this audible Hz signature.
 
 ## In monzos
