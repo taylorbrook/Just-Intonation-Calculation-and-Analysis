@@ -8,6 +8,7 @@ import { commaByName } from "../lib/commas.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import { playDyad } from "../components/play-dyad.js";
 import { spiralOfFifths } from "../components/spiral-of-fifths.js";
 import * as Plot from "npm:@observablehq/plot";
 ```
@@ -49,6 +50,10 @@ Audition the overshoot:
 - ${playInterval(pureOctave, synth, { label: true })} sounds the pure octave (${ratioPill(pureOctave)}) — 1200¢ exactly, the target.
 - ${playInterval(cycleOctave, synth, { label: true })} sounds the cycle-of-fifths "octave" (${ratioPill(cycleOctave)}) — a Pythagorean comma sharper than 2/1; where twelve stacked 3/2's actually land once you reduce the result by six octaves.
 - ${playInterval(pythagoreanComma, synth, { label: true })} sounds the comma itself — audible as a beat-rate when the pure and cycle octaves are sounded together.
+
+The pure octave and the cycle-of-fifths octave together — the Pythagorean comma as a beat-rate:
+
+${playDyad(pureOctave, cycleOctave, synth, { label: "2/1 + 531441/262144 (Pythagorean-comma beat)" })}
 
 ## The closure gap, visualized
 
@@ -124,6 +129,14 @@ ${tex`531441/524288 = \begin{bmatrix} -19 & 12 \end{bmatrix}\rangle = 2^{-19} \c
 Only the primes 2 and 3 appear — this is a 3-limit comma. Twelve 3's stacked up minus
 nineteen 2's brought back down is the exact cost of trying to close a 12-note cycle
 out of pure fifths alone.
+
+> **Tempered out by.** 12-EDO, 19-EDO, 24-EDO — and more broadly, any
+> 12-stable EDO whose patent val maps twelve fifths to seven octaves.
+> Tempering 531441/524288 to a unison is precisely what lets a 12-note
+> cycle of fifths close: the comma's ~23.46¢ overshoot is absorbed back
+> into the octave. By contrast, 53-EDO (and finer Pythagorean-friendly
+> divisions like 665-EDO) preserve the Pythagorean comma as a distinct,
+> audible step — twelve fifths and seven octaves remain non-equivalent.
 
 ## See also
 
