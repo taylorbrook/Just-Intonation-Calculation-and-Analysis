@@ -9,6 +9,7 @@ import { createSynth } from "../audio/synth.js";
 import { scaleTable } from "../components/scale-table.js";
 import { playInterval } from "../components/play-interval.js";
 import { ratioPill } from "../components/ratio-pill.js";
+import { furtherReading } from "../components/further-reading.js";
 ```
 
 ```ts
@@ -139,3 +140,20 @@ scale from that single interval alone.
 The [dashboard](/) — paste any of the 13 Pythagorean pitches into the scale
 text and audition them against a drone. Try the wolf ratio `262144/177147`
 directly: it's audibly narrower than `3/2`.
+
+## Further reading
+
+```js
+furtherReading([
+  {
+    title: "Pythagorean tuning on the Xenharmonic Wiki",
+    url: "https://en.xen.wiki/w/Pythagorean_tuning",
+    note: "community-curated reference for the 3-limit chain-of-fifths construction. Covers the 12- vs 17- vs 53-note variants, the placement of the wolf, the historical migration to meantone, and the relationship to the Pythagorean comma as the closure gap."
+  },
+  {
+    title: "Hermann von Helmholtz — On the Sensations of Tone (Ellis tr., 1875)",
+    url: "https://imslp.org/wiki/Die_Lehre_von_den_Tonempfindungen_(Helmholtz%2C_Hermann_von)",
+    note: "the canonical 19th-century acoustic treatise. Part III treats the Pythagorean tuning as the historical starting point of Western intonation, and Helmholtz's beat-rate analysis of the wolf fifth is still the cleanest psychoacoustic argument for why a chain of pure fifths fails to close. IMSLP hosts both the 1863 German original and the Ellis 1875 English translation in the public domain."
+  }
+])
+```
