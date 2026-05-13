@@ -20,6 +20,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./harmonic-series">the harmonic series</a>, <a href="./prime-limits">prime-limits</a>
+</aside>
+
 ```ts
 // Otonal chord 4:5:6:7 reduced to a single octave [1, 2):
 //   4/4 = 1/1, 5/4, 6/4 = 3/2, 7/4.
