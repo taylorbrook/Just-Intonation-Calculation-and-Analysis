@@ -7,6 +7,7 @@ import { Interval } from "../lib/interval.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import * as Plot from "npm:@observablehq/plot";
+import { furtherReading } from "../components/further-reading.js";
 ```
 
 ```ts
@@ -357,19 +358,17 @@ your tonic walks down to after one I-vi-ii-V-I.
 
 ## Further reading
 
-- [Comma pump on the Xenharmonic Wiki](https://en.xen.wiki/w/Comma_pump) —
-  community-curated reference for the syntonic comma pump and its cousins (the
-  septimal comma pump on dominant 7th progressions, the Pythagorean comma pump
-  on stacks of fifths, etc.). Covers the algebraic conditions under which a
-  progression "pumps" a given comma.
-- **Ben Johnston, *Suite for Microtonal Piano* (1977).** A four-movement piano
-  cycle written in pure 5-limit just intonation. Johnston's notation explicitly
-  marks each comma shift with arrows above the notes: an up-arrow before a
-  notehead raises that pitch by one syntonic comma (${tex`81/80`}), a
-  down-arrow lowers it by the same. The Suite is a sustained meditation on
-  exactly the drift this page demonstrates — Johnston treats the comma as a
-  compositional resource rather than a problem to be tempered away, and the
-  movements modulate by *accepting* the pump rather than absorbing it. The
-  Suite is the canonical reference work for any composer asking "what does it
-  sound like to write in pure JI?"; the Lubman recording (New World Records
-  80637) is the standard.
+```js
+furtherReading([
+  {
+    title: "Comma pump on the Xenharmonic Wiki",
+    url: "https://en.xen.wiki/w/Comma_pump",
+    note: "community-curated reference for the syntonic comma pump and its cousins (the septimal comma pump on dominant 7th progressions, the Pythagorean comma pump on stacks of fifths, etc.). Covers the algebraic conditions under which a progression \"pumps\" a given comma."
+  },
+  {
+    title: "Ben Johnston — Suite for Microtonal Piano (1977)",
+    url: "https://en.wikipedia.org/wiki/Ben_Johnston_(composer)",
+    note: html`a four-movement piano cycle written in pure 5-limit just intonation. Johnston's notation explicitly marks each comma shift with arrows above the notes: an up-arrow before a notehead raises that pitch by one syntonic comma (${tex`81/80`}), a down-arrow lowers it by the same. The Suite is a sustained meditation on exactly the drift this page demonstrates — Johnston treats the comma as a compositional resource rather than a problem to be tempered away, and the movements modulate by <em>accepting</em> the pump rather than absorbing it. The Lubman recording (New World Records 80637) is the standard.`
+  }
+])
+```
