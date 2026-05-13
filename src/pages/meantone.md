@@ -9,6 +9,8 @@ import { centsToRatio } from "../lib/cents.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import { spiralOfFifths } from "../components/spiral-of-fifths.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -145,6 +147,85 @@ fifths reduced by two octaves, the major third has lost ${tex`(4/n)`} of a
 comma relative to the Pythagorean ${tex`81/64`}.
 
 ## Three historical choices for ${tex`n`}
+
+Before the table, a strip chart of all six variants on a shared cents axis. Each
+dashed blue vertical marks one variant's tempered fifth, labeled by its comma
+fraction (1/n). The pure 3/2 sits at the right edge; the red bracket spans
+exactly one syntonic comma — the budget being distributed across the chain.
+
+```ts
+// Plot strip chart — six tempered meantone fifths on a 0..pureFifth.cents axis.
+// Pitfall #1: cents derived ONCE from kernel-exact Intervals (pureFifth.cents,
+// syntonic.cents) and the existing tempered-fifth bindings (quarter.fifth,
+// third.fifth, sixth.fifth, verheijen.fifth, eighth.fifth, zarlino.fifth).
+// No float literals in the data rows.
+const fifthsData = [
+  { label: "1/8", cents: eighth.fifth },
+  { label: "1/6", cents: sixth.fifth },
+  { label: "1/5", cents: verheijen.fifth },
+  { label: "1/4", cents: quarter.fifth },
+  { label: "2/7", cents: zarlino.fifth },
+  { label: "1/3", cents: third.fifth },
+];
+// Syntonic-comma bracket: the span from (pureFifth.cents − syntonic.cents) to
+// pureFifth.cents IS one syntonic comma, by construction.
+const commaSpanLeft = pureFifth.cents - syntonic.cents;
+const commaSpanRight = pureFifth.cents;
+
+const fifthsChart = Plot.plot({
+  width: 640,
+  height: 180,
+  marginLeft: 40,
+  marginRight: 40,
+  marginBottom: 50,
+  marginTop: 30,
+  x: {
+    label: "Cents (flat of pure)",
+    domain: [0, Math.ceil(pureFifth.cents)],
+    grid: true,
+    tickFormat: (v) => String(v),
+  },
+  y: { axis: null, domain: [-1, 1] },
+  marks: [
+    // 0¢ baseline (visual anchor for "flat of pure" reading).
+    Plot.ruleX([0], { stroke: "#888", strokeDasharray: "2,3" }),
+    // Pure-3/2 reference line (pureFifth.cents projects to the kernel-exact value).
+    Plot.ruleX([pureFifth.cents], { stroke: "#888", strokeWidth: 1.5 }),
+    Plot.text(
+      [{ x: pureFifth.cents, y: 0.85, text: `pure 3/2 (${pureFifth.cents.toFixed(3)}¢)` }],
+      { x: "x", y: "y", text: "text", textAnchor: "end", dx: -6, fontSize: 11, fill: "#888" },
+    ),
+    // Syntonic-comma bracket: horizontal segment from commaSpanLeft to commaSpanRight at y=-0.65.
+    Plot.link(
+      [{ x1: commaSpanLeft, x2: commaSpanRight, y1: -0.65, y2: -0.65 }],
+      { x1: "x1", x2: "x2", y1: "y1", y2: "y2", stroke: "#c45656", strokeWidth: 1.5 },
+    ),
+    Plot.text(
+      [{
+        x: (commaSpanLeft + commaSpanRight) / 2,
+        y: -0.85,
+        text: `↔ ${syntonic.cents.toFixed(3)}¢ (syntonic comma)`,
+      }],
+      { x: "x", y: "y", text: "text", textAnchor: "middle", fontSize: 11, fill: "#c45656" },
+    ),
+    // Tempered-fifth markers — dashed verticals + dots + labels (alternating dy
+    // so the 1/8/1/5/2/7 labels sit above and 1/6/1/4/1/3 below, avoiding
+    // collisions where the markers cluster near 1/4-comma).
+    Plot.ruleX(fifthsData, { x: "cents", stroke: "#4269d0", strokeDasharray: "3,3", strokeWidth: 1.5 }),
+    Plot.dot(fifthsData, { x: "cents", y: 0, fill: "#4269d0", r: 4 }),
+    Plot.text(fifthsData, {
+      x: "cents",
+      y: 0,
+      text: "label",
+      dy: (_d, i) => (i % 2 === 0 ? -14 : 18),
+      fontSize: 11,
+      fontWeight: 600,
+      fill: "#4269d0",
+    }),
+  ],
+});
+display(fifthsChart);
+```
 
 ```ts
 display(variantsTable);
