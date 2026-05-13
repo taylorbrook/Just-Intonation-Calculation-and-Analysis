@@ -9,6 +9,7 @@ import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
 import { renderDiamondSVG } from "../components/tonality-diamond.js";
+import { furtherReading } from "../components/further-reading.js";
 ```
 
 ```ts
@@ -354,8 +355,17 @@ audition them against your seed scale.
 
 ## Further reading
 
-- [Odd limit](https://en.xen.wiki/w/Odd_limit) — Xenharmonic Wiki — community
-  reference for the odd-limit classification, including Partch's original
-  diamond construction, the *n*-odd-limit set sizes (7-odd-limit: 13 pitches;
-  9-odd-limit: 19; 11-odd-limit: 29; 15-odd-limit: 49), and the relationship
-  to prime-limit and to consonance metrics like Tenney height.
+```js
+furtherReading([
+  {
+    title: "Odd limit on the Xenharmonic Wiki",
+    url: "https://en.xen.wiki/w/Odd_limit",
+    note: "community reference for the odd-limit classification, including Partch's original diamond construction, the n-odd-limit set sizes (7-odd-limit: 13 pitches; 9-odd-limit: 19; 11-odd-limit: 29; 15-odd-limit: 49), and the relationship to prime-limit and to consonance metrics like Tenney height."
+  },
+  {
+    title: "Harry Partch — Genesis of a Music (2nd ed., Da Capo Press, 1974)",
+    url: "https://archive.org/details/genesisofmusicac0000part",
+    note: "the source text. Partch coined the odd-limit terminology and built the 11-odd-limit tonality diamond as the organizing structure of his 43-tone scale. Chapters 6 (\"Just Intonation: Beyond the Five Limit\") and 11 (\"The One-Footed Bride\") lay out the diamond construction and the audibility argument for stopping at 11."
+  }
+])
+```
