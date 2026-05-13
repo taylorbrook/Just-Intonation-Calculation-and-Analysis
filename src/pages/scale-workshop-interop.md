@@ -30,7 +30,7 @@ const diatonic = new Scale([
 
 ## 1. Build a scale on the dashboard
 
-The [dashboard](/) is the project's primary surface for designing scales: type one pitch per line, the last line is the period, and `1/1` is added automatically. For this walkthrough, paste the following seven lines into the dashboard's **Scale** textarea:
+The [dashboard](/) is the project's primary surface for designing scales: type one pitch per line, the last line is the period, and `1/1` is added automatically. For this walkthrough, paste the following seven lines into the dashboard's **Scale** textarea — Ptolemy's intense diatonic (the *Diatonic Syntonon* of *Harmonics* II.13–15; Barker 1989, vol. II ch. 6):
 
 ```text
 9/8
@@ -80,7 +80,7 @@ const sclPreview = (() => {
 display(sclPreview);
 ```
 
-Format anchors per the [Huygens-Fokker `.scl` spec](http://www.huygens-fokker.org/scala/scl_format.html):
+Format anchors per the [Huygens-Fokker `.scl` spec](http://www.huygens-fokker.org/scala/scl_format.html) (Huygens-Fokker, "Scala scale file format"):
 
 - Lines starting with `!` are comments — ignored anywhere in the file.
 - The first non-comment line is the description. `writeScl` emits it blank when no description is supplied (the dashboard does not currently round-trip user descriptions; D-13).
@@ -204,3 +204,10 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Barker, Andrew. 1989. *Greek Musical Writings, Vol. II: Harmonic and Acoustic Theory*. Cambridge Readings in the Literature of Music. Cambridge: Cambridge University Press.
+- Huygens-Fokker Foundation. n.d. "Scala scale file format." Accessed 2026-05-13. https://www.huygens-fokker.org/scala/scl_format.html.
+- Scale Workshop. n.d. Online application. Accessed 2026-05-13. https://scaleworkshop.plainsound.org/.
+- xenharmonic-devs. n.d. "Scale Workshop." GitHub repository. Accessed 2026-05-13. https://github.com/xenharmonic-devs/scale-workshop.

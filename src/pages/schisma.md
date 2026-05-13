@@ -47,9 +47,9 @@ The **schisma** is ${tex`\frac{32805}{32768} \approx 1.95\text{¢}`}, the differ
 between the Pythagorean comma (${ratioPill(pythagorean)}) and the syntonic comma
 (${ratioPill(syntonic)}). Subtracting the narrower from the wider leaves the schisma
 exactly: ${tex`\frac{531441/524288}{81/80} = \frac{32805}{32768}`}. At roughly two
-cents it sits right at the just-noticeable-difference for pitch in slow contexts —
-audible as a beat-rate against a sustained reference, often inaudible as a melodic
-step.
+cents it sits right at the just-noticeable-difference for pitch in slow contexts
+(Plomp and Levelt 1965; Sethares 2005, §1.1) — audible as a beat-rate against a
+sustained reference, often inaudible as a melodic step.
 
 Audition the size gradient, wide to narrow:
 
@@ -121,11 +121,11 @@ fifths (octave-reduced) with a 5-limit major third. The
 fifths *below* the tonic, raised by five octaves; equivalently
 ${tex`(4/3)^{8}/2^{3}`} — sits at ${tex`\approx 384.36\text{¢}`}, exactly
 one schisma flat of the just major third ${ratioPill(fiveLimitThird)}
-(${tex`\approx 386.31\text{¢}`}). Helmholtz exploited this: narrow each of
-the eight fifths by ${tex`1.95/8 \approx 0.24\text{¢}`} and the chain lands
-on a pure ${tex`5/4`} — a near-Pythagorean tuning with usable 5-limit
-thirds, at the cost of slightly detuned fifths (701.711¢ instead of
-701.955¢).
+(${tex`\approx 386.31\text{¢}`}) (Helmholtz 1885, 433). Helmholtz exploited
+this (Helmholtz 1885, pt. III §XVI / App. XX): narrow each of the eight
+fifths by ${tex`1.95/8 \approx 0.24\text{¢}`} and the chain lands on a pure
+${tex`5/4`} — a near-Pythagorean tuning with usable 5-limit thirds, at the
+cost of slightly detuned fifths (701.711¢ instead of 701.955¢).
 
 Sound the two thirds together to hear the schisma directly:
 
@@ -133,9 +133,10 @@ ${playDyad(schismaticThird, fiveLimitThird, synth, { label: "8192/6561 + 5/4 (sc
 
 Against the dyad you should hear a slow ~2 Hz beating riding on top of the
 major-third chord — that's the schisma. The two pitches are within the
-just-noticeable difference for melodic pitch (~5¢ in slow contexts), yet
-the difference IS audible when both are sustained simultaneously, because
-the ear locks onto the beat-rate of their shared partials.
+just-noticeable difference for melodic pitch (~5¢ in slow contexts; Plomp and
+Levelt 1965), yet the difference IS audible when both are sustained
+simultaneously, because the ear locks onto the beat-rate of their shared
+partials.
 
 ## In monzos
 
@@ -148,11 +149,13 @@ ${tex`\begin{bmatrix} -19 & 12 & 0 \end{bmatrix}\rangle`} and the schisma's monz
 ${tex`\begin{bmatrix} -15 & 8 & 1 \end{bmatrix}\rangle`} falls out exactly.
 
 > **Tempered out by.** Schismatic temperament (Helmholtz / Groven /
-> Garibaldi — narrow each fifth by ~0.244¢ so a chain of eight fifths
-> lands on a pure 5/4), 53-EDO, and 41-EDO. These mappings identify
-> 8192/6561 with 5/4 — the Pythagorean diminished fourth and the
-> 5-limit major third collapse onto the same scale degree, and the
-> ~1.954¢ schisma vanishes from the system.
+> **Sábat-Garibaldi** — narrow each fifth by ~0.244¢ so a chain of eight
+> fifths lands on a pure 5/4), 53-EDO, and 41-EDO. The "Garibaldi" here
+> is Eduardo Sábat-Garibaldi (late 20th c., developer of the 53-tone
+> dinarra), not Giuseppe Garibaldi (Xen Wiki, "Garibaldi"). These
+> mappings identify 8192/6561 with 5/4 — the Pythagorean diminished
+> fourth and the 5-limit major third collapse onto the same scale
+> degree, and the ~1.954¢ schisma vanishes from the system.
 
 ## See also
 
@@ -168,9 +171,10 @@ lets you build any JI scale containing these commas and audition it against a dr
   community-curated reference for ${tex`32805/32768`} and its role as the
   difference between the Pythagorean and syntonic commas. Covers the
   family of *schismatic temperaments* built by tempering it to a unison
-  (Helmholtz, Groven, Garibaldi), related commas (kleisma, diaschisma,
-  Mercator's comma), and the precise mappings that put the schisma at the
-  edge of the audible while making it musically consequential.
+  (Helmholtz, Groven, Sábat-Garibaldi), related commas (kleisma,
+  diaschisma, Mercator's comma), and the precise mappings that put the
+  schisma at the edge of the audible while making it musically
+  consequential.
 
 - [Helmholtz, *Die Lehre von den Tonempfindungen* / *On the Sensations of
   Tone* (IMSLP)](https://imslp.org/wiki/Die_Lehre_von_den_Tonempfindungen_(Helmholtz,_Hermann_von)) —
@@ -180,3 +184,14 @@ lets you build any JI scale containing these commas and audition it against a dr
   Ellis 1875 English translation, *On the Sensations of Tone as a
   Physiological Basis for the Theory of Music*, is hosted on the same
   IMSLP page and is in the public domain.
+
+## Sources
+
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Huygens-Fokker Foundation. n.d. "List of intervals." Accessed 2026-05-13. https://www.huygens-fokker.org/docs/intervals.html.
+- Plomp, Reinier, and Willem J. M. Levelt. 1965. "Tonal Consonance and Critical Bandwidth." *Journal of the Acoustical Society of America* 38 (4): 548–560. https://doi.org/10.1121/1.1909741.
+- Sethares, William A. 2005. *Tuning, Timbre, Spectrum, Scale*. 2nd ed. London: Springer-Verlag.
+- Xenharmonic Wiki. n.d. "53edo." Accessed 2026-05-13. https://en.xen.wiki/w/53edo.
+- Xenharmonic Wiki. n.d. "Garibaldi." Accessed 2026-05-13. https://en.xen.wiki/w/Garibaldi.
+- Xenharmonic Wiki. n.d. "Schisma." Accessed 2026-05-13. https://en.xen.wiki/w/Schisma.
+- Xenharmonic Wiki. n.d. "Schismatic family." Accessed 2026-05-13. https://en.xen.wiki/w/Schismatic_family.

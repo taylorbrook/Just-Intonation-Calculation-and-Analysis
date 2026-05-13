@@ -82,12 +82,19 @@ const playWolf = playInterval(wolfFifth, synth, { label: true });
 
 Stack twelve pure fifths from ${tex`1/1`} and you have a recipe for a 12-note
 scale: each fifth lands on a fresh pitch class, and octave-reducing each step
-into ${tex`[1, 2)`} builds the classic Pythagorean diatonic. But the chain
-does not close. After eleven pure 3/2 fifths the chain reaches a pitch that
-sits one [Pythagorean comma](/pages/pythagorean-comma)
+into ${tex`[1, 2)`} builds the classic Pythagorean diatonic (Helmholtz 1885,
+271–276; Lindley 1984, ch. 1). But the chain does not close. After eleven pure
+3/2 fifths the chain reaches a pitch that sits one
+[Pythagorean comma](/pages/pythagorean-comma)
 (${tex`531441/524288 \approx 23.46\text{¢}`}) BELOW where a closing fifth needs
 to land — so the 12th "fifth" is forced to shrink by exactly that comma. That
 narrowed interval is the **wolf**.
+
+> The name "Pythagorean tuning" honors Pythagoras (6th c. BCE), but the
+> divisive chain-of-fifths method itself is documented in cuneiform
+> Mesopotamian sources predating him by over a millennium (West 1992;
+> Barker 1989). The terminology is conventional shorthand for a tuning
+> practice older than its eponym.
 
 ## The chain
 
@@ -124,12 +131,13 @@ display(scaleTable(pythagorean12, 261.625));
 
 In the historical 12-note Pythagorean tuning the wolf is conventionally placed
 between G♯ and E♭ (or their enharmonic equivalents — different historical
-sources pick different spots, but the wolf has to live *somewhere*). Six pure
-fifths up from C + five pure fifths down from C + one wolf = closed 12-tone
-cycle. Modulating into a key whose dominant crosses the wolf produces an
-audibly broken fifth — which is why Western tuning evolved away from pure
-Pythagorean toward meantone (16th c.) and well-tempered systems (Werckmeister,
-17th c.) and ultimately 12-TET.
+sources pick different spots, but the wolf has to live *somewhere*; Lindley
+1984, ch. 1; Helmholtz 1885, 273). Six pure fifths up from C + five pure
+fifths down from C + one wolf = closed 12-tone cycle. Modulating into a key
+whose dominant crosses the wolf produces an audibly broken fifth — which is
+why Western tuning evolved away from pure Pythagorean toward meantone
+(16th c.) and well-tempered systems (Werckmeister, 17th c.) and ultimately
+12-TET (Lindley 1984; Duffin 2007).
 
 ## See also
 
@@ -162,3 +170,12 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Barker, Andrew. 1989. *Greek Musical Writings, Vol. II: Harmonic and Acoustic Theory*. Cambridge Readings in the Literature of Music. Cambridge: Cambridge University Press.
+- Duffin, Ross W. 2007. *How Equal Temperament Ruined Harmony (And Why You Should Care)*. New York: W. W. Norton.
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Lindley, Mark. 1984. *Lutes, Viols and Temperaments*. Cambridge: Cambridge University Press.
+- West, Martin L. 1992. *Ancient Greek Music*. Oxford: Oxford University Press / Clarendon.
+- Xenharmonic Wiki. n.d. "Pythagorean tuning." Accessed 2026-05-13. https://en.xen.wiki/w/Pythagorean_tuning.

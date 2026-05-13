@@ -95,6 +95,8 @@ const scaleText = view(Inputs.textarea({
 
 <p class="dashboard-helper">Last line is the period. 1/1 is added automatically.</p>
 
+<p class="dashboard-helper" style="font-size:0.9em;color:var(--theme-foreground-muted);">The "last line is the period, 1/1 implicit" convention follows the Scala <code>.scl</code> spec (Huygens-Fokker, "Scala scale file format").</p>
+
 ```ts
 let scale = null;
 let parseError = null;
@@ -199,3 +201,7 @@ if (scale) {
 ```
 
 Read: [the dashboard ←](../) | [the syntonic comma →](syntonic-comma)
+
+## Sources
+
+- Huygens-Fokker Foundation. n.d. "Scala scale file format." Accessed 2026-05-13. https://www.huygens-fokker.org/scala/scl_format.html.

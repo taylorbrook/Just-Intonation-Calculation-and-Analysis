@@ -342,10 +342,15 @@ pure 5/4) and park the leftover schisma on a single distant fifth.
 
 ## Werckmeister III (1691)
 
-Andreas Werckmeister's *Musicalische Temperatur* (1691) is the first widely-adopted
-well-temperament — what Werckmeister himself called "Correct temperament no. 1." Narrow
-the four fifths C-G, G-D, D-A, and B-F♯ each by ${tex`\tfrac{1}{4}`} of a Pythagorean
-comma. Leave all other eight fifths pure.
+Andreas Werckmeister's *Musicalische Temperatur* (Quedlinburg, 1691) is the first
+widely-adopted well-temperament — what Werckmeister himself called "Correct
+temperament no. 1" (Werckmeister 1691). The modern label *Werckmeister III* refers
+to his monochord III (his monochords I and II label just intonation and ¼-comma
+meantone respectively); when Werckmeister ordered his "good" (*gute*) temperaments,
+this same scheme was his first ("no. 1"). Both labels point to the same recipe
+(Xen Wiki, "Werckmeister temperament"). Narrow the four fifths C-G, G-D, D-A, and
+B-F♯ each by ${tex`\tfrac{1}{4}`} of a Pythagorean comma. Leave all other eight
+fifths pure.
 
 ```ts
 display(werckFifthsTable);
@@ -366,10 +371,11 @@ around the circle.
 
 ## Kirnberger III (1779)
 
-Johann Philipp Kirnberger — Bach's pupil — published his third temperament scheme in
-*Die Kunst des reinen Satzes in der Musik* (1779). Narrow the four fifths C-G, G-D,
-D-A, A-E each by ${tex`\tfrac{1}{4}`} of a *syntonic* comma; park the residual
-schisma on the single F♯-C♯ fifth so the chain still closes into 7 octaves.
+Johann Philipp Kirnberger — Bach's pupil — published his third temperament scheme
+in vol. 2 pt. 3 of *Die Kunst des reinen Satzes in der Musik* (Berlin and
+Königsberg, 1779; Kirnberger 1779). Narrow the four fifths C-G, G-D, D-A, A-E
+each by ${tex`\tfrac{1}{4}`} of a *syntonic* comma; park the residual schisma on
+the single F♯-C♯ fifth so the chain still closes into 7 octaves.
 
 ```ts
 display(kirnFifthsTable);
@@ -390,13 +396,21 @@ ${tex`\approx 386.3\text{¢}`}) — that is Kirnberger III's headline property: 
 
 ## Vallotti (1779)
 
-Francesco Vallotti's scheme (composed 1728, published posthumously 1779) narrows
-six consecutive fifths along the chain F → C → G → D → A → E → B each by
+Francesco Antonio Vallotti's *Della scienza teorica e pratica della moderna
+musica, libro primo* (Padua, 1779) is the conventional published anchor for
+this scheme (Vallotti 1779). Vallotti died in 1780 — the year *after*
+publication, not before. The 1728 composition date sometimes given in tuning
+surveys lacks documentary basis. The recipe itself narrows six consecutive
+fifths along the chain F → C → G → D → A → E → B each by
 ${tex`\tfrac{1}{6}`} of a Pythagorean comma; the other six fifths stay pure.
-Symmetric around D, mildest of the three. The temperament commonly called
-"Vallotti" today is technically a slight misattribution — Vallotti's own scheme
-is more elaborate — but the ⅙-PC-on-six-fifths recipe is the canonical reference
-that goes by his name, and it remains the modern early-music default for keyboard
+Symmetric around D, mildest of the three.
+
+More properly the **Tartini–Vallotti** scheme: the recipe is first documented
+in print in Giuseppe Tartini's *Trattato di musica secondo la vera scienza
+dell'armonia* (Padua, 1754); the attribution to Vallotti has no clear
+primary-source basis (Tartini 1754; Duffin 2020). The recipe circulated in
+the Paduan musical circle that included both Tartini and Vallotti, and the
+⅙-PC-on-six-fifths recipe remains the modern early-music default for keyboard
 repertoire from the late Baroque.
 
 ```ts
@@ -508,11 +522,11 @@ display(comparisonTable);
 ## Why this matters
 
 Well-temperaments are why Bach could write the *Wohltemperirte Clavier* across
-all 24 keys: in 1/4-comma meantone, half of those keys would be flat-out
-unplayable (the wolf fifth lands somewhere and ruins everything that touches
-it). A well-temperament's deal is that NO key is broken — but no two keys sound
-the same either. Every key has a slight color, and the colors arrange themselves
-smoothly around the circle of fifths.
+all 24 keys (Lindley 1984; Lehman 2005): in 1/4-comma meantone, half of those
+keys would be flat-out unplayable (the wolf fifth lands somewhere and ruins
+everything that touches it). A well-temperament's deal is that NO key is
+broken — but no two keys sound the same either. Every key has a slight color,
+and the colors arrange themselves smoothly around the circle of fifths.
 
 The historical arc is straightforward: meantone (uniform tempering, beautiful
 close-key thirds, unusable far keys) → well-temperaments (uneven tempering, all
@@ -523,11 +537,11 @@ parity; well-temperaments lost that argument by the mid-19th century.
 
 Key character did not vanish without a fight, though. The 19th-century practice
 of treating remote keys as expressively distinct — Wagner's famously-affecting
-D♭-major moments, Schubert's E-major / E♭-major contrasts — partly lives on as
-historical residue of those keys *having* sounded distinctly different on the
-pre-12-TET keyboards composers grew up at. Once you have heard a Vallotti F♯-major
-triad against a Vallotti C-major triad, that residue makes sense as something
-real rather than as a Romantic affectation.
+D♭-major moments, Schubert's E-major / E♭-major contrasts (citation needed) —
+partly lives on as historical residue of those keys *having* sounded distinctly
+different on the pre-12-TET keyboards composers grew up at (Duffin 2007, ch. 6).
+Once you have heard a Vallotti F♯-major triad against a Vallotti C-major triad,
+that residue makes sense as something real rather than as a Romantic affectation.
 
 ## See also
 
@@ -569,3 +583,16 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Duffin, Ross W. 2007. *How Equal Temperament Ruined Harmony (And Why You Should Care)*. New York: W. W. Norton.
+- Duffin, Ross W. 2020. "Why I Hate Vallotti (or Is It Young?), pts. 2.1 and 3.1." *Faculty Blog*, Case Western Reserve University, October 2020. Accessed 2026-05-13. https://casfaculty.case.edu/ross-duffin/why-i-hate-vallotti-or-is-it-young-2-1/.
+- Kirnberger, Johann Philipp. 1779. *Die Kunst des reinen Satzes in der Musik, aus sicheren Grundsätzen hergeleitet und mit deutlichen Beyspielen erläutert*. Vol. 2, pt. 3. Berlin and Königsberg: G. J. Decker and G. L. Hartung.
+- Lehman, Bradley. 2005. "Bach's Extraordinary Temperament: Our Rosetta Stone, pts. 1 and 2." *Early Music* 33 (1): 3–23; 33 (2): 211–231. Companion site https://www.larips.com/ accessed 2026-05-13.
+- Lindley, Mark. 1984. *Lutes, Viols and Temperaments*. Cambridge: Cambridge University Press.
+- Tartini, Giuseppe. 1754. *Trattato di musica secondo la vera scienza dell'armonia*. Padua: Stamperia del Seminario.
+- Vallotti, Francesco Antonio. 1779. *Della scienza teorica e pratica della moderna musica, libro primo*. Padua: Nella stamperia del Seminario, appresso Giovanni Manfrè.
+- Werckmeister, Andreas. 1691. *Musicalische Temperatur, oder deutlicher und warer mathematischer Unterricht, wie man durch Anweisung des Monochordi ein Clavier… wol temperirt stimmen könne*. Quedlinburg: Theodor Philipp Calvisius.
+- Xenharmonic Wiki. n.d. "Well temperament." Accessed 2026-05-13. https://en.xen.wiki/w/Well_temperament.
+- Xenharmonic Wiki. n.d. "Werckmeister temperament." Accessed 2026-05-13. https://en.xen.wiki/w/Werckmeister_temperament.

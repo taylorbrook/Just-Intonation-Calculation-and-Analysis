@@ -35,12 +35,15 @@ const harmonicSeventh = new Interval("7/4"); //             the natural 7th harm
 const pythagoreanMinorSeventh = new Interval("16/9"); //    minor 7th from two stacked pure fourths (4/3 × 4/3 reduced)
 ```
 
-The **septimal comma** is ${tex`\frac{64}{63} \approx 27.26\text{¢}`}, the gap between
-the harmonic 7th (${ratioPill(harmonicSeventh)}) and the Pythagorean minor 7th
-(${ratioPill(pythagoreanMinorSeventh)}). They differ by exactly one septimal comma:
-${tex`\frac{16/9}{7/4} = \frac{64}{63}`}. This is the **entry point to 7-limit JI** —
-the gap that emerges the moment you reach for the natural seventh harmonic instead of
-stacking pure fifths and fourths.
+The **septimal comma** is ${tex`\frac{64}{63} \approx 27.26\text{¢}`}, the gap
+between the harmonic 7th (${ratioPill(harmonicSeventh)}) and the Pythagorean
+minor 7th (${ratioPill(pythagoreanMinorSeventh)}) (Xen Wiki, "64/63"). They
+differ by exactly one septimal comma: ${tex`\frac{16/9}{7/4} = \frac{64}{63}`}.
+This is the **entry point to 7-limit JI** — the gap that emerges the moment
+you reach for the natural seventh harmonic instead of stacking pure fifths
+and fourths. The genus that surfaces this interval — Archytas of Tarentum's
+4th-century-BCE diatonic tetrachord — is the canonical historical anchor
+(Barker 1989, ch. 2).
 
 Audition the difference:
 
@@ -143,10 +146,11 @@ The prime-7 column is the giveaway — this is the first comma in the standard s
 
 > **Tempered out by.** 22-EDO and Superpyth temperament (a.k.a. "archy"
 > in the 2.3.7 subgroup) — the four-fifths-up dominant seventh IS the
-> harmonic 7th. The Dominant temperament (the 7-limit extension supported
-> by 12-EDO, where 16/9 = 7/4) also vanishes 64/63. By contrast, standard
-> septimal meantone (huygens / 31-EDO) is built to *preserve* the 64/63
-> distinction — 7/4 and 16/9 land on adjacent steps.
+> harmonic 7th (Xen Wiki, "Archytas clan"). The Dominant temperament (the
+> 7-limit extension supported by 12-EDO, where 16/9 = 7/4) also vanishes
+> 64/63. By contrast, standard septimal meantone (huygens / 31-EDO) is
+> built to *preserve* the 64/63 distinction — 7/4 and 16/9 land on
+> adjacent steps.
 
 ## See also
 
@@ -179,3 +183,11 @@ harmonic 7th is sounded against a Pythagorean minor 7th in the same scale.
   chromatic 28:27:243:224:32:27, diatonic 28:27:8:7:9:8): the historical
   entry point of prime 7 and the 28/27 / 64/63 family into Greek music
   theory in the 4th century BCE.
+
+## Sources
+
+- Barker, Andrew. 1989. *Greek Musical Writings, Vol. II: Harmonic and Acoustic Theory*. Cambridge Readings in the Literature of Music. Cambridge: Cambridge University Press.
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Huygens-Fokker Foundation. n.d. "List of intervals." Accessed 2026-05-13. https://www.huygens-fokker.org/docs/intervals.html.
+- Xenharmonic Wiki. n.d. "64/63." Accessed 2026-05-13. https://en.xen.wiki/w/64/63.
+- Xenharmonic Wiki. n.d. "Archytas clan." Accessed 2026-05-13. https://en.xen.wiki/w/Archytas_clan.

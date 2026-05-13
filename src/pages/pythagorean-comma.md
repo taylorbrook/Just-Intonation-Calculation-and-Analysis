@@ -43,12 +43,13 @@ for (let i = 0; i < 6; i++) cycleOctave = cycleOctave.div(pureOctave);
 // cycleOctave = 531441/262144 ≈ 2.0273
 ```
 
-The **Pythagorean comma** is ${tex`\frac{531441}{524288} \approx 23.46\text{¢}`}, the gap
-between twelve pure fifths and seven pure octaves. Stack twelve 3/2's and you reach
-${tex`(3/2)^{12} = 531441/4096`} — a hair sharper than ${tex`2^{7} = 128`}, the
-seven-octave-equivalent of where you started. They differ by exactly one Pythagorean
-comma: ${tex`\frac{(3/2)^{12}}{2^{7}} = \frac{531441}{524288}`}. This is the reason a
-12-tone system built from pure fifths doesn't close.
+The **Pythagorean comma** is ${tex`\frac{531441}{524288} \approx 23.46\text{¢}`},
+the gap between twelve pure fifths and seven pure octaves (Helmholtz 1885, 432;
+Partch 1974, 86; Xen Wiki, "Pythagorean comma"). Stack twelve 3/2's and you
+reach ${tex`(3/2)^{12} = 531441/4096`} — a hair sharper than ${tex`2^{7} = 128`},
+the seven-octave-equivalent of where you started. They differ by exactly one
+Pythagorean comma: ${tex`\frac{(3/2)^{12}}{2^{7}} = \frac{531441}{524288}`}. This
+is the reason a 12-tone system built from pure fifths doesn't close.
 
 Audition the overshoot:
 
@@ -141,7 +142,8 @@ out of pure fifths alone.
 > cycle of fifths close: the comma's ~23.460¢ overshoot is absorbed back
 > into the octave. By contrast, 53-EDO (and finer Pythagorean-friendly
 > divisions like 665-EDO) preserve the Pythagorean comma as a distinct,
-> audible step — twelve fifths and seven octaves remain non-equivalent.
+> audible step — twelve fifths and seven octaves remain non-equivalent
+> (Xen Wiki, "53edo").
 
 ## See also
 
@@ -159,3 +161,11 @@ covers 5-limit JI's analogous closure gap.
   (${tex`32805/32768`}) and the diaschisma, and how various historical
   temperaments (well-temperaments, meantone variants, 12-TET) distribute or
   absorb it across the twelve fifths of the cycle.
+
+## Sources
+
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Huygens-Fokker Foundation. n.d. "List of intervals." Accessed 2026-05-13. https://www.huygens-fokker.org/docs/intervals.html.
+- Partch, Harry. 1974. *Genesis of a Music: An Account of a Creative Work, Its Roots, and Its Fulfillments*. 2nd ed., enlarged. New York: Da Capo Press. (1st ed. University of Wisconsin Press, 1949.)
+- Xenharmonic Wiki. n.d. "53edo." Accessed 2026-05-13. https://en.xen.wiki/w/53edo.
+- Xenharmonic Wiki. n.d. "Pythagorean comma." Accessed 2026-05-13. https://en.xen.wiki/w/Pythagorean_comma.

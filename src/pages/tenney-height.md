@@ -16,7 +16,8 @@ import * as Plot from "npm:@observablehq/plot";
 
 ## Definition
 
-For a positive rational ${tex`n/d`} in lowest terms (a *reduced* ratio), the **Tenney height** is
+For a positive rational ${tex`n/d`} in lowest terms (a *reduced* ratio), the
+**Tenney height** is (Tenney 1983, §3 and §6; Xen Wiki, "Tenney height"):
 
 ```tex
 \mathrm{TH}(n/d) \;=\; \log_2(n \cdot d)
@@ -287,3 +288,8 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Tenney, James. 1983. "John Cage and the Theory of Harmony." *Soundings* 13: 55–83. (Composed 1983; published 1984 in *Soundings* 13. Reprinted in Tenney, *From Scratch: Writings in Music Theory*, ed. Larry Polansky et al., Urbana: University of Illinois Press, 2015, ch. 12.)
+- Xenharmonic Wiki. n.d. "Tenney height." Accessed 2026-05-13. https://en.xen.wiki/w/Tenney_height.
