@@ -21,6 +21,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./pythagorean-comma">the Pythagorean comma</a>, <a href="./harmonic-series">the harmonic series</a>
+</aside>
+
 ```ts
 // Stack n pure fifths (3/2) from 1/1, octave-reducing each step into [1, 2),
 // sort ascending by cents (display ordering is fine here per Pitfall #1: the
@@ -108,11 +113,11 @@ display(scaleTable(pythagorean12, 261.625));
 
 ## Audition the wolf
 
-- ${playPure} sounds the pure fifth (${ratioPill(pureFifth)}) — 701.96¢, the
+- ${playPure} sounds the pure fifth (${ratioPill(pureFifth)}) — 701.955¢, the
   chain's building block. Beat-free against any ${tex`1/1`} drone.
-- ${playWolf} sounds the wolf fifth (${ratioPill(wolfFifth)}) — 678.49¢, the
+- ${playWolf} sounds the wolf fifth (${ratioPill(wolfFifth)}) — 678.495¢, the
   diminished sixth that closes the chain. Audibly narrow and slightly sour
-  against the pure version; sound them back-to-back and the ~23.5¢ gap is
+  against the pure version; sound them back-to-back and the ~23.460¢ gap is
   unmistakable.
 
 ## Where the wolf lives
