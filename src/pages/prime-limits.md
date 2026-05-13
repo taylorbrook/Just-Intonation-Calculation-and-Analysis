@@ -20,6 +20,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./monzos">monzos</a>, <a href="./harmonic-series">the harmonic series</a>
+</aside>
+
 ```ts
 // Example intervals declared up front so prose, ratio-pills, and play buttons
 // all reference the same Interval instances. Strings into new Interval(...)
@@ -124,9 +129,9 @@ const limitTable = (() => {
     monzoCell.appendChild(monzoCode);
     tr.appendChild(monzoCell);
 
-    // Cents — 1 d.p., trailing `¢`.
+    // Cents — 2 d.p. in tables (consistency rule), trailing `¢`.
     const centsCell = document.createElement("td");
-    centsCell.textContent = `${iv.cents.toFixed(1)}¢`;
+    centsCell.textContent = `${iv.cents.toFixed(2)}¢`;
     tr.appendChild(centsCell);
 
     // Play — bare ▶ button via playInterval (no label, since the Ratio column
