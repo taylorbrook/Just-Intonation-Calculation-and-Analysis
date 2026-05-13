@@ -283,7 +283,21 @@ it — the dashed red chord between them IS the meantone wolf: the closure
 gap that any 12-tone scale built from 1/4-comma fifths must absorb somewhere
 on the chain.
 
-${spiralOfFifths(12, { temperedFifthCents: quarter.fifth, highlightWolf: true })}
+${spiralOfFifths(12, {
+  temperedFifthCents: quarter.fifth,
+  highlightWolf: true,
+  onStepClick: (step) => {
+    const baseHz = 440;
+    // Tempered branch: step.ratio is null (irrational fifth). Octave-reduce
+    // step.cumulativeCents (which spans ~8359¢ across 12 fifths) so the
+    // audition matches the spiral's own visual reading and stays in audible
+    // range. Same centsToRatio audio-boundary discipline used by the
+    // playTempered factory earlier on this page.
+    const reducedCents = ((step.cumulativeCents % 1200) + 1200) % 1200;
+    const ratio = centsToRatio(reducedCents);
+    synth.playNotes([baseHz, baseHz * ratio], 1.5);
+  },
+})}
 
 For reference: a chain of [pure 3/2 fifths overshoots the octave by a
 Pythagorean comma (+23.460¢)](/pages/pythagorean-comma); 1/4-comma

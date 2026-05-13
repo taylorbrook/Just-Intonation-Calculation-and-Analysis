@@ -69,7 +69,17 @@ at 12 o'clock; the chain sweeps clockwise. Step 12 lands a hair past step 0
 rather than on top of it — the dashed red chord between them IS the
 Pythagorean comma.
 
-${spiralOfFifths(12, { highlightWolf: true })}
+${spiralOfFifths(12, {
+  highlightWolf: true,
+  onStepClick: (step) => {
+    if (!step.ratio) return; // pure branch always provides a ratio; defensive
+    const baseHz = 440;
+    synth.playNotes(
+      [baseHz, baseHz * Number(step.ratio.fraction.valueOf())],
+      1.5,
+    );
+  },
+})}
 
 The drift chart below makes the same gap quantitative. The y-axis tracks the
 cumulative cents by which the pure-fifth chain has run *ahead* of an
