@@ -300,7 +300,7 @@ Young's *The Well-Tuned Piano*"). The harmonic-series page's table at partial
 Open `src/lib/commas.ts` and you'll see the named-comma table already
 grouped by prime-limit — section comments mark the boundaries:
 
-```ts
+```ts run=false
 // 5-limit
 { name: "syntonic comma", monzo: [-4, 4, -1] }, //          81/80
 // ...
