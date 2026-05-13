@@ -5,8 +5,20 @@ A scalar measure of harmonic complexity — how "far" a JI ratio sits from the u
 ```ts
 import { Interval } from "../lib/interval.js";
 import { tenneyHeight, primeLimitOfMonzo } from "../lib/monzo.js";
+import { createSynth } from "../audio/synth.js";
 import { furtherReading } from "../components/further-reading.js";
+import { playInterval } from "../components/play-interval.js";
+import { ratioPill } from "../components/ratio-pill.js";
 import * as Plot from "npm:@observablehq/plot";
+```
+
+```ts
+// Synth cell — owns this page's AudioContext (ARCHITECTURE Pattern 4 / Pitfall #2).
+// Must NOT depend on any other cell. The lazy createSynth() does not allocate the
+// AudioContext until the first playNote / playNotes call (i.e. the first user click),
+// so simply rendering this page does not create an AudioContext.
+const synth = createSynth();
+invalidation.then(() => synth.dispose());
 ```
 
 <aside class="prereq">
@@ -201,6 +213,44 @@ const scatterChart = Plot.plot({
   ],
 });
 display(scatterChart);
+```
+
+Click any ratio to hear it.
+
+```ts
+// Audible pills row — one ratioPill + bare ▶ button per ratio in scatterRatios.
+// Plot.dot() is not clickable in Observable Plot, so the audition surface lives
+// here, directly beneath the chart. The container is a flex-wrap row so the 32
+// pairs reflow on narrow viewports.
+//
+// XSS discipline (T-02-22 / T-02-23, T-kl9-01): createElement + appendChild
+// only for wrappers; ratioPill / playInterval factories already use textContent
+// for all dynamic strings. No innerHTML for derived content.
+//
+// scatterRatios is in cell scope from the cell above — do NOT redeclare.
+// Per D-08 / D-18, leave playInterval defaults intact: 440 Hz root, 1.5s, bare ▶.
+const scatterPillsRow = (() => {
+  const container = document.createElement("div");
+  container.className = "ratio-pills-row";
+  container.style.display = "flex";
+  container.style.flexWrap = "wrap";
+  container.style.gap = "0.5rem";
+  container.style.alignItems = "center";
+  container.style.margin = "0.5rem 0 1rem 0";
+
+  for (const r of scatterRatios) {
+    const iv = new Interval(r);
+    const pair = document.createElement("span");
+    pair.style.display = "inline-flex";
+    pair.style.alignItems = "center";
+    pair.style.gap = "0.2rem";
+    pair.appendChild(ratioPill(iv));
+    pair.appendChild(playInterval(iv, synth));
+    container.appendChild(pair);
+  }
+  return container;
+})();
+display(scatterPillsRow);
 ```
 
 Two things to read off this plot. First, the **simple-ratio cluster** in the
