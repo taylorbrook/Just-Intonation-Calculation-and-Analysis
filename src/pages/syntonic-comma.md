@@ -34,14 +34,15 @@ const fiveLimit = new Interval("5/4"); //                   5-limit major third
 const pythagorean = new Interval("81/64"); //               Pythagorean major third (4 fifths up, 2 octaves down)
 ```
 
-The **syntonic comma** is ${tex`\frac{81}{80} \approx 21.5\text{¢}`}, the gap between
-the 5-limit major third (${ratioPill(fiveLimit)}) and the Pythagorean major third
-(${ratioPill(pythagorean)}). They differ by exactly one syntonic comma:
+The **syntonic comma** is ${tex`\frac{81}{80} \approx 21.5\text{¢}`}, the gap
+between the 5-limit major third (${ratioPill(fiveLimit)}) and the Pythagorean
+major third (${ratioPill(pythagorean)}) (Helmholtz 1885, 432; Partch 1974, 86;
+Xen Wiki, "81/80"). They differ by exactly one syntonic comma:
 ${tex`\frac{81/64}{5/4} = \frac{81}{80}`}.
 
 Audition the difference:
 
-- ${playInterval(fiveLimit, synth, { label: true })} sounds the 5-limit major third — a "soft" or "smooth" interval; the prime 5 enters the chord.
+- ${playInterval(fiveLimit, synth, { label: true })} sounds the 5-limit major third — a "soft" or "smooth" interval; the prime 5 enters the chord (Helmholtz 1885, 184–194; Sethares 2005, §3.3).
 - ${playInterval(pythagorean, synth, { label: true })} sounds the Pythagorean major third — slightly wider, brighter; it's stacked from pure 3/2 fifths.
 - ${playInterval(syntonic, synth, { label: true })} sounds the comma itself — audible as a beat-rate when the two thirds are sounded together.
 
@@ -71,10 +72,11 @@ The four 3's of the Pythagorean stacking + the −1 5-power = exactly the comma'
 "cost" of choosing pure 3-limit thirds over pure 5-limit thirds.
 
 > **Tempered out by.** Meantone in all common variants (quarter-comma /
-> third-comma / sixth-comma / seventh-comma), 12-EDO, 19-EDO, 31-EDO, 53-EDO.
-> These are precisely the temperaments that map 81/80 to a unison — the
-> prime-5 major third (5/4) and the Pythagorean major third (81/64) collapse
-> onto the same scale degree, and the comma vanishes from the system.
+> third-comma / sixth-comma / seventh-comma), 12-EDO, 19-EDO, 31-EDO, 53-EDO
+> (Xen Wiki, "Meantone family"; Blackwood 1985, §3). These are precisely the
+> temperaments that map 81/80 to a unison — the prime-5 major third (5/4) and
+> the Pythagorean major third (81/64) collapse onto the same scale degree,
+> and the comma vanishes from the system.
 
 ## See also
 
@@ -94,3 +96,14 @@ the drone — the syntonic-comma beat-rate becomes audible immediately.
   as the defining comma of 5-limit meantone, the family of temperaments
   that vanish it (the meantone variants plus 12-/19-/31-/53-EDO), and
   worked examples of comma pumps that drift by exactly 81/80 per cycle.
+
+## Sources
+
+- Blackwood, Easley. 1985. *The Structure of Recognizable Diatonic Tunings*. Princeton, NJ: Princeton University Press.
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Huygens-Fokker Foundation. n.d. "List of intervals." Accessed 2026-05-13. https://www.huygens-fokker.org/docs/intervals.html.
+- Partch, Harry. 1974. *Genesis of a Music: An Account of a Creative Work, Its Roots, and Its Fulfillments*. 2nd ed., enlarged. New York: Da Capo Press. (1st ed. University of Wisconsin Press, 1949.)
+- Sethares, William A. 2005. *Tuning, Timbre, Spectrum, Scale*. 2nd ed. London: Springer-Verlag.
+- Xenharmonic Wiki. n.d. "81/80." Accessed 2026-05-13. https://en.xen.wiki/w/81/80.
+- Xenharmonic Wiki. n.d. "Meantone family." Accessed 2026-05-13. https://en.xen.wiki/w/Meantone_family.
+- Xenharmonic Wiki. n.d. "Monzo." Accessed 2026-05-13. https://en.xen.wiki/w/Monzo.

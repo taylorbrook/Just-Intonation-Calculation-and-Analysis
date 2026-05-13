@@ -19,13 +19,15 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
-A **comma** is a small interval that quantifies the gap between two paths to the
-"same" pitch in just intonation. Each entry below is constructed via
-`commaByName(name)!` — the kernel's hand-verified table in `src/lib/commas.ts`
-is the source of truth, so every ratio, monzo, and cents value on this page is
-exact (BigInt-backed `Fraction` → display projection). Pages with a deeper
-dedicated note are linked from the entry; the rest are listed here as the
-canonical index.
+A **comma** is a small interval that quantifies the gap between two paths to
+the "same" pitch in just intonation (Helmholtz 1885, 431–434; Xen Wiki,
+"Comma"). Each entry below is constructed via `commaByName(name)!` — the
+kernel's hand-verified table in `src/lib/commas.ts` is the source of truth,
+so every ratio, monzo, and cents value on this page is exact (BigInt-backed
+`Fraction` → display projection; cross-referenced against Huygens-Fokker's
+"List of intervals" for canonical naming). Pages with a deeper dedicated
+note are linked from the entry; the rest are listed here as the canonical
+index.
 
 ```ts
 // Kernel-exact entries. commaByName is total over COMMAS by construction
@@ -129,7 +131,7 @@ const byLimit = (n) => commaEntries.filter((e) => e.limit === n);
 3-limit commas live entirely on the prime-2 and prime-3 axes — the residues of
 trying to close Pythagorean cycles. The **Pythagorean comma** is the canonical
 gap at 12 fifths; **Mercator's comma** is the residue at 53 fifths, the
-defining comma of 53-EDO's near-closure.
+defining comma of 53-EDO's near-closure (Xen Wiki, "Mercator's comma").
 
 ```ts
 display(buildCommaTable(byLimit(3)));
@@ -138,11 +140,11 @@ display(buildCommaTable(byLimit(3)));
 ## 5-limit
 
 5-limit commas introduce the prime 5 — reconciling the Pythagorean chain with
-the natural major third (5/4). The **syntonic comma** (81/80) is the family's
-ground state; **schisma** (32805/32768) is the residue between the Pythagorean
-and syntonic commas; **diaschisma**, **diesis**, **greater diesis**, and
-**kleisma** trace different syntonic-arithmetic remainders that name
-historically important tuning compromises.
+the natural major third (5/4) (Partch 1974, ch. 6). The **syntonic comma**
+(81/80) is the family's ground state; **schisma** (32805/32768) is the residue
+between the Pythagorean and syntonic commas; **diaschisma**, **diesis**,
+**greater diesis**, and **kleisma** trace different syntonic-arithmetic
+remainders that name historically important tuning compromises.
 
 ```ts
 display(buildCommaTable(byLimit(5)));
@@ -196,3 +198,11 @@ display(buildCommaTable(byLimit(11)));
   edge of audibility while making them musically consequential. Useful as a
   jump-off from this kernel-bound glossary into the wider regular-temperament
   literature.
+
+## Sources
+
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Huygens-Fokker Foundation. n.d. "List of intervals." Accessed 2026-05-13. https://www.huygens-fokker.org/docs/intervals.html.
+- Partch, Harry. 1974. *Genesis of a Music: An Account of a Creative Work, Its Roots, and Its Fulfillments*. 2nd ed., enlarged. New York: Da Capo Press. (1st ed. University of Wisconsin Press, 1949.)
+- Xenharmonic Wiki. n.d. "Comma." Accessed 2026-05-13. https://en.xen.wiki/w/Comma.
+- Xenharmonic Wiki. n.d. "Mercator's comma." Accessed 2026-05-13. https://en.xen.wiki/w/Mercator's_comma.

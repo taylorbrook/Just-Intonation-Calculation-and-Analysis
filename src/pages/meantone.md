@@ -241,22 +241,36 @@ display(variantsTable);
   ${tex`\tfrac{1}{4}`} of a syntonic comma. After four fifths reduced by two
   octaves the major third has *exactly* absorbed the comma — it lands on
   ${ratioPill(pure5Third)} (${tex`5/4`}), the 5-limit pure major third. This is
-  meantone's headline property: the major triad is just-intoned. The price is
-  fifths that beat audibly (~5.4¢ flat of pure) and a wolf 5th somewhere on the
-  chain that's much wider than in Pythagorean tuning.
+  meantone's headline property: the major triad is just-intoned (Aron 1523;
+  Xen Wiki, "1/4-comma meantone"). The price is fifths that beat audibly
+  (~5.4¢ flat of pure) and a wolf 5th somewhere on the chain that's much wider
+  than in Pythagorean tuning.
 - **1/3-comma meantone (Francisco Salinas, 1577).** Each fifth narrowed by
   ${tex`\tfrac{1}{3}`} of a syntonic comma. The minor third lands on
   ${ratioPill(pure6Third)} (${tex`6/5`}), the 5-limit pure *minor* third. The
   major thirds are now slightly flat of pure 5/4 (by ${tex`\tfrac{1}{3}`} of a
   comma), and the fifths are flatter still (~7.2¢ flat of pure). Used when
-  minor triads are the priority.
+  minor triads are the priority (Salinas 1577, chs. 23–28; Xen Wiki,
+  "1/3-comma meantone").
 - **1/6-comma meantone (Gottfried Silbermann).** Each fifth narrowed by
   ${tex`\tfrac{1}{6}`} of a syntonic comma. Major thirds are sharp of pure 5/4
   by ${tex`\tfrac{2}{3}`} of a comma; fifths only ~3.6¢ flat of pure. A softer
   compromise — neither thirds nor fifths are pure, but the wolf is milder than
   in 1/4-comma and the system handles modulation more gracefully. The
   historical bridge from 1/4-comma meantone to well-tempered systems and
-  ultimately 12-TET.
+  ultimately 12-TET. The Silbermann attribution is conventional (Xen Wiki,
+  "1/6-comma meantone"): no extant Silbermann treatise documents the recipe,
+  and the label is reconstructed from his organ-tuning practice
+  (citation needed for a documentary primary).
+
+> **Variants table footnote.** The 2/7-comma row cites Zarlino 1558 (*Le
+> istitutioni harmoniche*, pt. II chs. 42–43), the canonical primary for
+> arithmetic-exact 2/7-comma meantone. The 1/5-comma row labels its
+> attribution "Verheijen, 1599" for historical continuity with older tuning
+> surveys; the better modern reading is *Verheyen, ca. 1600* — first described
+> in correspondence between Abraham Verheyen and Simon Stevin (Xen Wiki,
+> "1/5-comma meantone"). 1599 is a defensible point estimate within that
+> "around 1600" window.
 
 ## The wolf at ${tex`k=12`} (1/4-comma meantone)
 
@@ -274,7 +288,7 @@ ${spiralOfFifths(12, { temperedFifthCents: quarter.fifth, highlightWolf: true })
 For reference: a chain of [pure 3/2 fifths overshoots the octave by a
 Pythagorean comma (+23.460¢)](/pages/pythagorean-comma); 1/4-comma
 meantone's wolf goes the other way — twelve fifths come up short of seven
-octaves by ≈ 40.7¢.
+octaves by ≈ 41.1¢ (re-derived: ${tex`12 \times 696.578 - 8400 = -41.07\text{¢}`}).
 
 ## Audition — the 1/4-comma equivalence
 
@@ -341,3 +355,15 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Aron, Pietro. 1523. *Toscanello in musica*. Venice: Bernardino e Matteo de' Vitali. (Multiple reprints 1525–1562.)
+- Blackwood, Easley. 1985. *The Structure of Recognizable Diatonic Tunings*. Princeton, NJ: Princeton University Press.
+- Salinas, Francisco de. 1577. *De musica libri septem*. Salamanca: Matthias Gastius.
+- Xenharmonic Wiki. n.d. "1/3-comma meantone." Accessed 2026-05-13. https://en.xen.wiki/w/1/3-comma_meantone.
+- Xenharmonic Wiki. n.d. "1/4-comma meantone." Accessed 2026-05-13. https://en.xen.wiki/w/1/4-comma_meantone.
+- Xenharmonic Wiki. n.d. "1/5-comma meantone." Accessed 2026-05-13. https://en.xen.wiki/w/1/5-comma_meantone.
+- Xenharmonic Wiki. n.d. "1/6-comma meantone." Accessed 2026-05-13. https://en.xen.wiki/w/1/6-comma_meantone.
+- Xenharmonic Wiki. n.d. "Meantone family." Accessed 2026-05-13. https://en.xen.wiki/w/Meantone_family.
+- Zarlino, Gioseffo. 1558. *Le istitutioni harmoniche*. Venice: [author]. (Reprinted 1561 and 1562 from the same blocks; pt. II, chs. 42–43 describe 2/7-comma meantone.)

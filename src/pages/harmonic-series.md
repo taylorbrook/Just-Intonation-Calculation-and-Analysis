@@ -52,11 +52,11 @@ const partials: { n: number; iv: Interval; name: string }[] = [
 
 A vibrating string — or air column, or struck bar, or any resonator with a
 linear restoring force — rings not at one frequency but at a stack of them:
-${tex`1f,\ 2f,\ 3f,\ 4f,\ 5f,\ \ldots`}. These are the **partials** (or
-**harmonics**) of the fundamental ${tex`f`}. The ratio of the *n*-th partial
-to the fundamental is exactly ${tex`n/1`} — an integer. Every just-intonation
-interval this notebook explores is, somewhere upstream, a ratio between two
-of these integers.
+${tex`1f,\ 2f,\ 3f,\ 4f,\ 5f,\ \ldots`} (Helmholtz 1885, ch. III; Benson 2007,
+ch. 1). These are the **partials** (or **harmonics**) of the fundamental
+${tex`f`}. The ratio of the *n*-th partial to the fundamental is exactly
+${tex`n/1`} — an integer. Every just-intonation interval this notebook
+explores is, somewhere upstream, a ratio between two of these integers.
 
 The harmonic series is the ground floor of JI. The 5-limit major third
 ${tex`5/4`} is partial 5 over partial 4. The pure perfect fifth ${tex`3/2`}
@@ -72,8 +72,12 @@ Partial 1 plays a unison (fundamental against itself — useful as a tone-qualit
 reference). The **cents-from-12-TET** column is the deviation from the nearest
 equal-tempered pitch: a 12-TET ear hears partial 7 as a noticeably flat minor 7th
 (−31.2¢), partial 11 as halfway between a perfect 4th and a tritone (−48.7¢),
-and partial 13 as a flat neutral 6th (−59.5¢). These are the prime-7, prime-11,
-and prime-13 entry points respectively.
+and partial 13 as a flat neutral 6th (−59.5¢ relative to the 12-TET major
+6th at 900¢ — the convention the kernel's `centsFrom12tet` uses for `13/8`;
+*citation needed* — reference 12-TET note for this comparison not pinned in
+prose, and the kernel's `iv.centsFrom12tet` for 13/8 should be re-checked
+in execution if a primary source can't be located). These are the prime-7,
+prime-11, and prime-13 entry points respectively.
 
 ```ts
 // Vertical cents-vs-partial chart. y = partial number (1..16, top→bottom via reverse).
@@ -232,7 +236,8 @@ A few things to notice as you scan the table:
   That tiny gap, accumulated twelve times, is the **Pythagorean comma**.
 - **Major thirds land at −14¢.** Partial 5 (and 10) is the just major third
   family; it's ~14¢ flatter than the 12-TET major third, which is why JI
-  major triads sound notably "calmer" than tempered ones.
+  major triads sound notably "calmer" than tempered ones (Plomp and Levelt
+  1965; Sethares 2005, §3.3).
 - **Prime-7 introduces a 31¢ gap.** Partial 7 (and 14) is the harmonic 7th;
   it's ~31¢ flatter than the 12-TET minor 7th. This is the gap the
   [septimal comma](/pages/septimal-comma) measures.
@@ -282,3 +287,12 @@ the harmonic series, sounded together.
 
 - [Harmonic series on the Xenharmonic Wiki](https://en.xen.wiki/w/Harmonic_series) — community-curated reference covering the harmonic series across JI, regular temperaments, and extended-prime music.
 - [Kyle Gann, "Just Intonation Explained"](https://www.kylegann.com/tuning.html) — Gann's introduction to JI from a composer's standpoint; the partials table on this page is the same scaffolding he walks through.
+
+## Sources
+
+- Benson, Dave. 2007. *Music: A Mathematical Offering*. Cambridge: Cambridge University Press.
+- Gann, Kyle. n.d. "Just Intonation Explained." Accessed 2026-05-13. https://www.kylegann.com/tuning.html.
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Plomp, Reinier, and Willem J. M. Levelt. 1965. "Tonal Consonance and Critical Bandwidth." *Journal of the Acoustical Society of America* 38 (4): 548–560. https://doi.org/10.1121/1.1909741.
+- Sethares, William A. 2005. *Tuning, Timbre, Spectrum, Scale*. 2nd ed. London: Springer-Verlag.
+- Xenharmonic Wiki. n.d. "Harmonic series." Accessed 2026-05-13. https://en.xen.wiki/w/Harmonic_series.

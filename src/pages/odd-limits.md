@@ -273,8 +273,10 @@ ${renderDiamondSVG(7, { width: 320, height: 320 })}
 Adding the ${tex`7`}-identity opens up the ${tex`4 : 5 : 6 : 7`} otonal tetrad
 (see [Otonality & utonality](/pages/otonality-utonality)) and its utonal mirror
 ${tex`1/4 : 1/5 : 1/6 : 1/7`}. The barbershop seventh, the harmonic seventh
-chord, and the "blue" notes of early-jazz tradition all live here. Total
-distinct pitches in the 7-odd-limit diamond: ${tex`7 + 6 = 13`}.
+chord, and the "blue" notes of early-jazz tradition all live here (Doty 2002,
+ch. 4; *citation needed* for an explicit jazz-tradition source if Doty's
+chapter does not cover the blue-note claim directly). Total distinct pitches
+in the 7-odd-limit diamond: ${tex`7 + 6 = 13`}.
 
 ### 11-odd-limit — Partch's diamond
 
@@ -374,3 +376,9 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Doty, David B. 2002. *The Just Intonation Primer: An Introduction to the Theory and Practice of Just Intonation*. 3rd ed. San Francisco: Just Intonation Network.
+- Partch, Harry. 1974. *Genesis of a Music: An Account of a Creative Work, Its Roots, and Its Fulfillments*. 2nd ed., enlarged. New York: Da Capo Press. (1st ed. University of Wisconsin Press, 1949.)
+- Xenharmonic Wiki. n.d. "Odd limit." Accessed 2026-05-13. https://en.xen.wiki/w/Odd_limit.

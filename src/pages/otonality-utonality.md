@@ -311,3 +311,9 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Gann, Kyle. n.d. "La Monte Young's *The Well-Tuned Piano*." Accessed 2026-05-13. https://www.kylegann.com/wtp.html.
+- Partch, Harry. 1974. *Genesis of a Music: An Account of a Creative Work, Its Roots, and Its Fulfillments*. 2nd ed., enlarged. New York: Da Capo Press. (1st ed. University of Wisconsin Press, 1949.)
+- Xenharmonic Wiki. n.d. "Otonality and utonality." Accessed 2026-05-13. https://en.xen.wiki/w/Otonality_and_utonality.

@@ -128,8 +128,9 @@ const playDrift3 = cycleButton("Play 3 drift cycles", drift3Cycle);
 
 The most familiar cadence in Western music — **I-vi-ii-V-I** — is also the
 canonical demonstration of why pure [5-limit just intonation](/pages/prime-limits)
-cannot underpin a stable global tonality. Played in pure 5-limit JI, the
-cadence accumulates exactly one [syntonic comma](/pages/syntonic-comma)
+cannot underpin a stable global tonality (Helmholtz 1885, 432; Benson 2007,
+§5.2). Played in pure 5-limit JI, the cadence accumulates exactly one
+[syntonic comma](/pages/syntonic-comma)
 (${tex`81/80 \approx 21.5\text{¢}`}) of downward drift per cycle. Repeat the
 progression and the tonic walks away from itself: after one cycle the "home"
 chord sits 21.506¢ below where it started; after two, 43¢; after four, almost
@@ -323,16 +324,18 @@ The comma pump is the historical engine that drove Western tuning systems
 
 - **Meantone temperament** (16th c., Pietro Aron) distributes the syntonic
   comma across four fifths, paying ~5.4¢ per fifth to keep major thirds pure
-  ${tex`5/4`}. The comma vanishes by construction; the price is fifths that
-  beat audibly.
+  ${tex`5/4`} (Aron 1523). The comma vanishes by construction; the price is
+  fifths that beat audibly.
 - **12-TET** (universal by the 19th c.) distributes *all* commas evenly,
   paying ~1.96¢ per fifth and ~13.7¢ per major third to make every key
   playable. Every progression closes; nothing is pure.
 
 The comma pump is *why* temperament exists. A composer working in pure JI
 either accepts the drift as a feature (Ben Johnston, La Monte Young, Harry
-Partch's adaptive cadences), notates explicit comma shifts (Johnston's
-microtonal accidentals), or chooses one tonic and refuses to modulate.
+Partch's adaptive cadences; Partch 1974; Gann, "La Monte Young's *The
+Well-Tuned Piano*"), notates explicit comma shifts (Johnston's microtonal
+accidentals; Doty 2002, ch. 9; Johnston 1977), or chooses one tonic and
+refuses to modulate.
 
 ## Octave-reduction footnote
 
@@ -377,3 +380,14 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Aron, Pietro. 1523. *Toscanello in musica*. Venice: Bernardino e Matteo de' Vitali. (Multiple reprints 1525–1562.)
+- Benson, Dave. 2007. *Music: A Mathematical Offering*. Cambridge: Cambridge University Press.
+- Doty, David B. 2002. *The Just Intonation Primer: An Introduction to the Theory and Practice of Just Intonation*. 3rd ed. San Francisco: Just Intonation Network.
+- Gann, Kyle. n.d. "La Monte Young's *The Well-Tuned Piano*." Accessed 2026-05-13. https://www.kylegann.com/wtp.html.
+- Helmholtz, Hermann von. 1885. *On the Sensations of Tone as a Physiological Basis for the Theory of Music*. Translated and edited by Alexander J. Ellis. 2nd English ed. London: Longmans, Green, and Co.
+- Johnston, Ben. 1977. *Suite for Microtonal Piano*. Score and recording: New World Records 80637 (Phillip Bush, piano; reissue New World 1995).
+- Partch, Harry. 1974. *Genesis of a Music: An Account of a Creative Work, Its Roots, and Its Fulfillments*. 2nd ed., enlarged. New York: Da Capo Press. (1st ed. University of Wisconsin Press, 1949.)
+- Xenharmonic Wiki. n.d. "Comma pump." Accessed 2026-05-13. https://en.xen.wiki/w/Comma_pump.

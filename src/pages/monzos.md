@@ -36,11 +36,17 @@ const septimalSubminorThird = new Interval("7/6"); //  7-limit subminor third
 ```
 
 A **monzo** is a vector of integer exponents over the primes
-${tex`2,\ 3,\ 5,\ 7,\ 11,\ \ldots`}. Reading a monzo
-${tex`\begin{bmatrix} a & b & c & d \end{bmatrix}\rangle`} as a ratio is just
-the prime-power product:
+${tex`2,\ 3,\ 5,\ 7,\ 11,\ \ldots`} (Xen Wiki, "Monzo"; Doty 2002, ch. 5).
+Reading a monzo ${tex`\begin{bmatrix} a & b & c & d \end{bmatrix}\rangle`} as
+a ratio is just the prime-power product:
 
 ${tex`\begin{bmatrix} a & b & c & d \end{bmatrix}\rangle = 2^{a} \cdot 3^{b} \cdot 5^{c} \cdot 7^{d}`}
+
+> *Terminology aside.* The term **monzo** was coined in July 2003 by
+> Gene Ward Smith in honor of Joe Monzo's advocacy of prime-factor
+> vector notation; the underlying mathematics — applying the fundamental
+> theorem of arithmetic to rational frequency ratios — goes back at
+> least to Adriaan Fokker (Xen Wiki, "Monzo").
 
 Three things make monzos the right coordinate system for this notebook. First,
 **equality is exact** — two monzos describe the same ratio iff their entries agree,
@@ -236,3 +242,9 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Benson, Dave. 2007. *Music: A Mathematical Offering*. Cambridge: Cambridge University Press.
+- Doty, David B. 2002. *The Just Intonation Primer: An Introduction to the Theory and Practice of Just Intonation*. 3rd ed. San Francisco: Just Intonation Network.
+- Xenharmonic Wiki. n.d. "Monzo." Accessed 2026-05-13. https://en.xen.wiki/w/Monzo.

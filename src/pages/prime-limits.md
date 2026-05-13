@@ -37,9 +37,10 @@ const undecimal = new Interval("11/8"); //                  11-limit: undecimal 
 ```
 
 The **prime-limit** of a JI ratio is the **largest prime that appears with a
-non-zero exponent in its monzo**. A scale is *p-limit* when every interval in
-it is p-limit or lower. This is the cleanest way to classify a JI system — it
-asks a single question: *which primes does the scale actually use?*
+non-zero exponent in its monzo** (Xen Wiki, "Prime limit"; Partch 1974, ch. 6).
+A scale is *p-limit* when every interval in it is p-limit or lower. This is
+the cleanest way to classify a JI system — it asks a single question: *which
+primes does the scale actually use?*
 
 In monzo form (see [Monzos](/pages/monzos) for the notation), the limit is just
 the index of the rightmost non-zero entry — counting the primes
@@ -289,9 +290,10 @@ new pitch class.
   the rightmost non-zero entry is on prime 11, so the limit is 11.
 
 11-limit is the threshold beyond which most Western listeners need
-acclimatization — Harry Partch's 43-tone system uses 11-limit; La Monte Young's
-*The Well-Tuned Piano* uses 7-limit (no 11s). The harmonic-series page's
-table at partial 11 shows the 12-TET deviation: −48.7¢, dead in the middle.
+acclimatization — Harry Partch's 43-tone system uses 11-limit (Partch 1974);
+La Monte Young's *The Well-Tuned Piano* uses 7-limit (no 11s) (Gann, "La Monte
+Young's *The Well-Tuned Piano*"). The harmonic-series page's table at partial
+11 shows the 12-TET deviation: −48.7¢, dead in the middle.
 
 ## Limits in the kernel
 
@@ -352,3 +354,10 @@ furtherReading([
   }
 ])
 ```
+
+## Sources
+
+- Doty, David B. 2002. *The Just Intonation Primer: An Introduction to the Theory and Practice of Just Intonation*. 3rd ed. San Francisco: Just Intonation Network.
+- Gann, Kyle. n.d. "La Monte Young's *The Well-Tuned Piano*." Accessed 2026-05-13. https://www.kylegann.com/wtp.html.
+- Partch, Harry. 1974. *Genesis of a Music: An Account of a Creative Work, Its Roots, and Its Fulfillments*. 2nd ed., enlarged. New York: Da Capo Press. (1st ed. University of Wisconsin Press, 1949.)
+- Xenharmonic Wiki. n.d. "Prime limit." Accessed 2026-05-13. https://en.xen.wiki/w/Prime_limit.

@@ -235,15 +235,17 @@ Each row trades a different consonance:
   but that is beyond this page's straight-quantization framing). 41-EDO is
   the microtonal choice when you want excellent 3-limit AND 7-limit at a step
   size about half of 22-EDO's.
-- **53-EDO** closes the cycle of 5ths. Step 31 lands within ~0.1¢ of pure
-  ${tex`3/2`}; stack 53 of them and you arrive within a few cents of 31
-  octaves. The leftover — ${tex`(3/2)^{53} / 2^{31} \approx 3.615\text{¢}`} —
-  is **Mercator's comma**, the 3-limit cousin of the
-  [Pythagorean comma](/pages/pythagorean-comma) (Pythagorean's 12 pure 5ths vs
-  7 octaves becomes Mercator's 53 pure 5ths vs 31 octaves). 53-EDO IS the
-  closure of that longer chain.
+- **53-EDO** closes the cycle of 5ths (Xen Wiki, "53edo"). Step 31 lands
+  within ~0.1¢ of pure ${tex`3/2`}; stack 53 of them and you arrive within a
+  few cents of 31 octaves. The leftover —
+  ${tex`(3/2)^{53} / 2^{31} \approx 3.615\text{¢}`} — is **Mercator's
+  comma**, the 3-limit cousin of the
+  [Pythagorean comma](/pages/pythagorean-comma) (Xen Wiki, "Mercator's
+  comma"). Pythagorean's 12 pure 5ths vs 7 octaves becomes Mercator's 53
+  pure 5ths vs 31 octaves. 53-EDO IS the closure of that longer chain.
 - **72-EDO** is the modern microtonal reference and an exact superset of
-  12-EDO (${tex`72 = 6 \times 12`}, so every 12-EDO pitch is a 72-EDO step).
+  12-EDO (${tex`72 = 6 \times 12`}, so every 12-EDO pitch is a 72-EDO step;
+  Xen Wiki, "72edo").
   With a ${tex`\approx 16.67\text{¢}`} step it lands within
   ${tex`\approx 3\text{¢}`} of every JI anchor on this page. The compromise
   is size: 72 pitches per octave is at the edge of what is practical to
@@ -364,7 +366,8 @@ display(liveDeviationTable);
   below the just-noticeable difference for most listeners.
 - ${play12_7} sounds 12-EDO's nearest step (step 10 = 1000¢, the "minor
   7th"). It should sound audibly different — +31.2¢ sharp, well past the
-  ~5–10¢ threshold where the ear starts hearing two distinct pitches.
+  ~5–10¢ threshold where the ear starts hearing two distinct pitches
+  (Plomp and Levelt 1965; Sethares 2005, §1.1).
 
 The contrast is the point of the page: 31-EDO is what "7-limit harmony in a
 closed system" sounds like; 12-EDO cannot do it.
@@ -373,10 +376,11 @@ closed system" sounds like; 12-EDO cannot do it.
 
 Equal divisions are the modern composer's bridge between JI's open chain and a
 finite, modulation-friendly keyboard. The choice of ${tex`N`} is a choice about
-which JI intervals you are willing to lose. 12-EDO trades away 7- and 11-limit
-consonance for ergonomics; 31-EDO buys back the 7-limit (and most of the
-11-limit); 53-EDO buys back essentially perfect 3- and 5-limit. The math at the
-top of this page is the lens through which all such tradeoffs are visible.
+which JI intervals you are willing to lose (Duffin 2007). 12-EDO trades away
+7- and 11-limit consonance for ergonomics; 31-EDO buys back the 7-limit (and
+most of the 11-limit); 53-EDO buys back essentially perfect 3- and 5-limit.
+The math at the top of this page is the lens through which all such tradeoffs
+are visible.
 
 ## See also
 
@@ -405,3 +409,12 @@ everything to ${tex`N`} equal steps.
   [41edo](https://en.xen.wiki/w/41edo) ·
   [53edo](https://en.xen.wiki/w/53edo) ·
   [72edo](https://en.xen.wiki/w/72edo).
+
+## Sources
+
+- Duffin, Ross W. 2007. *How Equal Temperament Ruined Harmony (And Why You Should Care)*. New York: W. W. Norton.
+- Plomp, Reinier, and Willem J. M. Levelt. 1965. "Tonal Consonance and Critical Bandwidth." *Journal of the Acoustical Society of America* 38 (4): 548–560. https://doi.org/10.1121/1.1909741.
+- Sethares, William A. 2005. *Tuning, Timbre, Spectrum, Scale*. 2nd ed. London: Springer-Verlag.
+- Xenharmonic Wiki. n.d. "53edo." Accessed 2026-05-13. https://en.xen.wiki/w/53edo.
+- Xenharmonic Wiki. n.d. "72edo." Accessed 2026-05-13. https://en.xen.wiki/w/72edo.
+- Xenharmonic Wiki. n.d. "Mercator's comma." Accessed 2026-05-13. https://en.xen.wiki/w/Mercator's_comma.
