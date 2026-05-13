@@ -45,6 +45,13 @@ export interface SpiralOfFifthsOpts {
   highlightWolf?: boolean;
   /** Root SVG width in CSS pixels (square). Default 480. */
   width?: number;
+  /**
+   * Optional click handler invoked with the corresponding `SpiralStep` when a
+   * node group is clicked. When supplied, the root carries `is-clickable` so
+   * the CSS can switch the cursor to `pointer`. Component stays viz-only —
+   * audition/synth wiring belongs at the call site, not here.
+   */
+  onStepClick?: (step: SpiralStep) => void;
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────
@@ -163,7 +170,9 @@ export function spiralOfFifths(n: number, opts: SpiralOfFifthsOpts = {}): HTMLDi
   const steps = spiralGeometry(n, fifthCents, tempered);
 
   const root = document.createElement("div");
-  root.className = "spiral-of-fifths-widget";
+  root.className = opts.onStepClick
+    ? "spiral-of-fifths-widget is-clickable"
+    : "spiral-of-fifths-widget";
   // NO <h2> here — task constraint: "Don't wire into any page yet".
 
   const svg = document.createElementNS(SVG_NS, "svg");
@@ -199,6 +208,12 @@ export function spiralOfFifths(n: number, opts: SpiralOfFifthsOpts = {}): HTMLDi
     const g = document.createElementNS(SVG_NS, "g");
     g.setAttribute("class", "spiral-of-fifths__node");
     g.setAttribute("transform", `translate(${String(s.x)},${String(s.y)})`);
+    if (opts.onStepClick) {
+      // `s` is `const`-declared above (block-scoped), so this closure captures
+      // this iteration's step correctly. Non-null assertion is safe under the
+      // surrounding `if (opts.onStepClick)` guard.
+      g.addEventListener("click", () => opts.onStepClick!(s));
+    }
 
     const dot = document.createElementNS(SVG_NS, "circle");
     dot.setAttribute("class", "spiral-of-fifths__dot");
