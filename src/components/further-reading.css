@@ -1,0 +1,29 @@
+/* further-reading.css — styled bullet list for "Further reading" sections.
+ *
+ * Sits below the page's Markdown `## Further reading` heading. Tightens
+ * spacing between bullets, mutes the explanatory note, and lets the link
+ * carry the visual weight.
+ */
+
+.further-reading {
+  margin: 0.5rem 0 1.5rem;
+}
+
+.further-reading__list {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 0;
+}
+
+.further-reading__item {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.further-reading__item a {
+  font-weight: 500;
+}
+
+.further-reading__note {
+  color: var(--theme-foreground-alt);
+}
