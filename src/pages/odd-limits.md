@@ -21,6 +21,11 @@ const synth = createSynth();
 invalidation.then(() => synth.dispose());
 ```
 
+<aside class="prereq">
+<strong>Prerequisites:</strong>
+<a href="./prime-limits">prime-limits</a>
+</aside>
+
 ```ts
 // Worked examples declared up front so prose, ratio-pills, and play buttons all
 // reference the same Interval instances. Strings into new Interval(...) exercise
