@@ -9,6 +9,8 @@ import { centsToRatio } from "../lib/cents.js";
 import { createSynth } from "../audio/synth.js";
 import { ratioPill } from "../components/ratio-pill.js";
 import { playInterval } from "../components/play-interval.js";
+import { spiralOfFifths } from "../components/spiral-of-fifths.js";
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```ts
@@ -56,7 +58,10 @@ const tempered = (n) => {
 const quarter = tempered(4);
 const third = tempered(3);
 const sixth = tempered(6);
-const variants = [quarter, third, sixth];
+const verheijen = tempered(5);     // 1/5-comma (Verheijen, 1599)
+const eighth = tempered(8);        // 1/8-comma
+const zarlino = tempered(7 / 2);   // 2/7-comma (Zarlino, 1558) — n = 7/2 ⇒ comma fraction 1/n = 2/7
+const variants = [quarter, third, sixth, verheijen, eighth, zarlino];
 ```
 
 ```ts
@@ -67,9 +72,12 @@ const variants = [quarter, third, sixth];
 const variantsTable = (() => {
   const fmt = (c) => c.toFixed(3);
   const rows = [
-    { label: "1/4-comma (Aron)",       v: quarter, sig: "pure 5/4 major third" },
-    { label: "1/3-comma (Salinas)",    v: third,   sig: "pure 6/5 minor third" },
-    { label: "1/6-comma (Silbermann)", v: sixth,   sig: "softer — between 1/4-comma and 12-TET" },
+    { label: "1/4-comma (Aron)",                v: quarter,   sig: "pure 5/4 major third" },
+    { label: "1/3-comma (Salinas)",             v: third,     sig: "pure 6/5 minor third" },
+    { label: "1/6-comma (Silbermann)",          v: sixth,     sig: "softer — between 1/4-comma and 12-TET" },
+    { label: "1/5-comma (Verheijen, 1599)",     v: verheijen, sig: "fifths only ~4.3¢ flat; major 3rd ~6.9¢ sharp of pure 5/4 — milder than 1/4-comma" },
+    { label: "2/7-comma (Zarlino, 1558)",       v: zarlino,   sig: "equalizes the major-3rd and minor-3rd deviations from pure (both ~5.4¢ off)" },
+    { label: "1/8-comma",                       v: eighth,    sig: "softest meantone — closest variant to 12-TET (fifths only ~2.7¢ flat)" },
   ];
   const table = document.createElement("table");
   const thead = document.createElement("thead");
@@ -140,6 +148,85 @@ comma relative to the Pythagorean ${tex`81/64`}.
 
 ## Three historical choices for ${tex`n`}
 
+Before the table, a strip chart of all six variants on a shared cents axis. Each
+dashed blue vertical marks one variant's tempered fifth, labeled by its comma
+fraction (1/n). The pure 3/2 sits at the right edge; the red bracket spans
+exactly one syntonic comma — the budget being distributed across the chain.
+
+```ts
+// Plot strip chart — six tempered meantone fifths on a 0..pureFifth.cents axis.
+// Pitfall #1: cents derived ONCE from kernel-exact Intervals (pureFifth.cents,
+// syntonic.cents) and the existing tempered-fifth bindings (quarter.fifth,
+// third.fifth, sixth.fifth, verheijen.fifth, eighth.fifth, zarlino.fifth).
+// No float literals in the data rows.
+const fifthsData = [
+  { label: "1/8", cents: eighth.fifth },
+  { label: "1/6", cents: sixth.fifth },
+  { label: "1/5", cents: verheijen.fifth },
+  { label: "1/4", cents: quarter.fifth },
+  { label: "2/7", cents: zarlino.fifth },
+  { label: "1/3", cents: third.fifth },
+];
+// Syntonic-comma bracket: the span from (pureFifth.cents − syntonic.cents) to
+// pureFifth.cents IS one syntonic comma, by construction.
+const commaSpanLeft = pureFifth.cents - syntonic.cents;
+const commaSpanRight = pureFifth.cents;
+
+const fifthsChart = Plot.plot({
+  width: 640,
+  height: 180,
+  marginLeft: 40,
+  marginRight: 40,
+  marginBottom: 50,
+  marginTop: 30,
+  x: {
+    label: "Cents (flat of pure)",
+    domain: [0, Math.ceil(pureFifth.cents)],
+    grid: true,
+    tickFormat: (v) => String(v),
+  },
+  y: { axis: null, domain: [-1, 1] },
+  marks: [
+    // 0¢ baseline (visual anchor for "flat of pure" reading).
+    Plot.ruleX([0], { stroke: "#888", strokeDasharray: "2,3" }),
+    // Pure-3/2 reference line (pureFifth.cents projects to the kernel-exact value).
+    Plot.ruleX([pureFifth.cents], { stroke: "#888", strokeWidth: 1.5 }),
+    Plot.text(
+      [{ x: pureFifth.cents, y: 0.85, text: `pure 3/2 (${pureFifth.cents.toFixed(3)}¢)` }],
+      { x: "x", y: "y", text: "text", textAnchor: "end", dx: -6, fontSize: 11, fill: "#888" },
+    ),
+    // Syntonic-comma bracket: horizontal segment from commaSpanLeft to commaSpanRight at y=-0.65.
+    Plot.link(
+      [{ x1: commaSpanLeft, x2: commaSpanRight, y1: -0.65, y2: -0.65 }],
+      { x1: "x1", x2: "x2", y1: "y1", y2: "y2", stroke: "#c45656", strokeWidth: 1.5 },
+    ),
+    Plot.text(
+      [{
+        x: (commaSpanLeft + commaSpanRight) / 2,
+        y: -0.85,
+        text: `↔ ${syntonic.cents.toFixed(3)}¢ (syntonic comma)`,
+      }],
+      { x: "x", y: "y", text: "text", textAnchor: "middle", fontSize: 11, fill: "#c45656" },
+    ),
+    // Tempered-fifth markers — dashed verticals + dots + labels (alternating dy
+    // so the 1/8/1/5/2/7 labels sit above and 1/6/1/4/1/3 below, avoiding
+    // collisions where the markers cluster near 1/4-comma).
+    Plot.ruleX(fifthsData, { x: "cents", stroke: "#4269d0", strokeDasharray: "3,3", strokeWidth: 1.5 }),
+    Plot.dot(fifthsData, { x: "cents", y: 0, fill: "#4269d0", r: 4 }),
+    Plot.text(fifthsData, {
+      x: "cents",
+      y: 0,
+      text: "label",
+      dy: (_d, i) => (i % 2 === 0 ? -14 : 18),
+      fontSize: 11,
+      fontWeight: 600,
+      fill: "#4269d0",
+    }),
+  ],
+});
+display(fifthsChart);
+```
+
 ```ts
 display(variantsTable);
 ```
@@ -164,6 +251,24 @@ display(variantsTable);
   in 1/4-comma and the system handles modulation more gracefully. The
   historical bridge from 1/4-comma meantone to well-tempered systems and
   ultimately 12-TET.
+
+## The wolf at ${tex`k=12`} (1/4-comma meantone)
+
+Twelve stacked 1/4-comma fifths undershoot the octave — the meantone wolf.
+The spiral below traces all twelve 1/4-comma fifths around the cycle, each
+labeled with its signed cents-from-12-TET (ratio labels are dropped because
+the tempered fifth is irrational). Step 0 sits at 12 o'clock; the chain
+sweeps clockwise. Step 12 lands a hair *before* step 0 rather than on top of
+it — the dashed red chord between them IS the meantone wolf: the closure
+gap that any 12-tone scale built from 1/4-comma fifths must absorb somewhere
+on the chain.
+
+${spiralOfFifths(12, { temperedFifthCents: quarter.fifth, highlightWolf: true })}
+
+For reference: a chain of [pure 3/2 fifths overshoots the octave by a
+Pythagorean comma (+23.46¢)](/pages/pythagorean-comma); 1/4-comma
+meantone's wolf goes the other way — twelve fifths come up short of seven
+octaves by ≈ 40.7¢.
 
 ## Audition — the 1/4-comma equivalence
 
@@ -213,3 +318,15 @@ The [dashboard](/) — paste in any of the tempered ratios from above (e.g.
 and hear the temperament against a drone. Or stay on the kernel side: the 1/4-comma meantone scale
 is the 5-limit pure scale `1/1 9/8 5/4 4/3 3/2 5/3 15/8 2/1` — already pure
 ${tex`5/4`}s and ${tex`6/5`}s where the chain of meantone fifths brings them.
+
+## Further reading
+
+- [Meantone family on the Xenharmonic Wiki](https://en.xen.wiki/w/Meantone_family) —
+  community-curated reference for the regular-temperament family generated by
+  tempering out the syntonic comma. Covers the full continuum of comma
+  fractions (1/n-comma meantone for arbitrary ${tex`n \in \mathbb{R}`}), the
+  historical named variants as points on that line (Aron 1/4, Salinas 1/3,
+  Silbermann 1/6, Verheijen 1/5, Zarlino 2/7, 12-TET ≈ 1/11.65-comma), the MOS
+  pattern induced by each variant, and how the meantone family fits inside the
+  broader regular-temperament zoo (sister families: schismatic, dominant,
+  mavila).
