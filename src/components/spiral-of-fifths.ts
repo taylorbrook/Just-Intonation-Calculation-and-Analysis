@@ -86,9 +86,7 @@ export function spiralGeometry(
   // Auto-shrink dr if r_n would exceed R_MAX.
   const totalTurns = (n * fifthCents) / 1200;
   const effectiveDr =
-    totalTurns > 0
-      ? Math.min(R_GROWTH_PER_WRAP, (R_MAX - R_BASE) / totalTurns)
-      : R_GROWTH_PER_WRAP;
+    totalTurns > 0 ? Math.min(R_GROWTH_PER_WRAP, (R_MAX - R_BASE) / totalTurns) : R_GROWTH_PER_WRAP;
 
   const steps: SpiralStep[] = [];
 
@@ -127,12 +125,7 @@ export function spiralGeometry(
   return steps;
 }
 
-function buildPureStep(
-  k: number,
-  cumulative: number,
-  dr: number,
-  acc: Interval,
-): SpiralStep {
+function buildPureStep(k: number, cumulative: number, dr: number, acc: Interval): SpiralStep {
   const angleRad = (cumulative / 1200) * 2 * Math.PI;
   const turns = angleRad / (2 * Math.PI);
   const r = R_BASE + dr * turns;
@@ -161,16 +154,11 @@ export function closingErrorCents(n: number, fifthCents: number): number {
 
 // ─── DOM factory ───────────────────────────────────────────────────────────
 
-export function spiralOfFifths(
-  n: number,
-  opts: SpiralOfFifthsOpts = {},
-): HTMLDivElement {
+export function spiralOfFifths(n: number, opts: SpiralOfFifthsOpts = {}): HTMLDivElement {
   const width = opts.width ?? DEFAULT_WIDTH;
   const height = width; // square
   const tempered = opts.temperedFifthCents !== undefined;
-  const fifthCents = tempered
-    ? (opts.temperedFifthCents as number)
-    : 1200 * Math.log2(1.5);
+  const fifthCents = tempered ? (opts.temperedFifthCents as number) : 1200 * Math.log2(1.5);
 
   const steps = spiralGeometry(n, fifthCents, tempered);
 

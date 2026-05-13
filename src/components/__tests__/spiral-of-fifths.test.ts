@@ -1,10 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from "vitest";
-import {
-  spiralOfFifths,
-  spiralGeometry,
-  closingErrorCents,
-} from "../spiral-of-fifths.js";
+import { spiralOfFifths, spiralGeometry, closingErrorCents } from "../spiral-of-fifths.js";
 import { Interval } from "../../lib/interval.js";
 
 const PURE_FIFTH = 1200 * Math.log2(1.5);
