@@ -262,25 +262,44 @@ export function tonalityDiamond(
   return root;
 }
 
-// ─── renderDiamondSVG (pure-presentational) ────────────────────────────────
+// ─── renderDiamondSVG (pure-presentational, optionally interactive) ──────
 
 export interface RenderDiamondSVGOpts {
   /** SVG viewBox width. Default 320. */
   width?: number;
   /** SVG viewBox height. Default 320. */
   height?: number;
+  /**
+   * Optional synth handle. When supplied, every cell becomes a clickable
+   * button auditioning [baseHz, baseHz × ratio] for `duration` seconds —
+   * the same dyad audition pattern playInterval uses (D-07 / D-18). When
+   * omitted, cells stay role="presentation" (legacy byte-equivalent path).
+   *
+   * D-08 three-layer discipline: viz components do not own the synth — the
+   * page does. Type-only import; no Web-Audio surface is constructed here.
+   */
+  synth?: SynthHandle;
+  /** Hz reference for 1/1 when `synth` is supplied. Default 440. */
+  baseHz?: number;
+  /** Audition duration in seconds. Default 1.5 (matches playInterval / D-18). */
+  duration?: number;
 }
 
 /**
- * renderDiamondSVG — pure-presentational static SVG preview of an N-odd-limit
- * tonality diamond. No scale dependency, no synth, no zoom, no click handlers,
- * no role="button" cells. Each cell is rendered in its dominant-prime axis
- * color (reusing the same CSS classes as `tonalityDiamond` so theme tokens
- * cascade), with an SVG `<title>` for hover/accessibility.
+ * renderDiamondSVG — static SVG preview of an N-odd-limit tonality diamond.
+ * Pure-presentational by default (no scale dependency, no zoom). Each cell is
+ * rendered in its dominant-prime axis color (reusing the same CSS classes as
+ * `tonalityDiamond` so theme tokens cascade), with an SVG `<title>` for
+ * hover/accessibility.
+ *
+ * When `opts.synth` is supplied, cells flip to role="button" + tabindex=0 and
+ * click / Enter / Space dispatch a dyad audition against `1/1` — the same
+ * shape `playInterval` writes to the synth. The synth is owned by the page
+ * (D-08); this widget receives a `SynthHandle` reference only.
  *
  * Intended for theory pages (e.g. /pages/odd-limits.md) that want an inline
- * picture of the 5-/7-/11-odd-limit diamond without dragging in audio or
- * interaction. Callers wrap the result in their own layout / heading.
+ * picture of the diamond — optionally click-to-audition — without the
+ * dashboard's full `tonalityDiamond` widget chrome.
  */
 export function renderDiamondSVG(oddLimitN: number, opts: RenderDiamondSVGOpts = {}): HTMLElement {
   if (!Number.isInteger(oddLimitN) || oddLimitN < 1 || oddLimitN > 1023) {
@@ -324,6 +343,12 @@ export function renderDiamondSVG(oddLimitN: number, opts: RenderDiamondSVGOpts =
 
   const half = (cellRectSize - 2) / 2;
 
+  // Audition wiring (D-07 dyad / D-18 1.5s) — captured once per render so
+  // the per-cell handler closures don't re-read opts on every event.
+  const synth = opts.synth;
+  const baseHz = opts.baseHz ?? 440;
+  const duration = opts.duration ?? 1.5;
+
   for (const i of odds) {
     for (const j of odds) {
       const ratio = new Interval(`${String(i)}/${String(j)}`).octaveReduce();
@@ -344,7 +369,32 @@ export function renderDiamondSVG(oddLimitN: number, opts: RenderDiamondSVGOpts =
         `diamond-cell diamond-cell--in-scale diamond-cell--${axisClass}`,
       );
       cellGroup.setAttribute("transform", `translate(${String(x)},${String(y)})`);
-      cellGroup.setAttribute("role", "presentation");
+
+      if (synth) {
+        // Interactive cell: same role/tabindex/aria-label contract as
+        // tonalityDiamond's in-scale cells. Click + Enter/Space dispatch a
+        // dyad audition (Pitfall #1: BigInt-Fraction → Number coercion at
+        // the audio boundary only).
+        cellGroup.setAttribute("role", "button");
+        cellGroup.setAttribute("tabindex", "0");
+        cellGroup.setAttribute("aria-label", `Play ${ratio.fraction.toFraction()}`);
+        const audition = (): void => {
+          synth.playNotes(
+            [baseHz, baseHz * Number(ratio.fraction.valueOf())],
+            duration,
+          );
+        };
+        cellGroup.addEventListener("click", audition);
+        cellGroup.addEventListener("keydown", (event: Event) => {
+          const key = (event as KeyboardEvent).key;
+          if (key === "Enter" || key === " ") {
+            event.preventDefault();
+            audition();
+          }
+        });
+      } else {
+        cellGroup.setAttribute("role", "presentation");
+      }
 
       const rect = document.createElementNS(SVG_NS, "rect");
       rect.setAttribute("x", String(-half));

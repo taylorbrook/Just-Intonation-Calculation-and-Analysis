@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from "vitest";
-import { tonalityDiamond } from "../tonality-diamond.js";
+import { tonalityDiamond, renderDiamondSVG } from "../tonality-diamond.js";
 import { Scale } from "../../lib/scale.js";
 import { Interval } from "../../lib/interval.js";
 import { makeStubSynth } from "./test-utils.js";
@@ -93,5 +93,67 @@ describe("tonalityDiamond factory", () => {
     // the broken layout collapsed up to 7 cells onto a single (0, 0) apex.
     const allTransforms = new Set(transformsByCell.map((c) => c.transform));
     expect(allTransforms.size).toBe(16);
+  });
+});
+
+describe("renderDiamondSVG", () => {
+  it("without synth: every cell stays role='presentation' (legacy regression guard)", () => {
+    const el = renderDiamondSVG(5);
+    const cells = el.querySelectorAll(".diamond-cell");
+    expect(cells.length).toBeGreaterThan(0);
+    const buttons = el.querySelectorAll('.diamond-cell[role="button"]');
+    expect(buttons.length).toBe(0);
+    for (const cell of cells) {
+      expect(cell.getAttribute("role")).toBe("presentation");
+      expect(cell.getAttribute("tabindex")).toBeNull();
+    }
+  });
+
+  it("with synth: every cell becomes role='button' with tabindex=0 and aria-label", () => {
+    const synth = makeStubSynth();
+    const el = renderDiamondSVG(5, { synth });
+    const cells = el.querySelectorAll(".diamond-cell");
+    const buttons = el.querySelectorAll('.diamond-cell[role="button"]');
+    expect(cells.length).toBeGreaterThan(0);
+    expect(buttons.length).toBe(cells.length);
+    for (const cell of buttons) {
+      expect(cell.getAttribute("tabindex")).toBe("0");
+      // Fraction.toFraction() prints "1" for 1/1, "5/4" for 5/4, etc. — accept both shapes.
+      expect(cell.getAttribute("aria-label")).toMatch(/^Play \d+(\/\d+)?$/);
+    }
+  });
+
+  it("with synth: clicking a cell calls synth.playNotes with the dyad shape", () => {
+    const synth = makeStubSynth();
+    const el = renderDiamondSVG(5, { synth });
+    document.body.appendChild(el);
+    const cell = el.querySelector('.diamond-cell[role="button"]') as HTMLElement;
+    expect(cell).not.toBeNull();
+    cell.dispatchEvent(new Event("click", { bubbles: true }));
+    expect(synth.playNotes).toHaveBeenCalledTimes(1);
+    const args = synth.playNotes.mock.calls[0] as [number[], number];
+    const freqs = args[0];
+    expect(freqs.length).toBe(2); // [baseHz, baseHz × ratio] — D-07 dyad audition
+    expect(freqs[0]).toBe(440); // default baseHz
+    expect(args[1]).toBe(1.5); // default duration matches D-18
+  });
+
+  it("with synth: pressing Enter on a cell triggers audition", () => {
+    const synth = makeStubSynth();
+    const el = renderDiamondSVG(5, { synth });
+    document.body.appendChild(el);
+    const cell = el.querySelector('.diamond-cell[role="button"]') as HTMLElement;
+    cell.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    expect(synth.playNotes).toHaveBeenCalledTimes(1);
+  });
+
+  it("with synth + custom baseHz: dyad uses the supplied baseHz", () => {
+    const synth = makeStubSynth();
+    const el = renderDiamondSVG(5, { synth, baseHz: 261.625 });
+    document.body.appendChild(el);
+    const cell = el.querySelector('.diamond-cell[role="button"]') as HTMLElement;
+    cell.dispatchEvent(new Event("click", { bubbles: true }));
+    const args = synth.playNotes.mock.calls[0] as [number[], number];
+    expect(args[0][0]).toBe(261.625);
   });
 });

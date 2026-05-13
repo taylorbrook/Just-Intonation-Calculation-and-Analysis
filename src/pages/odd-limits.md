@@ -253,7 +253,7 @@ Odd identities ${tex`\{1, 3, 5\}`}. Seven distinct octave-reduced pitches:
 
 ${row5}
 
-${renderDiamondSVG(5, { width: 280, height: 280 })}
+${renderDiamondSVG(5, { width: 280, height: 280, synth })}
 
 This is the world of the just major triad ${tex`4 : 5 : 6 \to 1 : 5/4 : 3/2`}
 and its utonal mirror ${tex`1/4 : 1/5 : 1/6 \to 1 : 8/5 : 4/3`}. Almost all of
@@ -268,7 +268,7 @@ pitches on top of the 5-odd-limit set:
 
 ${row7}
 
-${renderDiamondSVG(7, { width: 320, height: 320 })}
+${renderDiamondSVG(7, { width: 320, height: 320, synth })}
 
 Adding the ${tex`7`}-identity opens up the ${tex`4 : 5 : 6 : 7`} otonal tetrad
 (see [Otonality & utonality](/pages/otonality-utonality)) and its utonal mirror
@@ -286,7 +286,7 @@ would overwhelm the page; the interactive grid on the [dashboard](/) is the
 right place to explore the whole diamond. What's worth calling out here is
 which ratios the *new* identities contribute.
 
-${renderDiamondSVG(11, { width: 440, height: 440 })}
+${renderDiamondSVG(11, { width: 440, height: 440, synth })}
 
 **The 9-identity** adds six new pitches:
 
