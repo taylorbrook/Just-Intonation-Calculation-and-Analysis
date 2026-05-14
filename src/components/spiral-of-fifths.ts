@@ -7,6 +7,10 @@
  * visible gap between k=12 and k=0 IS the Pythagorean comma (≈23.46¢).
  * When `temperedFifthCents` is passed, ratio labels are dropped and the
  * given fifth (e.g. 700¢ for 12-TET, 696.578¢ for 1/4-comma meantone) is used.
+ * In that branch the y=−10 slot (which the pure branch uses for the ratio
+ * label) is filled with an octave-reduced cents-from-1/1 "heard interval"
+ * label, formatted as `X.X¢` with the U+00A2 cent glyph and no sign —
+ * the audible pitch each node would sound under the audition reduction.
  *
  * Three-layer discipline (Pitfall #2 / D-08): this is a VIZ-only component;
  * no AudioContext, no synth surface. Audition belongs in a sibling widget.
@@ -220,7 +224,7 @@ export function spiralOfFifths(n: number, opts: SpiralOfFifthsOpts = {}): HTMLDi
     dot.setAttribute("r", "4");
     g.appendChild(dot);
 
-    // Ratio label only in pure branch.
+    // y=−10 slot: ratio label (pure branch) XOR heard-interval label (tempered branch).
     if (s.ratio) {
       const ratioText = document.createElementNS(SVG_NS, "text");
       ratioText.setAttribute("class", "spiral-of-fifths__ratio");
@@ -229,6 +233,17 @@ export function spiralOfFifths(n: number, opts: SpiralOfFifthsOpts = {}): HTMLDi
       ratioText.setAttribute("text-anchor", "middle");
       ratioText.textContent = s.ratio.fraction.toFraction();
       g.appendChild(ratioText);
+    } else {
+      // Tempered branch — octave-reduced cents from 1/1 (matches audition reduction
+      // at meantone.md:305 and spiralGeometry tempered branch at line 117).
+      const reducedCents = ((s.cumulativeCents % 1200) + 1200) % 1200;
+      const heardText = document.createElementNS(SVG_NS, "text");
+      heardText.setAttribute("class", "spiral-of-fifths__heard");
+      heardText.setAttribute("x", "0");
+      heardText.setAttribute("y", "-10");
+      heardText.setAttribute("text-anchor", "middle");
+      heardText.textContent = `${reducedCents.toFixed(1)}¢`;
+      g.appendChild(heardText);
     }
 
     // Cents-from-12-TET label always present. U+2212 minus sign (NOT U+002D).

@@ -31,6 +31,12 @@ svg.viz.spiral-of-fifths .spiral-of-fifths__ratio {
   fill: var(--theme-foreground);
   pointer-events: none;
 }
+svg.viz.spiral-of-fifths .spiral-of-fifths__heard {
+  font-family: var(--monospace);
+  font-size: 12px;
+  fill: var(--theme-foreground);
+  pointer-events: none;
+}
 svg.viz.spiral-of-fifths .spiral-of-fifths__cents {
   font-family: var(--monospace);
   font-size: 10px;
