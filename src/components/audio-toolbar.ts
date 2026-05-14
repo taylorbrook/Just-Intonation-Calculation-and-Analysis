@@ -27,7 +27,8 @@
  *
  * Security (T-tux-05 / T-02-22 / T-02-23):
  *   The runtime IIFE builds the toolbar with `document.createElement` +
- *   `textContent` ONLY — no `innerHTML`. The script body itself interpolates
+ *   `textContent` ONLY — the unsafe HTML-assignment property (deliberately
+ *   banned by this codebase) is never used. The script body itself interpolates
  *   ONLY author-controlled string literals from audio-prefs.ts (which are
  *   const-defined in source). No untrusted input ever reaches the script.
  */
@@ -37,6 +38,11 @@ import {
   ALLOWED_WAVEFORMS,
   DEFAULT_AUDIO_PREFS,
 } from "../audio/audio-prefs.js";
+// QUICK-9MN-01 — theme-cycle button hosted inside the audio toolbar.
+// Imports event-name + mode allowlist + default so the runtime IIFE inlines
+// the SAME literal values as theme-head.ts (single source of truth in
+// theme-prefs.ts; both head payloads embed via JSON.stringify).
+import { THEME_PREFS_EVENT, THEME_MODES, DEFAULT_THEME_PREFS } from "../theme/theme-prefs.js";
 
 /**
  * Returns the `<style>…</style><script>…</script>` string for `head:` injection.
@@ -49,6 +55,10 @@ export function audioToolbarHeadPayload(): string {
   const EVT_LIT = JSON.stringify(AUDIO_PREFS_EVENT);
   const WAVEFORMS_LIT = JSON.stringify(ALLOWED_WAVEFORMS);
   const DEFAULTS_LIT = JSON.stringify(DEFAULT_AUDIO_PREFS);
+  // QUICK-9MN-01 — theme-cycle button literals (mirrors AUDIO_*_LIT shape).
+  const THEME_EVT_LIT = JSON.stringify(THEME_PREFS_EVENT);
+  const THEME_MODES_LIT = JSON.stringify(THEME_MODES);
+  const THEME_DEFAULTS_LIT = JSON.stringify(DEFAULT_THEME_PREFS);
 
   // ────── Inline <style> ───────────────────────────────────────────────
   // Theme tokens only — `var(--theme-background)` etc. — so the toolbar fits
@@ -110,6 +120,12 @@ export function audioToolbarHeadPayload(): string {
   var EVT = ${EVT_LIT};
   var WAVEFORMS = ${WAVEFORMS_LIT};
   var DEFAULTS = ${DEFAULTS_LIT};
+  // QUICK-9MN-01 — theme-cycle constants. THEME_DEFAULTS.mode is the fallback
+  // when window.__tuningSystemsTheme is missing (theme-head.ts didn't load
+  // first, e.g. dev-time edit race) so the button still renders a glyph.
+  var THEME_EVT = ${THEME_EVT_LIT};
+  var THEME_MODES = ${THEME_MODES_LIT};
+  var THEME_DEFAULTS = ${THEME_DEFAULTS_LIT};
 
   function isFiniteNumber(x) { return typeof x === "number" && isFinite(x); }
 
@@ -149,6 +165,24 @@ export function audioToolbarHeadPayload(): string {
   function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function fmtVol(v) { return "vol " + v.toFixed(2); }
+
+  // ── QUICK-9MN-01 helpers (theme-cycle button) ──
+  // Glyph per mode. Half-circle for "auto" (follows OS), sun for "light",
+  // crescent moon for "dark". textContent only (XSS hygiene — see header).
+  function glyphFor(mode) {
+    return mode === "dark" ? "☾" : mode === "light" ? "☀" : "◐";
+  }
+  // Reads current mode from window.__tuningSystemsTheme (set by theme-head.ts)
+  // with a defensive fallback in case the head payload didn't load first.
+  function readThemeMode() {
+    return (window.__tuningSystemsTheme && window.__tuningSystemsTheme.get && window.__tuningSystemsTheme.get()) || THEME_DEFAULTS.mode;
+  }
+  function syncThemeButton(btn) {
+    var m = readThemeMode();
+    btn.textContent = glyphFor(m);
+    btn.setAttribute("aria-pressed", m === "auto" ? "false" : "true");
+    btn.setAttribute("title", "Theme: " + m + " (click to cycle)");
+  }
 
   function mount() {
     // Sentinel re-check at mount time — another tab race or async retry could
@@ -210,6 +244,34 @@ export function audioToolbarHeadPayload(): string {
     root.appendChild(wfLabel);
     root.appendChild(volLabel);
     root.appendChild(volReadout);
+
+    // ── QUICK-9MN-01 — theme-cycle button INSIDE the audio toolbar ──
+    // Locked decision 2: a single floating control hosts both audio + theme.
+    // Button is built with createElement + textContent (XSS hygiene mirrors
+    // waveform-select / volume-range above). On click, calls
+    // window.__tuningSystemsTheme.cycle() (defined synchronously in head by
+    // theme-head.ts). The cycle helper handles validate + persist + apply +
+    // dispatch THEME_EVT, so this button is a thin trigger.
+    var themeBtn = document.createElement("button");
+    themeBtn.setAttribute("type", "button");
+    themeBtn.setAttribute("data-theme-cycle", "");
+    themeBtn.setAttribute("aria-label", "Cycle theme");
+    themeBtn.setAttribute("aria-pressed", "");
+    themeBtn.addEventListener("click", function () {
+      if (window.__tuningSystemsTheme && window.__tuningSystemsTheme.cycle) {
+        window.__tuningSystemsTheme.cycle();
+      }
+      syncThemeButton(themeBtn);
+    });
+    // Stay in sync if theme changes from somewhere else (devtools, future
+    // second control). Mirrors AUDIO_PREFS_EVENT pattern that flows toolbar
+    // → synth.
+    window.addEventListener(THEME_EVT, function () {
+      syncThemeButton(themeBtn);
+    });
+    // Initial glyph reflects the live persisted state.
+    syncThemeButton(themeBtn);
+    root.appendChild(themeBtn);
 
     document.body.appendChild(root);
   }
