@@ -112,9 +112,8 @@ const mockWindowRemoveEventListener = vi.fn();
   }
 ).window = {
   AudioContext: mockCtxCtor as unknown as typeof AudioContext,
-  addEventListener: mockWindowAddEventListener as unknown as typeof window.addEventListener,
-  removeEventListener:
-    mockWindowRemoveEventListener as unknown as typeof window.removeEventListener,
+  addEventListener: mockWindowAddEventListener,
+  removeEventListener: mockWindowRemoveEventListener,
 };
 
 // QUICK-TUX-01 — globalThis.localStorage stub so readAudioPrefs() can be
@@ -130,7 +129,7 @@ const mockLocalStorageSetItem = vi.fn<(key: string, value: string) => void>();
   clear: vi.fn(),
   key: vi.fn(),
   length: 0,
-} as unknown as Storage;
+};
 
 // Now import the module under test (after mocks installed).
 const { createSynth } = await import("../synth.js");
@@ -612,7 +611,7 @@ describe("createSynth — setVoiceType / setMaster (QUICK-TUX-01)", () => {
     const synth = createSynth();
     synth.playNote(440, 0.05);
     const before = mockSynthInstance.voiceParams!.type;
-    synth.setVoiceType("custom" as OscillatorType);
+    synth.setVoiceType("custom");
     expect(mockSynthInstance.voiceParams!.type).toBe(before); // unchanged
     expect(warnSpy).toHaveBeenCalled();
     warnSpy.mockRestore();
@@ -772,7 +771,7 @@ describe("createSynth — audio-prefs subscription (QUICK-TUX-01)", () => {
       (c: unknown[]) => c[0] === AUDIO_PREFS_EVENT,
     );
     expect(bindCalls.length).toBe(1);
-    const boundHandler = bindCalls[0]![1];
+    const boundHandler = bindCalls[0]![1] as (e: Event) => void;
     synth.dispose();
     const unbindCalls = mockWindowRemoveEventListener.mock.calls.filter(
       (c: unknown[]) => c[0] === AUDIO_PREFS_EVENT,

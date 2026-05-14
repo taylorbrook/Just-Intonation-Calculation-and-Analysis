@@ -255,7 +255,7 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
       synth.voiceParams = {
         ...synth.voiceParams,
         type: pendingVoiceType,
-      } as OscillatorVoiceParams;
+      };
       pendingVoiceType = null;
     }
     // AUDIO-06 / Pitfall #9 — bind visibilitychange AFTER ctx is ready so the
@@ -470,7 +470,7 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
       // we forward optimistically. The forwarded calls are silently no-op'd
       // for invalid input (with a console.warn) so the handler stays trivial.
       if (typeof detail.waveform === "string") {
-        handle.setVoiceType(detail.waveform as OscillatorType);
+        handle.setVoiceType(detail.waveform);
       }
       if (typeof detail.volume === "number") {
         handle.setMaster(detail.volume);

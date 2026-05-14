@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 
 // Mirrors src/audio/__tests__/synth.test.ts conventions: vitest globals via
 // explicit import, vi.stubGlobal for localStorage (so the stub does not leak
