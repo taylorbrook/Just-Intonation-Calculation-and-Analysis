@@ -101,6 +101,29 @@ describe("spiralOfFifths factory (DOM smoke)", () => {
     const el = spiralOfFifths(12, { temperedFifthCents: 700 });
     expect(el.querySelectorAll(".spiral-of-fifths__ratio").length).toBe(0);
     expect(el.querySelectorAll(".spiral-of-fifths__cents").length).toBe(13);
+    // Tempered branch fills the y=-10 slot with heard-interval labels.
+    expect(el.querySelectorAll(".spiral-of-fifths__heard").length).toBe(13);
+  });
+  it("tempered branch (1/4-comma meantone ≈ 696.578¢) emits heard labels at k=0,1,2", () => {
+    const el = spiralOfFifths(12, { temperedFifthCents: 696.578 });
+    const heard = el.querySelectorAll(".spiral-of-fifths__heard");
+    expect(heard[0]?.textContent).toBe("0.0¢");
+    expect(heard[1]?.textContent).toBe("696.6¢");
+    expect(heard[2]?.textContent).toBe("193.2¢");
+  });
+  it("tempered branch emits exactly n+1 = 13 heard labels for n=12", () => {
+    const el = spiralOfFifths(12, { temperedFifthCents: 696.578 });
+    expect(el.querySelectorAll(".spiral-of-fifths__heard").length).toBe(13);
+  });
+  it("tempered branch heard label sits at y=-10", () => {
+    const el = spiralOfFifths(12, { temperedFifthCents: 696.578 });
+    const heard = el.querySelector(".spiral-of-fifths__heard");
+    expect(heard?.getAttribute("y")).toBe("-10");
+  });
+  it("pure branch emits ZERO heard labels and still 13 ratio labels", () => {
+    const el = spiralOfFifths(12);
+    expect(el.querySelectorAll(".spiral-of-fifths__heard").length).toBe(0);
+    expect(el.querySelectorAll(".spiral-of-fifths__ratio").length).toBe(13);
   });
   it("opts.width forwards to root SVG width attribute", () => {
     const el = spiralOfFifths(12, { width: 600 });
