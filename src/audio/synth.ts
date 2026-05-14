@@ -27,6 +27,15 @@
 // `npm:sw-synth` back to the local install so unit tests still resolve.
 // (Plan 07 deviation — Rule 3 blocking issue.)
 import { Synth as SwSynth, defaultParams, type OscillatorVoiceParams } from "npm:sw-synth";
+// QUICK-TUX-01 — shared constants + pure helpers for the site-wide audio toolbar.
+// audio-prefs.ts is the ONE allowed shared dependency between src/audio/ and
+// src/components/ (impl-note A option b) — it has no runtime side effects.
+import {
+  AUDIO_PREFS_EVENT,
+  ALLOWED_WAVEFORMS,
+  readAudioPrefs,
+  type AudioPrefs,
+} from "./audio-prefs.js";
 
 // ----- Public surface (PATTERNS lines 313-329) -----
 
@@ -45,6 +54,21 @@ export interface SynthHandle {
   readonly activeVoices: number;
   /** Tear down the AudioContext and all voices. Terminal. */
   dispose(): void;
+  /**
+   * Switch the oscillator waveform on subsequently-triggered voices. QUICK-TUX-01.
+   * Rejects anything not in `ALLOWED_WAVEFORMS` (defense in depth — e.g. "custom"
+   * is silently dropped with a console.warn). No-op after dispose. Existing held
+   * voices keep their old timbre (impl-note E — matches drone-retune behavior).
+   */
+  setVoiceType(type: OscillatorType): void;
+  /**
+   * Set the master gain in [0, 1]. QUICK-TUX-01. Non-finite values are rejected
+   * with a console.warn; out-of-range values are clamped. Post-ensure calls ramp
+   * via `setTargetAtTime(g, currentTime, 0.02)` to avoid clicks; pre-ensure calls
+   * stash the value and apply it as the initial `master.gain.value` (no ramp).
+   * No-op after dispose.
+   */
+  setMaster(gain: number): void;
 }
 
 export interface CreateSynthOpts {
@@ -117,6 +141,19 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
   // AUDIO-06 / Pitfall #9 — visibilitychange listener handle, bound at most once
   // per createSynth lifetime by `bindVisibilityListener`, removed by `dispose`.
   let onVisibility: (() => void) | null = null;
+  // QUICK-TUX-01 — site-wide audio-prefs subscription. Listener handle is bound
+  // ONCE at construction (end of createSynth, after `handle` is built) and removed
+  // in dispose(). Mirrors Pitfall #11 listener-leak shape.
+  let onPrefsChange: ((e: Event) => void) | null = null;
+  // QUICK-TUX-01 — read persisted prefs at construction (D-2). Falls back to
+  // defaults if localStorage is missing / unparseable / has out-of-range fields.
+  const initialPrefs: AudioPrefs = readAudioPrefs();
+  // QUICK-TUX-01 — pending state for setVoiceType / setMaster calls that arrive
+  // BEFORE the lazy `ensure()` has constructed `ctx`/`synth`/`master`. The first
+  // ensure() flushes these into the live nodes; subsequent calls land directly
+  // on the live nodes (with `setTargetAtTime` ramp for master.gain).
+  let pendingVoiceType: OscillatorType | null = null;
+  let pendingMaster: number | null = null;
   // CR-02 fix: track per-note arpeggio setTimeout handles so panic() and
   // dispose() can cancel pending notes. Without this, Esc / Stop has no
   // effect on a running arpeggio — the queued notes continue to fire on
@@ -187,7 +224,9 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
     // and this call.
     if (ctx.state === "suspended") void ctx.resume();
     master = ctx.createGain();
-    master.gain.value = opts.master ?? 0.2;
+    // QUICK-TUX-01 — initial master gain prefers explicit opts → persisted pref
+    // → 0.2 default. opts.master wins if the caller is supplying their own.
+    master.gain.value = opts.master ?? initialPrefs.volume;
     master.connect(ctx.destination);
     synth = new SwSynth(ctx, master);
     synth.maxPolyphony = clampPolyphony(opts.maxPolyphony ?? 16);
@@ -198,7 +237,27 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
       sustainLevel: D16_SUSTAIN,
       releaseTime: D16_RELEASE,
       ...opts.voiceParams,
+      // QUICK-TUX-01 — waveform from opts wins, else persisted pref, else
+      // defaultParams() default. The spread of opts.voiceParams above may have
+      // set .type, so we honor that first; only fall back to initialPrefs.waveform
+      // when opts.voiceParams did not provide a type.
+      type: opts.voiceParams?.type ?? initialPrefs.waveform,
     };
+    // QUICK-TUX-01 — flush pending setVoiceType / setMaster calls that arrived
+    // before ensure() constructed the live nodes. Pre-ensure setMaster uses
+    // direct .value assignment (not ramp) per impl-note E — the AudioContext
+    // is brand-new and there are no held voices to click against.
+    if (pendingMaster !== null) {
+      master.gain.value = pendingMaster;
+      pendingMaster = null;
+    }
+    if (pendingVoiceType !== null) {
+      synth.voiceParams = {
+        ...synth.voiceParams,
+        type: pendingVoiceType,
+      } as OscillatorVoiceParams;
+      pendingVoiceType = null;
+    }
     // AUDIO-06 / Pitfall #9 — bind visibilitychange AFTER ctx is ready so the
     // listener can safely read ctx.state when it fires.
     bindVisibilityListener();
@@ -228,7 +287,7 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
     };
   };
 
-  return {
+  const handle: SynthHandle = {
     playNote(hz, dur = DEFAULT_NOTE_DUR) {
       if (disposed) return () => {};
       return playNoteImpl(hz, dur);
@@ -321,6 +380,15 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
         doc?.removeEventListener("visibilitychange", onVisibility);
         onVisibility = null;
       }
+      // QUICK-TUX-01 / T-tux-04 — remove the audio-prefs window listener with
+      // the SAME function reference passed to addEventListener. Otherwise
+      // removeEventListener silently does nothing and the listener leaks across
+      // hot-reload.
+      if (onPrefsChange) {
+        const win = (globalThis as unknown as { window?: Window }).window;
+        win?.removeEventListener(AUDIO_PREFS_EVENT, onPrefsChange);
+        onPrefsChange = null;
+      }
       try {
         synth?.allNotesOff();
       } catch {
@@ -337,5 +405,79 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
       synth = null;
       activeVoices = 0;
     },
+
+    setVoiceType(type) {
+      if (disposed) return;
+      // T-tux-06 — allowlist re-validation prevents "custom" from being
+      // smuggled past the toolbar (which only emits the four basic shapes).
+      if (!(ALLOWED_WAVEFORMS as readonly string[]).includes(type)) {
+        console.warn("[audio/synth] rejected non-allowlisted waveform:", type);
+        return;
+      }
+      if (synth) {
+        // Existing held voices keep their old timbre (impl-note E — acceptable;
+        // matches drone-retune behavior). Only subsequently-triggered voices
+        // pick up the new type. Cast is required because tsc's
+        // exactOptionalPropertyTypes treats the spread as having all-optional
+        // fields, but OscillatorVoiceParams.audioDelay is required — the source
+        // object always carries it via defaultParams() in ensure().
+        synth.voiceParams = {
+          ...synth.voiceParams,
+          type,
+        } as OscillatorVoiceParams;
+      } else {
+        pendingVoiceType = type;
+      }
+    },
+
+    setMaster(gain) {
+      if (disposed) return;
+      // T-tux-07 — reject NaN / Infinity / non-numeric.
+      if (!Number.isFinite(gain)) {
+        console.warn("[audio/synth] rejected non-finite master gain:", gain);
+        return;
+      }
+      const g = Math.min(1, Math.max(0, gain));
+      if (master && ctx) {
+        // Ramp via setTargetAtTime to avoid clicks (impl-note E).
+        master.gain.setTargetAtTime(g, ctx.currentTime, 0.02);
+      } else {
+        pendingMaster = g;
+      }
+    },
   };
+
+  // QUICK-TUX-01 — register the audio-prefs CustomEvent listener AFTER `handle`
+  // is built (the handler delegates to handle.setVoiceType / handle.setMaster
+  // for defense-in-depth allowlist + clamp). Use globalThis.window defensively
+  // so jsdom / Node test environments resolve the same way the browser does.
+  const win = (
+    globalThis as unknown as {
+      window?: {
+        addEventListener?: (
+          type: string,
+          listener: (e: Event) => void,
+          options?: AddEventListenerOptions,
+        ) => void;
+      };
+    }
+  ).window;
+  if (win?.addEventListener) {
+    onPrefsChange = (e: Event): void => {
+      const detail = (e as CustomEvent<Partial<AudioPrefs>>).detail;
+      if (!detail || typeof detail !== "object") return;
+      // setVoiceType / setMaster do their own allowlist + finite check —
+      // we forward optimistically. The forwarded calls are silently no-op'd
+      // for invalid input (with a console.warn) so the handler stays trivial.
+      if (typeof detail.waveform === "string") {
+        handle.setVoiceType(detail.waveform as OscillatorType);
+      }
+      if (typeof detail.volume === "number") {
+        handle.setMaster(detail.volume);
+      }
+    };
+    win.addEventListener(AUDIO_PREFS_EVENT, onPrefsChange);
+  }
+
+  return handle;
 }

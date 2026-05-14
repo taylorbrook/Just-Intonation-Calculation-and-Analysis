@@ -63,13 +63,16 @@ vi.mock("npm:sw-synth", () => ({
 // ---------- Mock AudioContext (Node has no Web Audio) ----------
 
 interface MockGainNode {
-  gain: { value: number };
+  gain: { value: number; setTargetAtTime: ReturnType<typeof vi.fn> };
   connect: ReturnType<typeof vi.fn>;
   disconnect: ReturnType<typeof vi.fn>;
 }
 
+// QUICK-TUX-01 — gain.setTargetAtTime added for setMaster() ramp-without-clicks
+// (impl-note E). The wrapper calls master.gain.setTargetAtTime(g, ctx.currentTime, 0.02)
+// for post-ensure updates; pre-ensure updates assign master.gain.value directly.
 const mockGainNode: MockGainNode = {
-  gain: { value: 0 },
+  gain: { value: 0, setTargetAtTime: vi.fn() },
   connect: vi.fn(),
   disconnect: vi.fn(),
 };
@@ -94,12 +97,47 @@ const mockAudioContext = {
 const mockCtxCtor = vi.fn(() => mockAudioContext);
 
 // Install on globalThis.window so the lookup `window.AudioContext` resolves.
-(globalThis as unknown as { window: { AudioContext: typeof AudioContext } }).window = {
+// QUICK-TUX-01 — extend the shared `window` stub with addEventListener +
+// removeEventListener spies for the audio-prefs CustomEvent subscription.
+// Keep `AudioContext` so existing AUDIO-01/02/03/04/05/06 tests still resolve.
+const mockWindowAddEventListener = vi.fn();
+const mockWindowRemoveEventListener = vi.fn();
+(
+  globalThis as unknown as {
+    window: {
+      AudioContext: typeof AudioContext;
+      addEventListener: typeof window.addEventListener;
+      removeEventListener: typeof window.removeEventListener;
+    };
+  }
+).window = {
   AudioContext: mockCtxCtor as unknown as typeof AudioContext,
+  addEventListener: mockWindowAddEventListener as unknown as typeof window.addEventListener,
+  removeEventListener:
+    mockWindowRemoveEventListener as unknown as typeof window.removeEventListener,
 };
+
+// QUICK-TUX-01 — globalThis.localStorage stub so readAudioPrefs() can be
+// exercised under test. Default getItem returns null (use defaults). Individual
+// tests override `mockLocalStorageGetItem.mockReturnValueOnce(...)` to inject
+// preferences and verify the construction-time read path.
+const mockLocalStorageGetItem = vi.fn<(key: string) => string | null>(() => null);
+const mockLocalStorageSetItem = vi.fn<(key: string, value: string) => void>();
+(globalThis as unknown as { localStorage: Storage }).localStorage = {
+  getItem: mockLocalStorageGetItem,
+  setItem: mockLocalStorageSetItem,
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+  key: vi.fn(),
+  length: 0,
+} as unknown as Storage;
 
 // Now import the module under test (after mocks installed).
 const { createSynth } = await import("../synth.js");
+// QUICK-TUX-01 — pull the shared constants so tests can assert against the
+// canonical event-name and allowlist without duplicating literals.
+const audioPrefsModule = await import("../audio-prefs.js");
+const { AUDIO_PREFS_EVENT, ALLOWED_WAVEFORMS, AUDIO_PREFS_STORAGE_KEY } = audioPrefsModule;
 
 beforeEach(() => {
   mockCtxCtor.mockClear();
@@ -112,11 +150,19 @@ beforeEach(() => {
   mockGainNode.connect.mockClear();
   mockGainNode.disconnect.mockClear();
   mockGainNode.gain.value = 0;
+  mockGainNode.gain.setTargetAtTime.mockClear();
   mockAudioContext.close.mockClear();
   // Plan 03 Task 2 — reset AUDIO-06 mock state per-test so suspended/running
   // transitions don't leak across tests.
   mockAudioContext.state = "suspended";
   mockAudioContext.resume.mockClear();
+  // QUICK-TUX-01 — reset window listener spies + localStorage stub between
+  // tests so each test starts from a clean state.
+  mockWindowAddEventListener.mockClear();
+  mockWindowRemoveEventListener.mockClear();
+  mockLocalStorageGetItem.mockClear();
+  mockLocalStorageGetItem.mockReturnValue(null);
+  mockLocalStorageSetItem.mockClear();
 });
 
 // =============================================================
@@ -536,5 +582,231 @@ describe("AUDIO-06 — mobile Safari fixes", () => {
     );
     expect(visBindCalls.length).toBe(1); // bind-at-most-once guard works
     synth.dispose();
+  });
+});
+
+// =============================================================
+// QUICK-TUX-01 — setVoiceType / setMaster + audio-prefs subscription
+// =============================================================
+//
+// Site-wide floating audio toolbar drives every page's synth via:
+//   1. CustomEvent("tuning-systems:audio-prefs-changed") broadcast → window.dispatchEvent
+//   2. localStorage["tuning-systems:audio-prefs"] persistence read on construction
+//
+// Synth contract: setVoiceType + setMaster with allowlist + clamp + pre-ensure
+// pending-value capture. Dispose removes the event listener (T-tux-04 / Pitfall #11).
+
+describe("createSynth — setVoiceType / setMaster (QUICK-TUX-01)", () => {
+  it("setVoiceType — happy path: post-ensure call updates synth.voiceParams.type", () => {
+    const synth = createSynth();
+    synth.playNote(440, 0.05); // forces ensure() — voiceParams.type starts as "sine"
+    expect(mockSynthInstance.voiceParams!.type).toBe("sine");
+    synth.setVoiceType("sawtooth");
+    synth.playNote(440, 0.05); // re-read voiceParams.type
+    expect(mockSynthInstance.voiceParams!.type).toBe("sawtooth");
+    synth.dispose();
+  });
+
+  it("setVoiceType — invalid input ('custom') is a no-op + emits console.warn", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    const before = mockSynthInstance.voiceParams!.type;
+    synth.setVoiceType("custom" as OscillatorType);
+    expect(mockSynthInstance.voiceParams!.type).toBe(before); // unchanged
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+    synth.dispose();
+  });
+
+  it("setVoiceType — pre-ensure call captures pending type, applied on first ensure()", () => {
+    const synth = createSynth();
+    synth.setVoiceType("triangle"); // before any playNote
+    synth.playNote(440, 0.05); // ensure() now runs — should apply "triangle"
+    expect(mockSynthInstance.voiceParams!.type).toBe("triangle");
+    synth.dispose();
+  });
+
+  it("setMaster — happy path: post-ensure call ramps via setTargetAtTime(g, currentTime, 0.02)", () => {
+    const synth = createSynth();
+    synth.playNote(440, 0.05); // forces ensure()
+    mockGainNode.gain.setTargetAtTime.mockClear();
+    synth.setMaster(0.5);
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledTimes(1);
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
+      0.5,
+      mockAudioContext.currentTime,
+      0.02,
+    );
+    synth.dispose();
+  });
+
+  it("setMaster — clamps above 1 to exactly 1, below 0 to exactly 0", () => {
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    mockGainNode.gain.setTargetAtTime.mockClear();
+    synth.setMaster(2.5);
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenLastCalledWith(
+      1,
+      mockAudioContext.currentTime,
+      0.02,
+    );
+    synth.setMaster(-0.3);
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenLastCalledWith(
+      0,
+      mockAudioContext.currentTime,
+      0.02,
+    );
+    synth.dispose();
+  });
+
+  it("setMaster — NaN is a no-op + emits console.warn", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    mockGainNode.gain.setTargetAtTime.mockClear();
+    synth.setMaster(NaN);
+    expect(mockGainNode.gain.setTargetAtTime).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+    synth.dispose();
+  });
+
+  it("setMaster — pre-ensure call stores value, applied as initial gain.value (NOT via ramp)", () => {
+    const synth = createSynth();
+    synth.setMaster(0.6); // before any playNote — captured as pendingMaster
+    synth.playNote(440, 0.05); // ensure() runs — gain.value should be 0.6
+    expect(mockGainNode.gain.value).toBe(0.6);
+    // The pre-ensure path uses .value assignment, NOT setTargetAtTime.
+    // (After ensure(), subsequent setMaster calls would use setTargetAtTime —
+    // but the pre-ensure flush is a direct assignment per impl-note E.)
+    synth.dispose();
+  });
+
+  it("setVoiceType / setMaster are no-ops after dispose() (terminal)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    synth.dispose();
+    mockGainNode.gain.setTargetAtTime.mockClear();
+    expect(() => synth.setVoiceType("sawtooth")).not.toThrow();
+    expect(() => synth.setMaster(0.5)).not.toThrow();
+    expect(mockGainNode.gain.setTargetAtTime).not.toHaveBeenCalled();
+    // setVoiceType after dispose should NOT log a warning either —
+    // dispose is terminal; nothing to validate.
+    warnSpy.mockRestore();
+  });
+});
+
+describe("createSynth — localStorage prefs read on construction (QUICK-TUX-01)", () => {
+  it("reads {waveform:'square', volume:0.7} from localStorage and applies on first ensure()", () => {
+    mockLocalStorageGetItem.mockReturnValue(JSON.stringify({ waveform: "square", volume: 0.7 }));
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    expect(mockSynthInstance.voiceParams!.type).toBe("square");
+    expect(mockGainNode.gain.value).toBe(0.7);
+    // Confirm the storage key matches the canonical constant — defense against
+    // typos drifting between this module and audio-toolbar.ts.
+    expect(mockLocalStorageGetItem).toHaveBeenCalledWith(AUDIO_PREFS_STORAGE_KEY);
+    synth.dispose();
+  });
+
+  it("invalid JSON in localStorage falls back to defaults ({sine, 0.2})", () => {
+    mockLocalStorageGetItem.mockReturnValue("{not json");
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    expect(mockSynthInstance.voiceParams!.type).toBe("sine");
+    expect(mockGainNode.gain.value).toBe(0.2);
+    synth.dispose();
+  });
+
+  it("invalid waveform in stored JSON falls back to 'sine' but keeps valid volume", () => {
+    mockLocalStorageGetItem.mockReturnValue(JSON.stringify({ waveform: "<script>", volume: 0.4 }));
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    expect(mockSynthInstance.voiceParams!.type).toBe("sine");
+    expect(mockGainNode.gain.value).toBe(0.4);
+    synth.dispose();
+  });
+});
+
+describe("createSynth — audio-prefs subscription (QUICK-TUX-01)", () => {
+  it("registers a window listener for AUDIO_PREFS_EVENT at construction time", () => {
+    const synth = createSynth();
+    const calls = mockWindowAddEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === AUDIO_PREFS_EVENT,
+    );
+    expect(calls.length).toBe(1);
+    expect(typeof calls[0]![1]).toBe("function");
+    synth.dispose();
+  });
+
+  it("dispatched CustomEvent updates voiceParams.type + master.gain via setVoiceType/setMaster", () => {
+    const synth = createSynth();
+    synth.playNote(440, 0.05); // forces ensure() so we can verify voiceParams
+    const bindCalls = mockWindowAddEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === AUDIO_PREFS_EVENT,
+    );
+    expect(bindCalls.length).toBe(1);
+    const handler = bindCalls[0]![1] as (e: Event) => void;
+    mockGainNode.gain.setTargetAtTime.mockClear();
+    // Simulate a CustomEvent fire with valid detail.
+    handler(
+      new CustomEvent(AUDIO_PREFS_EVENT, {
+        detail: { waveform: "triangle", volume: 0.35 },
+      }),
+    );
+    synth.playNote(440, 0.05);
+    expect(mockSynthInstance.voiceParams!.type).toBe("triangle");
+    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
+      0.35,
+      mockAudioContext.currentTime,
+      0.02,
+    );
+    synth.dispose();
+  });
+
+  it("dispose() removes the window listener with the SAME handler reference (T-tux-04)", () => {
+    const synth = createSynth();
+    const bindCalls = mockWindowAddEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === AUDIO_PREFS_EVENT,
+    );
+    expect(bindCalls.length).toBe(1);
+    const boundHandler = bindCalls[0]![1];
+    synth.dispose();
+    const unbindCalls = mockWindowRemoveEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === AUDIO_PREFS_EVENT,
+    );
+    expect(unbindCalls.length).toBe(1);
+    // Reference equality — otherwise removeEventListener silently does nothing
+    // and the listener would leak across hot-reload (T-tux-04 listener-leak shape).
+    expect(unbindCalls[0]![1]).toBe(boundHandler);
+  });
+
+  it("CustomEvent with hostile waveform value is rejected by setVoiceType's own allowlist", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const synth = createSynth();
+    synth.playNote(440, 0.05);
+    const before = mockSynthInstance.voiceParams!.type;
+    const bindCalls = mockWindowAddEventListener.mock.calls.filter(
+      (c: unknown[]) => c[0] === AUDIO_PREFS_EVENT,
+    );
+    const handler = bindCalls[0]![1] as (e: Event) => void;
+    // Smuggle "custom" past the (also-validating) handler — the listener may
+    // forward it because `"custom"` is a structurally-valid OscillatorType, but
+    // setVoiceType's allowlist (defense in depth) MUST still reject it.
+    handler(
+      new CustomEvent(AUDIO_PREFS_EVENT, {
+        detail: { waveform: "custom" },
+      }),
+    );
+    synth.playNote(440, 0.05);
+    expect(mockSynthInstance.voiceParams!.type).toBe(before);
+    warnSpy.mockRestore();
+    synth.dispose();
+  });
+
+  it("ALLOWED_WAVEFORMS shape: exactly the four locked options (D-3)", () => {
+    expect([...ALLOWED_WAVEFORMS]).toEqual(["sine", "triangle", "sawtooth", "square"]);
   });
 });
