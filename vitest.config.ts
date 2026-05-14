@@ -41,6 +41,9 @@ export default defineConfig({
       "src/audio/**/*.test.ts",
       "src/__tests__/**/*.test.ts",
       "src/components/**/__tests__/**/*.test.ts",
+      // QUICK-9MN-01 — surface src/theme/ tests for the dark-mode toggle's
+      // constants/helpers spec. Matches the per-subsystem glob pattern above.
+      "src/theme/**/__tests__/**/*.test.ts",
     ],
     exclude: ["node_modules/**", "dist/**", ".observablehq/**", "src/**/*.md"],
     environment: "node",
