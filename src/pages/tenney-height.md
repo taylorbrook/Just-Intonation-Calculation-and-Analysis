@@ -270,7 +270,7 @@ The [Analysis dashboard](/pages/analysis) ranks N-EDOs against a JI scale using
 three error metrics — max, RMS, and **Tenney-weighted**. The kernel implementation
 lives at `src/lib/edo.ts` in `bestEdosForScale`:
 
-```js
+```ts run=false
 const weight = Math.max(1, tenneyHeight(iv.monzo));    // ln(n·d), clamped at 1
 tenneyWeighted += absCentsError / weight;              // accumulate per interval
 ```
