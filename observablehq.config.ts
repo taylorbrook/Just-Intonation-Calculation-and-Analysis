@@ -1,4 +1,8 @@
 // See https://observablehq.com/framework/config for documentation.
+// QUICK-TUX-01 — colocated import for the site-wide audio toolbar head payload.
+// Framework convention: import .ts as .js (Framework transpiles via esbuild).
+import { audioToolbarHeadPayload } from "./src/components/audio-toolbar.js";
+
 export default {
   title: "Tuning Systems",
   root: "src",
@@ -39,5 +43,5 @@ export default {
       pages: [{ name: "Scale Workshop interop", path: "/pages/scale-workshop-interop" }],
     },
   ],
-  head: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" crossorigin="anonymous">`,
+  head: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" crossorigin="anonymous">${audioToolbarHeadPayload()}`,
 };
