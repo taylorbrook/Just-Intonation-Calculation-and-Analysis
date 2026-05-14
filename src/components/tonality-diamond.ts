@@ -379,10 +379,7 @@ export function renderDiamondSVG(oddLimitN: number, opts: RenderDiamondSVGOpts =
         cellGroup.setAttribute("tabindex", "0");
         cellGroup.setAttribute("aria-label", `Play ${ratio.fraction.toFraction()}`);
         const audition = (): void => {
-          synth.playNotes(
-            [baseHz, baseHz * Number(ratio.fraction.valueOf())],
-            duration,
-          );
+          synth.playNotes([baseHz, baseHz * Number(ratio.fraction.valueOf())], duration);
         };
         cellGroup.addEventListener("click", audition);
         cellGroup.addEventListener("keydown", (event: Event) => {
