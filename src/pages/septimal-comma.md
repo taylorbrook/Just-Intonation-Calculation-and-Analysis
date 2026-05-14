@@ -136,6 +136,38 @@ const partialsChart = (() => {
 display(partialsChart);
 ```
 
+Click either pitch to hear it.
+
+```ts
+// Ratio-pills row keyed to the two plotted points on partialsChart above.
+// Plot.dot is not clickable in Observable Plot — audition surface lives
+// directly beneath the chart. Reuses the existing harmonicSeventh /
+// pythagoreanMinorSeventh Interval bindings (no new allocations); BigInt-
+// Fraction stays source of truth (Pitfall #1). XSS discipline T-02-22/
+// T-02-23: createElement + appendChild only for wrappers; ratioPill /
+// playInterval handle dynamic strings via textContent.
+const sevenPillsRow = (() => {
+  const container = document.createElement("div");
+  container.className = "ratio-pills-row";
+  container.style.display = "flex";
+  container.style.flexWrap = "wrap";
+  container.style.gap = "0.5rem";
+  container.style.alignItems = "center";
+  container.style.margin = "0.5rem 0 1rem 0";
+  for (const iv of [harmonicSeventh, pythagoreanMinorSeventh]) {
+    const pair = document.createElement("span");
+    pair.style.display = "inline-flex";
+    pair.style.alignItems = "center";
+    pair.style.gap = "0.2rem";
+    pair.appendChild(ratioPill(iv));
+    pair.appendChild(playInterval(iv, synth));
+    container.appendChild(pair);
+  }
+  return container;
+})();
+display(sevenPillsRow);
+```
+
 ## In monzos
 
 ${tex`64/63 = \begin{bmatrix} 6 & -2 & 0 & -1 \end{bmatrix}\rangle = 2^{6} \cdot 3^{-2} \cdot 5^{0} \cdot 7^{-1}`}

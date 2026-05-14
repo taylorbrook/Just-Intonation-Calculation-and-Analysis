@@ -112,6 +112,44 @@ const commaBarChart = (() => {
 display(commaBarChart);
 ```
 
+Click any comma to hear it.
+
+```ts
+// Ratio-pills row keyed to the bar chart above. One pair per plotted comma:
+// ratioPill (with cents shown by default) + bare ▶ playInterval. Plot.barX is
+// not clickable in Observable Plot, so the audition surface lives here.
+// XSS discipline T-02-22/T-02-23: createElement + appendChild only for
+// wrappers; ratioPill / playInterval factories handle dynamic strings via
+// textContent. Per D-08 / D-18, playInterval defaults intact: 440 Hz, 1.5s.
+// Reuses the existing pythagorean / syntonic / schisma Interval bindings —
+// no new allocations, BigInt-Fraction stays source of truth (Pitfall #1).
+const commaPillsRow = (() => {
+  const container = document.createElement("div");
+  container.className = "ratio-pills-row";
+  container.style.display = "flex";
+  container.style.flexWrap = "wrap";
+  container.style.gap = "0.5rem";
+  container.style.alignItems = "center";
+  container.style.margin = "0.5rem 0 1rem 0";
+  const entries = [
+    { label: "Pythagorean comma", iv: pythagorean },
+    { label: "syntonic comma",    iv: syntonic },
+    { label: "schisma",           iv: schisma },
+  ];
+  for (const { iv } of entries) {
+    const pair = document.createElement("span");
+    pair.style.display = "inline-flex";
+    pair.style.alignItems = "center";
+    pair.style.gap = "0.2rem";
+    pair.appendChild(ratioPill(iv));
+    pair.appendChild(playInterval(iv, synth));
+    container.appendChild(pair);
+  }
+  return container;
+})();
+display(commaPillsRow);
+```
+
 ## Schismatic temperament
 
 Tempering out the schisma — treating ${ratioPill(schisma)} as a unison —

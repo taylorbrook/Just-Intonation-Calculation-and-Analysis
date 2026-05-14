@@ -266,6 +266,65 @@ JI across the five anchors.
 display(scatterChart);
 ```
 
+Click any anchor to hear pure JI, or any EDO label to hear that EDO's nearest step. Per-row pure-JI ratio is rendered as a `ratioPill`; per-EDO buttons audition the irrational EDO-step cents via `playStepAt` (cents → ratio at the audio boundary).
+
+```ts
+// Interactive audition grid for the scatter chart above. Plot.dot() does not
+// expose click events natively, so the audition surface lives directly beneath
+// the chart. One row per JI anchor; each row carries the pure-JI ratioPill
+// (with bare ▶ playInterval) plus one EDO-step button per entry in `edos`.
+//
+// The EDO-step buttons reuse the existing playStepAt() factory (defined above
+// for the three isolated audition buttons at the bottom of the page) — passing
+// the irrational cents value (step × 1200/N) at the audio boundary keeps
+// Pitfall #1 honored: kernel JI Intervals stay exact, EDO steps are cents
+// projections of integer step-counts, only the synth sees a float ratio.
+//
+// XSS discipline T-02-22/T-02-23: createElement + appendChild only for
+// wrappers; ratioPill / playInterval / playStepAt factories handle dynamic
+// strings via textContent throughout.
+const edoAuditionGrid = (() => {
+  const container = document.createElement("div");
+  container.className = "edo-audition-grid";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.gap = "0.4rem";
+  container.style.margin = "0.5rem 0 1rem 0";
+  for (const { iv } of jiIntervals) {
+    const row = document.createElement("div");
+    row.className = "ratio-pills-row";
+    row.style.display = "flex";
+    row.style.flexWrap = "wrap";
+    row.style.gap = "0.4rem";
+    row.style.alignItems = "center";
+    // Pure JI anchor — ratioPill + bare ▶ playInterval (D-08 / D-18 defaults).
+    const purePair = document.createElement("span");
+    purePair.style.display = "inline-flex";
+    purePair.style.alignItems = "center";
+    purePair.style.gap = "0.2rem";
+    purePair.appendChild(ratioPill(iv));
+    purePair.appendChild(playInterval(iv, synth));
+    row.appendChild(purePair);
+    // Per-EDO nearest-step buttons. Cents math mirrors approxMatrix exactly
+    // (same Math.round / 1200/N derivation); the value passed to playStepAt
+    // is the EDO step's absolute cents, not the signed deviation. Button
+    // label carries the signed deviation for quick visual chart-cross-ref.
+    for (const N of edos) {
+      const stepCents = 1200 / N;
+      const step = Math.round(iv.cents / stepCents);
+      const actual = step * stepCents;
+      const error = actual - iv.cents;
+      const sign = error > 0.005 ? "+" : error < -0.005 ? "−" : "";
+      const errStr = `${sign}${Math.abs(error).toFixed(2)}¢`;
+      row.appendChild(playStepAt(`${N}-EDO (${errStr})`, actual));
+    }
+    container.appendChild(row);
+  }
+  return container;
+})();
+display(edoAuditionGrid);
+```
+
 ## The deviation table
 
 ```ts
