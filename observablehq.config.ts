@@ -2,6 +2,11 @@
 // QUICK-TUX-01 — colocated import for the site-wide audio toolbar head payload.
 // Framework convention: import .ts as .js (Framework transpiles via esbuild).
 import { audioToolbarHeadPayload } from "./src/components/audio-toolbar.js";
+// QUICK-9MN-01 — dark-mode toggle head payload. MUST be interpolated BEFORE
+// the audio toolbar payload (and before any other head content) so the
+// synchronous IIFE applies the html[data-tuning-systems-theme] attribute
+// before first paint (FOUC fix — locked decision 3).
+import { themeHeadPayload } from "./src/components/theme-head.js";
 
 export default {
   title: "Tuning Systems",
@@ -43,5 +48,5 @@ export default {
       pages: [{ name: "Scale Workshop interop", path: "/pages/scale-workshop-interop" }],
     },
   ],
-  head: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" crossorigin="anonymous">${audioToolbarHeadPayload()}`,
+  head: `${themeHeadPayload()}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" crossorigin="anonymous">${audioToolbarHeadPayload()}`,
 };
