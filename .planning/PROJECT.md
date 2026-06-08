@@ -19,9 +19,21 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 **Pages:** `/` (composition dashboard) · `/pages/syntonic-comma` (theory page) · `/pages/analysis` (EDO + MOS + scale-compare + URL share)
 **Open after v1.0:** one deferred Safari RDM smoke-test re-walk to sign the `mobile-audit.md` Post-CR-02 footer (unit-level regression test already passes; documentation-trail item only). See STATE.md → Deferred Items.
 
-## Next Milestone Goals
+## Current Milestone: v1.1 Scale Generation & Library
 
-Pending `/gsd-new-milestone` scoping. The v2 candidates parked in `milestones/v1.0-REQUIREMENTS.md` (TEMP-01..10) are the natural starting set: temperament browser, ratio-to-comma decomposition, Plomp-Levelt dissonance curves, citations/bibliography across pages, harmonic entropy, 3D lattice rendering, SonicWeave embedded as in-cell scale DSL, periodicity blocks (Fokker), Scala archive browser, MIDI Tuning Standard / hardware-synth bridge.
+**Goal:** A dedicated Generate surface where the user produces JI / tempered / harmonic scales by many methods and loads named scales from the Scala archive — auditioning any result and pushing it live into the Dashboard and Analysis.
+
+**Target features:**
+- Generate tab (`/pages/generate`) — method-picker host with live preview + audition, "Send to Dashboard / Analysis"
+- Live shared-state integration — additive `scale-store.ts` (localStorage + CustomEvent, mirroring `theme-prefs.ts`); strictly additive so the working Dashboard/Analysis pages stay byte-identical when the store is empty (gated by an empty-store boot-equivalence test)
+- JI & harmonic generators (exact-rational) — CPS (Hexany/Dekany/Eikosany), harmonic/subharmonic/ADO/isoharmonic, diamond→Scale, odd/prime-limit set, Farey, EDO/ED-n
+- Tempered & lattice generators — rank-2 / well-temperament / Fokker + free-text SonicWeave via a thin `sonicweave.ts` adapter (delivers TEMP-01, TEMP-07, TEMP-08)
+- Preview & polish — circle-of-pitches viz, rotate-to-mode + reduce/dedupe/transpose strip, Wilson metallic, constant-structure
+- Scala archive browser — browse / search / load named scales from the Scala archive into the Generate surface (delivers TEMP-09)
+
+**Design inputs:** `.planning/quick/260608-dyv-scale-generation/260608-dyv-{RESEARCH,PLAN}.md` (596-line method/UI/integration research + 748-line wave plan). Key finding: `sonic-weave@0.14.1` is already installed and its prelude covers the hard tempered/lattice methods as runtime-verified thin wrappers — zero new npm deps.
+
+**Carried constraints:** BigInt-exactness (no prime-limit ceiling), three-layer purity (kernel / components / page), R-01 (Fraction from fraction.js only), strict TDD, in-browser audio only, ratio + cents display only.
 
 ## Requirements
 
@@ -40,23 +52,21 @@ Pending `/gsd-new-milestone` scoping. The v2 candidates parked in `milestones/v1
 
 ### Active
 
-<!-- Re-populated when /gsd-new-milestone scopes v1.1+. -->
-
-(None — all v1.0 active items shipped. Run `/gsd-new-milestone` to scope the next set.)
+v1.1 Scale Generation & Library — see `.planning/REQUIREMENTS.md` for the scoped requirement set. Delivers parked TEMP-01 (regular-temperament / rank-2 mappings), TEMP-07 (SonicWeave embedded DSL), TEMP-08 (periodicity blocks / Fokker), and TEMP-09 (Scala archive browser).
 
 ### Deferred to v2
 
 These were originally in v1's "Active" list under "Temperament conversion (EDOs, regular-temperament mappings, comma analysis)". The EDO half shipped in Phase 4 (ANAL-01); regular-temperament mappings and comma decomposition were intentionally pushed to v2 per the roadmap.
 
-- [ ] Regular-temperament mappings (TEMP-01)
+**Promoted to v1.1 (now Active):** TEMP-01 (regular-temperament mappings), TEMP-07 (SonicWeave embedded DSL), TEMP-08 (periodicity blocks / Fokker), TEMP-09 (Scala archive browser).
+
+**Still deferred:**
+
 - [ ] Ratio-to-comma decomposition (TEMP-02)
 - [ ] Plomp-Levelt dissonance curve (TEMP-03)
-- [ ] Citations / bibliography across pages (TEMP-04)
+- [ ] Citations / bibliography across pages (TEMP-04) — largely delivered via quick task 260513-d2e, but not milestone-tracked
 - [ ] Harmonic entropy (TEMP-05)
 - [ ] 3D lattice rendering (TEMP-06)
-- [ ] SonicWeave embedded as in-cell scale DSL (TEMP-07)
-- [ ] Periodicity blocks (Fokker) (TEMP-08)
-- [ ] Scala archive browser (TEMP-09)
 - [ ] MIDI Tuning Standard / hardware-synth bridge (TEMP-10)
 
 ### Out of Scope
@@ -118,4 +128,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-07 after v1.0 MVP milestone close — all 42 v1 requirements complete; one deferred RDM smoke-test re-walk for documentation-trail completeness recorded in STATE.md; full milestone archive at `milestones/v1.0-ROADMAP.md` and `milestones/v1.0-REQUIREMENTS.md`.*
+*Last updated: 2026-06-08 — started milestone v1.1 Scale Generation & Library (continues numbering from v1.0's Phase 4). v1.0 MVP archive at `milestones/v1.0-ROADMAP.md` and `milestones/v1.0-REQUIREMENTS.md`.*
