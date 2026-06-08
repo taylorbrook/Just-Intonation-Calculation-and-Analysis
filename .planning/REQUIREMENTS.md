@@ -80,39 +80,40 @@ Explicitly excluded for v1.1. Documented to prevent scope creep.
 
 ## Traceability
 
-Which phases cover which requirements. Populated during roadmap creation.
+Which phases cover which requirements. Populated during roadmap creation (v1.1 phases continue numbering from v1.0's Phase 4).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SURF-01 | — | Pending |
-| SURF-02 | — | Pending |
-| SURF-03 | — | Pending |
-| SURF-04 | — | Pending |
-| SURF-05 | — | Pending |
-| SURF-06 | — | Pending |
-| GEN-01 | — | Pending |
-| GEN-02 | — | Pending |
-| GEN-03 | — | Pending |
-| GEN-04 | — | Pending |
-| GEN-05 | — | Pending |
-| GEN-06 | — | Pending |
-| GEN-07 | — | Pending |
-| GEN-08 | — | Pending |
-| GEN-09 | — | Pending |
-| GEN-10 | — | Pending |
-| SYNC-01 | — | Pending |
-| SYNC-02 | — | Pending |
-| SYNC-03 | — | Pending |
-| SYNC-04 | — | Pending |
-| LIB-01 | — | Pending |
-| LIB-02 | — | Pending |
-| LIB-03 | — | Pending |
+| SURF-01 | Phase 5 | Pending |
+| SURF-02 | Phase 5 | Pending |
+| SURF-03 | Phase 5 | Pending |
+| SURF-04 | Phase 8 | Pending |
+| SURF-05 | Phase 8 | Pending |
+| SURF-06 | Phase 6 | Pending |
+| GEN-01 | Phase 6 | Pending |
+| GEN-02 | Phase 6 | Pending |
+| GEN-03 | Phase 6 | Pending |
+| GEN-04 | Phase 6 | Pending |
+| GEN-05 | Phase 6 | Pending |
+| GEN-06 | Phase 7 | Pending |
+| GEN-07 | Phase 7 | Pending |
+| GEN-08 | Phase 7 | Pending |
+| GEN-09 | Phase 7 | Pending |
+| GEN-10 | Phase 8 | Pending |
+| SYNC-01 | Phase 5 | Pending |
+| SYNC-02 | Phase 5 | Pending |
+| SYNC-03 | Phase 5 | Pending |
+| SYNC-04 | Phase 5 | Pending |
+| LIB-01 | Phase 9 | Pending |
+| LIB-02 | Phase 9 | Pending |
+| LIB-03 | Phase 9 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 23 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 23 ⚠️ (resolved when the roadmapper runs)
+- Mapped to phases: 23 ✓ (Phase 5: 7 · Phase 6: 6 · Phase 7: 4 · Phase 8: 3 · Phase 9: 3)
+- Unmapped: 0 ✓ (every v1.1 requirement maps to exactly one phase)
 
 ---
 *Requirements defined: 2026-06-08*
-*Last updated: 2026-06-08 after initial v1.1 definition*
+*Last updated: 2026-06-08 after roadmap creation (Phases 5–9 mapped; 100% coverage)*
+</content>

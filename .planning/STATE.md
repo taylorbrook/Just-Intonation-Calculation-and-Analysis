@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
-status: planning
+status: ready_to_plan
 last_updated: "2026-06-08T21:13:26.778Z"
 last_activity: 2026-06-08
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,17 +17,19 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-07 after v1.0 milestone close)
+See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Planning next milestone — run `/gsd-new-milestone` to scope v1.1 (or v2.0).
+**Current focus:** Phase 5 — Generate Surface & Live Integration Foundation (Wave 0: the `/pages/generate` tab, the additive `scale-store`, and the empty-store boot-equivalence gate).
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-06-08 — Milestone v1.1 started
+Phase: 5 of 9 (Generate Surface & Live Integration Foundation) — first phase of v1.1
+Plan: — (ready to plan Phase 5)
+Status: Ready to plan
+Last activity: 2026-06-08 — v1.1 roadmap created (Phases 5–9, 23/23 requirements mapped, 100% coverage)
+
+Progress: [░░░░░░░░░░] 0% (v1.1; v1.0 Phases 1–4 shipped)
 
 ## Performance Metrics
 
