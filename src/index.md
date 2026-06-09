@@ -20,6 +20,7 @@ import { tonalityDiamond } from "./components/tonality-diamond.js";
 import { keyboard } from "./components/keyboard.js";
 import { kbmToFrequencies, type KbmMapping } from "./lib/kbm.js";
 import { encodeScaleToHash, decodeHashToScale } from "./lib/url.js";
+import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT } from "./state/scale-store.js";
 ```
 
 ```ts
@@ -75,18 +76,46 @@ const seedTextLiteral = `9/8
 ```ts
 // Phase 4 ANAL-04 (D-19): defer to hash-decoded value when present; else use the
 // literal seed. Downstream textarea cell reads `seedText` unchanged from Phase 2.
-const seedText = hashDecoded ?? seedTextLiteral;
+// Phase 5 SYNC-04 (D-12): boot precedence now hash > shared store > seed via
+// resolveInitialScaleText. When the store is empty readSharedScale() returns null
+// and this expression is byte-identical to `hashDecoded ?? seedTextLiteral` (R1).
+const seedText = resolveInitialScaleText(hashDecoded, readSharedScale(), seedTextLiteral);
 ```
 
 ## Scale
 
 ```ts
-const scaleText = view(Inputs.textarea({
+// Phase 5 SYNC-01/02: split the inline textarea into a captured element + view
+// pair so the live-receive listener cell below can reach the element. The
+// reactive `scaleText` value flows IDENTICALLY to before — same Inputs.textarea
+// options (value/rows/label/submit), the only change is capturing `scaleInput`.
+const scaleInput = Inputs.textarea({
   value: seedText,
   rows: 8,
   label: "Scale (one pitch per line — ratio, cents, or monzo)",
   submit: false,
-}));
+});
+const scaleText = view(scaleInput);
+```
+
+```ts
+// Phase 5 SYNC-01/02: additive live-receive listener (consumer). On a
+// scale-changed broadcast from the Generate page, write the pushed text into the
+// textarea and dispatch a synthetic `input` event so the page's UNCHANGED parse +
+// debounced hash-write fire exactly as if the user typed it. ONE-WAY DATA FLOW
+// (R2 guard): this cell writes ONLY the textarea — it NEVER writes the store, so
+// there is no scale-changed feedback loop.
+{
+  const onScale = (e) => {
+    const t = e?.detail?.text;
+    if (typeof t === "string" && t.length) {
+      scaleInput.value = t;
+      scaleInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  };
+  window.addEventListener(SCALE_CHANGED_EVENT, onScale);
+  invalidation.then(() => window.removeEventListener(SCALE_CHANGED_EVENT, onScale));
+}
 ```
 
 <p class="dashboard-helper">Last line is the period. 1/1 is added automatically.</p>

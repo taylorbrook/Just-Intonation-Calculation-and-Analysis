@@ -12,6 +12,7 @@ import { edoJitTable } from "../components/edo-jit-table.js";
 import { edoJiTable } from "../components/edo-ji-table.js";
 import { mosBuilder } from "../components/mos-builder.js";
 import { scaleCompare, disposeScaleCompare } from "../components/scale-compare.js";
+import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT } from "../state/scale-store.js";
 ```
 
 ```ts
@@ -67,7 +68,11 @@ const hashDecoded = hashRaw ? decodeHashToScale(hashRaw) : null;
 const hashError = (hashRaw && hashDecoded === null)
   ? "Couldn't load shared scale: malformed or oversized hash. Falling back to default."
   : null;
-const initialScaleText = hashDecoded ?? seedText;
+// Phase 5 SYNC-04 (D-12): boot precedence now hash > shared store > seed via
+// resolveInitialScaleText. Here `seedText` (above) IS the literal. When the store
+// is empty readSharedScale() returns null and this is byte-identical to
+// `hashDecoded ?? seedText` (R1 empty-store invariant).
+const initialScaleText = resolveInitialScaleText(hashDecoded, readSharedScale(), seedText);
 ```
 
 ```ts
@@ -85,12 +90,37 @@ if (hashError) {
 ```
 
 ```ts
-const scaleText = view(Inputs.textarea({
+// Phase 5 SYNC-01/02: split the inline textarea into a captured element + view
+// pair so the live-receive listener cell below can reach the element. The
+// reactive `scaleText` value flows IDENTICALLY to before — same Inputs.textarea
+// options (value/rows/label/submit), the only change is capturing `scaleInput`.
+const scaleInput = Inputs.textarea({
   value: initialScaleText,
   rows: 8,
   label: "Scale (one pitch per line — ratio, cents, or monzo)",
   submit: false,
-}));
+});
+const scaleText = view(scaleInput);
+```
+
+```ts
+// Phase 5 SYNC-01/02: additive live-receive listener (consumer). On a
+// scale-changed broadcast from the Generate page, write the pushed text into the
+// textarea and dispatch a synthetic `input` event so the page's UNCHANGED parse +
+// debounced hash-write fire exactly as if the user typed it. ONE-WAY DATA FLOW
+// (R2 guard): this cell writes ONLY the textarea — it NEVER writes the store, so
+// there is no scale-changed feedback loop.
+{
+  const onScale = (e) => {
+    const t = e?.detail?.text;
+    if (typeof t === "string" && t.length) {
+      scaleInput.value = t;
+      scaleInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  };
+  window.addEventListener(SCALE_CHANGED_EVENT, onScale);
+  invalidation.then(() => window.removeEventListener(SCALE_CHANGED_EVENT, onScale));
+}
 ```
 
 <p class="dashboard-helper">Last line is the period. 1/1 is added automatically.</p>
