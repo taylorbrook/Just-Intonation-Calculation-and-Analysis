@@ -299,6 +299,80 @@ try {
 ```
 
 ```ts
+// Send-to status region — surfaces the 8 KB cap-error copy on encode failure
+// (T-05-02). role="status" aria-live="polite"; text via textContent only.
+// display() returns the live element so the handlers below can write into it.
+const sendStatus = display(document.createElement("div"));
+sendStatus.setAttribute("role", "status");
+sendStatus.setAttribute("aria-live", "polite");
+```
+
+```ts
+// ─── Send-to action row (D-10 / D-11) — the ONLY store writers ───────────────
+// Two .play-btn CTAs that each: (1) write the current scale to the shared store
+// — the SOLE store write (one-way data flow per D-11) — then (2) navigate to the
+// target with #s= + encodeScaleToHash, mirroring index.md's "Analyze this scale →"
+// precedent (lines 202–218). On encodeScaleToHash RangeError (> 8 KB) surface the
+// cap-error copy into sendStatus and navigate WITHOUT the hash (the target loads
+// its own seed). From /pages/generate the Dashboard is "../" and Analysis is
+// "./analysis" (verified against rendered routes — links validated at build).
+//
+// This cell depends on currentScaleText so the handlers always close over the
+// latest previewed scale. Re-creating the buttons on param change is the
+// reactive idiom (the precedent button is static because the dashboard's
+// scaleText is read at click time via a Mutable; here the value is a cell).
+const CAP_ERROR_COPY =
+  "Scale is too large to send (8 KB limit). Reduce the number of pitches and try again.";
+const SEND_SOURCE = "generate:harmonic-segment";
+
+function clearSendStatus() {
+  sendStatus.className = "";
+  sendStatus.replaceChildren();
+}
+
+function showCapError() {
+  sendStatus.className = "dashboard-error";
+  sendStatus.replaceChildren(document.createTextNode(CAP_ERROR_COPY));
+}
+
+// Shared click behavior for both CTAs: write the store ONCE (the sole writer,
+// D-11) then deep-link-navigate with #s=; on > 8 KB RangeError surface the
+// cap-error copy and navigate hashless. `target` is the relative route from
+// /pages/generate ("../" = Dashboard, "./analysis" = Analysis).
+function sendCurrentScaleTo(target) {
+  writeSharedScale(currentScaleText, SEND_SOURCE); // each handler invokes this exactly once
+  try {
+    const hash = "#s=" + encodeScaleToHash(currentScaleText);
+    clearSendStatus();
+    window.location.assign(target + hash);
+  } catch (err) {
+    console.warn("encodeScaleToHash failed:", err);
+    showCapError();
+    window.location.assign(target); // fallback: target loads its own seed
+  }
+}
+
+const sendToDashboard = document.createElement("button");
+sendToDashboard.className = "play-btn";
+sendToDashboard.type = "button";
+sendToDashboard.textContent = "Send to Dashboard →";
+sendToDashboard.setAttribute("aria-label", "Send the current scale to the Dashboard and open it.");
+sendToDashboard.addEventListener("click", () => sendCurrentScaleTo("../")); // Dashboard is "/"
+
+const sendToAnalysis = document.createElement("button");
+sendToAnalysis.className = "play-btn";
+sendToAnalysis.type = "button";
+sendToAnalysis.textContent = "Send to Analysis →";
+sendToAnalysis.setAttribute("aria-label", "Send the current scale to the Analysis page and open it.");
+sendToAnalysis.addEventListener("click", () => sendCurrentScaleTo("./analysis")); // /pages/analysis
+
+const actionRow = document.createElement("div");
+actionRow.className = "generate-actions";
+actionRow.append(sendToDashboard, sendToAnalysis);
+display(actionRow);
+```
+
+```ts
 // Floating Stop button — visible only when synth.activeVoices > 0 (driven by the
 // activeVoices polling in the synth cell above). Esc keyboard shortcut is bound
 // globally in the synth cell (Pitfall #11). Copied verbatim from analysis.md
