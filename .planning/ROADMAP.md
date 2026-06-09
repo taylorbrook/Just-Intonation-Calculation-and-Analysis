@@ -36,7 +36,7 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 
 **Milestone Goal:** A dedicated Generate surface where the user produces JI / tempered / harmonic scales by many methods and loads named scales from the Scala archive — auditioning any result and pushing it live into the Dashboard and Analysis.
 
-- [ ] **Phase 5: Generate Surface & Live Integration Foundation** - The `/pages/generate` tab, the additive `scale-store`, and the empty-store boot-equivalence gate
+- [x] **Phase 5: Generate Surface & Live Integration Foundation** - The `/pages/generate` tab, the additive `scale-store`, and the empty-store boot-equivalence gate (completed 2026-06-09)
 - [ ] **Phase 6: Exact-Rational JI & Harmonic Generators** - CPS, harmonic/subharmonic/ADO/isoharmonic, diamond/odd/prime/Farey sets, EDO/ED-n
 - [ ] **Phase 7: SonicWeave Adapter — Tempered, Lattice & Free-Text** - Rank-2, well-temperament, Fokker blocks, and a free-text SonicWeave escape hatch
 - [ ] **Phase 8: Preview, Transforms & Advanced Generators** - Circle-of-pitches viz, rotate/reduce/dedupe/transpose strip, tempered distinction, Wilson/metallic + constant-structure
@@ -56,8 +56,8 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
   5. Data flow is strictly one-way: only "Send to…" writes the store; consumer pages only read at boot and listen for the change event (no write-back, no feedback loop).
 **Plans**: 3 plans (2 waves)
   - [x] 05-01-PLAN.md — Pure additive `scale-store` (constants, read/write/validate/cap, CustomEvent, `resolveInitialScaleText`) + the R1 empty-store boot-equivalence gate (RED→GREEN first) [Wave 1, TDD]
-  - [ ] 05-02-PLAN.md — `generate.md` synth-owning page: family-grouped picker, params/preview host swap, one live reference method, audition, Send-to buttons + nav registration [Wave 2]
-  - [ ] 05-03-PLAN.md — Additive consumer opt-in on Dashboard + Analysis (boot via `resolveInitialScaleText`, textarea split, scale-changed listener; one-way data flow) [Wave 2, gated by R1]
+  - [x] 05-02-PLAN.md — `generate.md` synth-owning page: family-grouped picker, params/preview host swap, one live reference method, audition, Send-to buttons + nav registration [Wave 2]
+  - [x] 05-03-PLAN.md — Additive consumer opt-in on Dashboard + Analysis (boot via `resolveInitialScaleText`, textarea split, scale-changed listener; one-way data flow) [Wave 2, gated by R1]
 
 ### Phase 6: Exact-Rational JI & Harmonic Generators
 **Goal**: The JI core the user cares about most ships as transparent, BigInt-exact kernel primitives, each surfaced as a method widget in the picker — plus the first tempered family (EDO/ED-n), which establishes the "tempered, not laundered JI" representation.
@@ -117,7 +117,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 2. Math Kernel + Composition Anchor (MVP)  | v1.0 | 7/7 | Complete    | 2026-05-04 |
 | 3. Visualization + Mobile Audio Audit      | v1.0 | 7/7 | Complete    | 2026-05-06 |
 | 4. Analysis & Sharing                      | v1.0 | 7/7 | Complete    | 2026-05-06 |
-| 5. Generate Surface & Live Integration Foundation | v1.1 | 1/3 | In Progress|  |
+| 5. Generate Surface & Live Integration Foundation | v1.1 | 3/3 | Complete   | 2026-06-09 |
 | 6. Exact-Rational JI & Harmonic Generators | v1.1 | 0/TBD | Not started | - |
 | 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 0/TBD | Not started | - |
 | 8. Preview, Transforms & Advanced Generators | v1.1 | 0/TBD | Not started | - |
