@@ -54,7 +54,10 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
   3. User can click "Send to Dashboard" or "Send to Analysis" and the generated scale loads live on that page, persisting across reload via the shared store and the existing `#s=` deep-link hash.
   4. With no scale ever sent (empty store), Dashboard and Analysis boot byte-identically to v1.0 — proven by the R1 empty-store boot-equivalence regression test, which is RED→GREEN before any "Send to…" wiring exists.
   5. Data flow is strictly one-way: only "Send to…" writes the store; consumer pages only read at boot and listen for the change event (no write-back, no feedback loop).
-**Plans**: TBD
+**Plans**: 3 plans (2 waves)
+  - [ ] 05-01-PLAN.md — Pure additive `scale-store` (constants, read/write/validate/cap, CustomEvent, `resolveInitialScaleText`) + the R1 empty-store boot-equivalence gate (RED→GREEN first) [Wave 1, TDD]
+  - [ ] 05-02-PLAN.md — `generate.md` synth-owning page: family-grouped picker, params/preview host swap, one live reference method, audition, Send-to buttons + nav registration [Wave 2]
+  - [ ] 05-03-PLAN.md — Additive consumer opt-in on Dashboard + Analysis (boot via `resolveInitialScaleText`, textarea split, scale-changed listener; one-way data flow) [Wave 2, gated by R1]
 
 ### Phase 6: Exact-Rational JI & Harmonic Generators
 **Goal**: The JI core the user cares about most ships as transparent, BigInt-exact kernel primitives, each surfaced as a method widget in the picker — plus the first tempered family (EDO/ED-n), which establishes the "tempered, not laundered JI" representation.
