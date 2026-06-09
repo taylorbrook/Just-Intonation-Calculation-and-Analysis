@@ -46,7 +46,7 @@
 
 ## Summary
 
-Phase 5 is a **plumbing-and-surface phase**, not a generator phase. It lands three things and nothing more: (1) a new `src/pages/generate.md` page that owns a synth, hosts a family-grouped method picker, and has empty params + preview hosts; (2) a pure `src/lib/scale-store.ts` — the exact carve-out twin of the already-shipped `src/theme/theme-prefs.ts` — that broadcasts a `CustomEvent` over a namespaced `localStorage` key; and (3) the additive opt-in on `src/index.md` (Dashboard) and `src/pages/analysis.md` (Analysis) plus the "Send to…" buttons. The defining constraint is success criterion #4: **with an empty store, Dashboard and Analysis must boot byte-identically to v1.0**, proven by an R1 regression test that goes RED→GREEN before any "Send to…" wiring exists.
+Phase 5 is a **plumbing-and-surface phase**, not a generator phase. It lands three things and nothing more: (1) a new `src/pages/generate.md` page that owns a synth, hosts a family-grouped method picker, and has empty params + preview hosts; (2) a pure `src/state/scale-store.ts` — the exact carve-out twin of the already-shipped `src/theme/theme-prefs.ts` — that broadcasts a `CustomEvent` over a namespaced `localStorage` key; and (3) the additive opt-in on `src/index.md` (Dashboard) and `src/pages/analysis.md` (Analysis) plus the "Send to…" buttons. The defining constraint is success criterion #4: **with an empty store, Dashboard and Analysis must boot byte-identically to v1.0**, proven by an R1 regression test that goes RED→GREEN before any "Send to…" wiring exists.
 
 The single most important finding for planning the R1 gate: the boot logic in both pages is a **pure `??` expression** (`hashDecoded ?? seedText`), and Vitest already runs in the `node` environment with an established `vi.stubGlobal("localStorage", …)` pattern (see `theme-prefs.test.ts`). Therefore the correct, lowest-risk way to make boot precedence testable is to extract a one-line pure helper `resolveInitialScaleText(hashDecoded, stored, seedText)` returning `hashDecoded ?? stored?.text ?? seedText`, and have R1 assert that **when `stored === null`, the helper returns byte-identically what `hashDecoded ?? seedText` returns today**. This proves the new `??` clause is inert when the store is empty — which is exactly the SYNC-04 guarantee. The RED state is produced by writing the test (and the page edits) before the helper handles the empty case correctly, or more practically by writing the helper's spec first; GREEN is the helper landing with the precedence rule. No DOM is needed for R1 — it is a pure-function test in the `node` environment.
 
@@ -58,7 +58,7 @@ A subtle but load-bearing detail discovered by reading the actual files: **the D
 
 | Capability | Primary Tier | Secondary Tier | Rationale |
 |------------|-------------|----------------|-----------|
-| Shared "current scale" state (read/validate/constants) | Kernel-adjacent pure module (`src/lib/scale-store.ts`) | Pages (opt-in listeners) | Mirrors `theme-prefs.ts` carve-out: constants + pure read/validate; the ONE allowed shared dep between page and store. No DOM, no top-level side effects. |
+| Shared "current scale" state (read/validate/constants) | Kernel-adjacent pure module (`src/state/scale-store.ts`) | Pages (opt-in listeners) | Mirrors `theme-prefs.ts` carve-out: constants + pure read/validate; the ONE allowed shared dep between page and store. No DOM, no top-level side effects. |
 | Boot-precedence resolution (`hash ?? store ?? seed`) | Kernel pure helper (`resolveInitialScaleText` in `scale-store.ts`) | Pages (call at boot) | A pure 1-line function makes the precedence unit-testable without a page/DOM — this is what the R1 gate asserts against. |
 | Store WRITE + `CustomEvent` broadcast | Page boundary (`generate.md` "Send to…" buttons) | — | One-way data flow: ONLY the producer writes. Lives at the page layer because it has side effects (localStorage write + event dispatch). |
 | Live update on consumers | Page (`index.md` / `analysis.md` listener cells) | — | Additive cell per page: listen for `scale-changed`, write the textarea via a synthetic `input` event, never write the store. |
@@ -176,12 +176,13 @@ A subtle but load-bearing detail discovered by reading the actual files: **the D
 
 ```
 src/
-├── lib/
+├── state/                      # NEW dir (D-08)
 │   ├── scale-store.ts          # NEW — constants + readSharedScale/writeSharedScale
 │   │                           #       + resolveInitialScaleText (pure helper)
+│   └── __tests__/
+│       └── scale-store.test.ts # NEW — store read/write/validate/cap/throws + CustomEvent
+├── lib/
 │   ├── url.ts                  # UNCHANGED (reuse MAX_SCALE_TEXT_BYTES, encode/decode)
-│   ├── __tests__/
-│   │   └── scale-store.test.ts # NEW — store read/write/validate/cap/throws + CustomEvent
 │   └── INVENTORY.md            # +1 section "Phase 5 — scale generation foundation"
 ├── __tests__/
 │   └── scale-store-boot.test.ts# NEW — THE R1 GATE (pure resolveInitialScaleText)
@@ -203,7 +204,7 @@ observablehq.config.ts          # EDIT — +1 nav page "Generate" between Analys
 
 ```ts
 // Source: structure mirrored from src/theme/theme-prefs.ts (read this session) + url.ts MAX_SCALE_TEXT_BYTES.
-import { MAX_SCALE_TEXT_BYTES } from "./url.js";
+import { MAX_SCALE_TEXT_BYTES } from "../lib/url.js";   // store lives in src/state/ (D-08); url.ts is in src/lib/
 
 export const SCALE_STORAGE_KEY = "tuning-systems:scale";            // namespaced — regression-guarded by a test
 export const SCALE_CHANGED_EVENT = "tuning-systems:scale-changed";  // CustomEvent name — regression-guarded by a test
@@ -441,7 +442,7 @@ previewHost.replaceChildren(scaleTable(placeholderScale, 440), playScale(placeho
 ```ts
 // Source: pattern of src/__tests__/dashboard-seed.test.ts (pure, node env, no DOM).
 import { describe, it, expect } from "vitest";
-import { resolveInitialScaleText } from "../lib/scale-store.js";
+import { resolveInitialScaleText } from "../state/scale-store.js";
 
 describe("R1: empty-store boot equivalence (SYNC-04)", () => {
   const seed = "9/8\n2/1";
@@ -468,7 +469,7 @@ describe("R1: empty-store boot equivalence (SYNC-04)", () => {
 ```ts
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from "vitest";
-import { writeSharedScale, SCALE_CHANGED_EVENT } from "../scale-store.js";
+import { writeSharedScale, SCALE_CHANGED_EVENT } from "../scale-store.js"; // test in src/state/__tests__/ → src/state/scale-store.js
 
 it("writeSharedScale dispatches a CustomEvent with detail { text, source }", () => {
   const handler = vi.fn();
@@ -552,11 +553,11 @@ it("writeSharedScale dispatches a CustomEvent with detail { text, source }", () 
 |--------|----------|-----------|-------------------|-------------|
 | SYNC-04 | **R1: empty store ⇒ `resolveInitialScaleText` ≡ `hash ?? seed` (byte-identical boot)** | unit (node) | `npx vitest run src/__tests__/scale-store-boot.test.ts` | ❌ Wave 0 (the gate) |
 | SYNC-04 | Precedence C-3: hash beats store beats seed | unit (node) | `npx vitest run src/__tests__/scale-store-boot.test.ts` | ❌ Wave 0 |
-| SYNC-01/02/03 | `writeSharedScale` then `readSharedScale` round-trips `{text, source}` | unit (node) | `npx vitest run src/lib/__tests__/scale-store.test.ts` | ❌ Wave 0 |
-| SYNC-01/02/03 | Store key + event-name constants are the exact namespaced strings (regression guard) | unit (node) | `npx vitest run src/lib/__tests__/scale-store.test.ts` | ❌ Wave 0 |
-| SYNC-* | `readSharedScale` returns `null` on absent / malformed JSON / wrong shape / array / primitive / oversized | unit (node) | `npx vitest run src/lib/__tests__/scale-store.test.ts` | ❌ Wave 0 |
-| SYNC-* | `localStorage` throws (stub getItem/setItem) ⇒ read `null`, write silent no-op | unit (node) | `npx vitest run src/lib/__tests__/scale-store.test.ts` | ❌ Wave 0 |
-| SYNC-01/02 | `writeSharedScale` dispatches `CustomEvent(SCALE_CHANGED_EVENT)` with `detail {text, source}` | unit (happy-dom) | `npx vitest run src/lib/__tests__/scale-store.test.ts` | ❌ Wave 0 |
+| SYNC-01/02/03 | `writeSharedScale` then `readSharedScale` round-trips `{text, source}` | unit (node) | `npx vitest run src/state/__tests__/scale-store.test.ts` | ❌ Wave 0 |
+| SYNC-01/02/03 | Store key + event-name constants are the exact namespaced strings (regression guard) | unit (node) | `npx vitest run src/state/__tests__/scale-store.test.ts` | ❌ Wave 0 |
+| SYNC-* | `readSharedScale` returns `null` on absent / malformed JSON / wrong shape / array / primitive / oversized | unit (node) | `npx vitest run src/state/__tests__/scale-store.test.ts` | ❌ Wave 0 |
+| SYNC-* | `localStorage` throws (stub getItem/setItem) ⇒ read `null`, write silent no-op | unit (node) | `npx vitest run src/state/__tests__/scale-store.test.ts` | ❌ Wave 0 |
+| SYNC-01/02 | `writeSharedScale` dispatches `CustomEvent(SCALE_CHANGED_EVENT)` with `detail {text, source}` | unit (happy-dom) | `npx vitest run src/state/__tests__/scale-store.test.ts` | ❌ Wave 0 |
 | SYNC-* (R2) | Consumer listener performs NO store write (one-way data flow) | unit/manual | manual two-tab; optional happy-dom test that the listener calls no `setItem` | ❌ Wave 0 |
 | SYNC-04 | Existing dashboard-seed + url-hash round-trip tests still pass (no regression) | unit (existing) | `npx vitest run src/__tests__/dashboard-seed.test.ts src/__tests__/url-hash-integration.test.ts` | ✅ exists |
 | SURF-01 | `/pages/generate` compiles; nav shows Generate between Analysis and Theory | build/manual | `npm run build`; `npm run dev` → visit `/pages/generate` | ❌ Wave 0 |
@@ -569,8 +570,8 @@ it("writeSharedScale dispatches a CustomEvent with detail { text, source }", () 
 - **Phase gate:** full suite green (incl. R1 + the unchanged dashboard-seed / url-hash tests) + lint + build before `/gsd:verify-work`.
 
 ### Wave 0 Gaps
-- [ ] `src/lib/scale-store.ts` — the module under test (constants + read/write/validate + `resolveInitialScaleText`)
-- [ ] `src/lib/__tests__/scale-store.test.ts` — store read/write/validate/cap/throws (node) + `CustomEvent` dispatch (happy-dom). Mirror `theme-prefs.test.ts` branch coverage.
+- [ ] `src/state/scale-store.ts` — the module under test (D-08 location) (constants + read/write/validate + `resolveInitialScaleText`)
+- [ ] `src/state/__tests__/scale-store.test.ts` — store read/write/validate/cap/throws (node) + `CustomEvent` dispatch (happy-dom). Mirror `theme-prefs.test.ts` branch coverage.
 - [ ] `src/__tests__/scale-store-boot.test.ts` — **the R1 boot-equivalence gate** (pure, node). RED→GREEN before any Send-to wiring.
 - [ ] (No new test framework install needed — Vitest + happy-dom already present.)
 

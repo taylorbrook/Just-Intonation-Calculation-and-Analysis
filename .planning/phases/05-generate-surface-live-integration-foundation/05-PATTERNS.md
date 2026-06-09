@@ -6,6 +6,8 @@
 
 All file references below were read at repo HEAD this session. Line numbers are accurate as of read. Per CLAUDE.md: TypeScript modules are imported with the `.js` extension (Framework transpiles `.ts` → `.js`); BigInt `Fraction` is the source of truth; no top-level `AudioContext`; R-01 ESLint bans `Fraction` from `xen-dev-utils`.
 
+> **D-08 (LOCKED) path note:** the shared store lives at **`src/state/scale-store.ts`** (new `src/state/` dir), NOT `src/lib/`. All references below use `src/state/scale-store.ts`. Import paths: `./state/scale-store.js` from `src/index.md` (repo root); `../state/scale-store.js` from `src/pages/*.md` (under `/pages`); `../lib/url.js` for the `MAX_SCALE_TEXT_BYTES` import inside the store module.
+
 ---
 
 ## File Classification
@@ -13,11 +15,11 @@ All file references below were read at repo HEAD this session. Line numbers are 
 | New/Modified File | Status | Role | Data Flow | Closest Analog | Match Quality |
 |-------------------|--------|------|-----------|----------------|---------------|
 | `src/pages/generate.md` | NEW | page (reactive cells) | request-response + event-driven (producer) | `src/pages/analysis.md` | exact (sibling builder page) |
-| `src/lib/scale-store.ts` | NEW | store / pure state module | pub-sub (localStorage + CustomEvent) | `src/theme/theme-prefs.ts` | exact (carve-out twin) |
+| `src/state/scale-store.ts` | NEW | store / pure state module | pub-sub (localStorage + CustomEvent) | `src/theme/theme-prefs.ts` | exact (carve-out twin) |
 | `src/index.md` | EDIT (additive) | page / consumer | event-driven (subscribe) + boot-precedence | self (boot line 78) + Pattern 3 below | exact |
 | `src/pages/analysis.md` | EDIT (additive) | page / consumer | event-driven (subscribe) + boot-precedence | self (boot line 70) + Pattern 3 below | exact |
 | `observablehq.config.ts` | EDIT (additive) | config / nav | n/a (static registration) | self (`pages[]` + `header`) | exact |
-| `src/lib/__tests__/scale-store.test.ts` | NEW | test (unit) | n/a | `src/theme/__tests__/theme-prefs.test.ts` | exact |
+| `src/state/__tests__/scale-store.test.ts` | NEW | test (unit) | n/a | `src/theme/__tests__/theme-prefs.test.ts` | exact |
 | `src/__tests__/scale-store-boot.test.ts` | NEW | test (unit, R1 gate) | n/a | `src/__tests__/dashboard-seed.test.ts` | exact (pure node-env) |
 
 Reused-verbatim (NOT edited, no analog needed — compose into `generate.md`): `scaleTable` (`src/components/scale-table.ts`), `playScale` (`src/components/play-scale.ts`), `createSynth` (`src/audio/synth.ts`), `encodeScaleToHash`/`decodeHashToScale`/`MAX_SCALE_TEXT_BYTES` (`src/lib/url.ts`, UNCHANGED).
@@ -38,9 +40,9 @@ import { createSynth } from "../audio/synth.js";
 import { scaleTable } from "../components/scale-table.js";
 import { playScale } from "../components/play-scale.js";
 import { encodeScaleToHash } from "../lib/url.js";
-import { writeSharedScale } from "../lib/scale-store.js";
+import { writeSharedScale } from "../state/scale-store.js";   // D-08: store is under src/state/
 ```
-Note the `.js` extension on every `.ts` module (Framework convention, CLAUDE.md). `generate.md` lives at `/pages/` so paths are `../lib/...` exactly like `analysis.md`.
+Note the `.js` extension on every `.ts` module (Framework convention, CLAUDE.md). `generate.md` lives at `/pages/` so paths are `../lib/...` / `../state/...` exactly like `analysis.md`.
 
 **Synth-cell pattern (copy VERBATIM)** — `analysis.md` lines 27–38. This is the page-owned AudioContext (Pattern 4 / Pitfall #2). Esc-panic + activeVoices poll are bound HERE, not in any scale cell (Pitfall #11), and `invalidation.then()` consolidates cleanup:
 ```ts
@@ -72,19 +74,27 @@ Per UI-SPEC line 175 this is the Phase-5 demo/placeholder scale. Plain JI — do
 
 > D-06 reconciliation: Phase 5 wires ONE real exact-rational method (recommended: harmonic-segment `n:n+1:…:2n`, a single integer param). The placeholder seed above is the simplest pipeline-proving render; the live reference method is the discretionary D-13 upgrade that makes "preview updates as params change" genuinely demonstrable.
 
-**Method picker pattern (NEW — Framework `Inputs.select` with grouped `Map`)** — RESEARCH lines 414–425; UI-SPEC lines 108–111, 203. Family labels and copy are LOCKED in UI-SPEC:
+**Method picker pattern (NEW — one `<optgroup>` per family, AUTHORITATIVE per D-04 / UI-SPEC)** — RESEARCH lines 414–425; UI-SPEC lines 108–111, 203. The picker MUST render **four `<optgroup>` elements** (one per family) with the locked labels, plus the leading `— pick a method —` placeholder option.
+
+> ⚠️ **Illustrative-only caution:** A flat `Inputs.select(new Map([...]))` that puts the family label inside the option TEXT (e.g. `["Harmonic: (coming soon)", "harmonic-placeholder"]`) is the WRONG shape — it produces a single ungrouped list with NO `<optgroup>` elements, violating D-04. Do not copy that form. Use a grouped form that emits real `<optgroup>`s. Two acceptable approaches:
+
+Approach A — `Inputs.select` with a `Map` + a grouping/format that produces optgroups (Observable Inputs supports grouping a `Map<groupLabel, options>` / nested structure). Keys are the four family labels; each value is that family's option(s):
 ```ts
+// Map keyed by family label → that family's option ids/labels (produces <optgroup> per key)
 const method = view(Inputs.select(
   new Map([
-    ["— pick a method —", ""],
-    ["Regular / equal temperament: (coming soon)", "regular-placeholder"],
-    ["JI combinatorial: (coming soon)", "ji-placeholder"],
-    ["Harmonic & interval divisions: (coming soon)", "harmonic-placeholder"],
-    ["Advanced / algorithmic: (coming soon)", "advanced-placeholder"],
+    ["Regular / equal temperament", ["regular-placeholder"]],
+    ["JI combinatorial", ["ji-placeholder"]],
+    ["Harmonic & interval divisions", ["harmonic-segment"]],   // the one functional reference method
+    ["Advanced / algorithmic", ["advanced-placeholder"]],
   ]),
-  { label: "Method" },
+  { label: "Method", format: /* map id → display label, incl. "(coming soon)" for placeholders */ },
 ));
 ```
+
+Approach B — build the native `<select>` directly with four `document.createElement("optgroup")` (one per family, `optgroup.label` = the locked family string), append each family's `<option>`s, prepend the `— pick a method —` option, then wrap so `view()` yields the selected method id. This is the most explicit way to guarantee exactly four `<optgroup>`s.
+
+Whichever approach: the only functional option is `harmonic-segment` under `Harmonic & interval divisions`; the other three families carry `(coming soon)` placeholder options. **Verify at runtime: `document.querySelectorAll("optgroup").length === 4`.**
 
 **Params-host / preview-host swap MECHANISM (NEW — the deliverable)** — RESEARCH lines 427–438; UI-SPEC lines 173, 204. `display()` returns the element so later cells can `replaceChildren` into it:
 ```ts
@@ -140,13 +150,13 @@ const baseHz = view(Inputs.number({ value: 440, step: 0.01, label: "Reference pi
 
 ---
 
-### `src/lib/scale-store.ts` (store, pub-sub)
+### `src/state/scale-store.ts` (store, pub-sub)
 
-**Analog:** `src/theme/theme-prefs.ts` — the exact carve-out twin. Mirror its structure: namespaced key constant + event-name constant + try/catch read that never throws and returns `null`/default on any failure. The file is "the ONE allowed shared dependency between page and store" (`theme-prefs.ts` doc lines 17–23).
+**Analog:** `src/theme/theme-prefs.ts` — the exact carve-out twin. Mirror its structure: namespaced key constant + event-name constant + try/catch read that never throws and returns `null`/default on any failure. The file is "the ONE allowed shared dependency between page and store" (`theme-prefs.ts` doc lines 17–23). Per D-08 it lives at `src/state/scale-store.ts` (new `src/state/` dir).
 
-**Constants pattern** — `theme-prefs.ts` lines 44, 48 (`THEME_PREFS_STORAGE_KEY`, `THEME_PREFS_EVENT`). Reuse the 8 KB cap from `url.ts` (do NOT invent a second literal):
+**Constants pattern** — `theme-prefs.ts` lines 44, 48 (`THEME_PREFS_STORAGE_KEY`, `THEME_PREFS_EVENT`). Reuse the 8 KB cap from `url.ts` (do NOT invent a second literal; import path is `../lib/url.js` from `src/state/`):
 ```ts
-import { MAX_SCALE_TEXT_BYTES } from "./url.js";   // = 8192, single source of truth
+import { MAX_SCALE_TEXT_BYTES } from "../lib/url.js";   // = 8192, single source of truth (store is in src/state/)
 export const SCALE_STORAGE_KEY = "tuning-systems:scale";
 export const SCALE_CHANGED_EVENT = "tuning-systems:scale-changed";
 export interface SharedScale { text: string; source?: string; }
@@ -210,7 +220,7 @@ export function resolveInitialScaleText(
 // was: const seedText = hashDecoded ?? seedTextLiteral;
 const seedText = resolveInitialScaleText(hashDecoded, readSharedScale(), seedTextLiteral);
 ```
-Add the import `import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT } from "./lib/scale-store.js";` to the import cell (lines 10–23). NOTE the path is `./lib/...` here (Dashboard is at root), vs `../lib/...` on the `/pages` pages.
+Add the import `import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT } from "./state/scale-store.js";` to the import cell (lines 10–23). The store is at `src/state/scale-store.ts` (D-08) and the Dashboard is at the repo root, so the path is `./state/...` (NOT `./lib/...`).
 
 **Textarea split (line 84–89)** — required so the listener can reach the element. The current cell discards the element by inlining `view(Inputs.textarea(...))`. Split into a captured element + `view` pair (RESEARCH Pitfall 3, lines 374–379):
 ```ts
@@ -244,7 +254,7 @@ const scaleText = view(scaleInput);   // value generator flows IDENTICALLY to be
 // was: const initialScaleText = hashDecoded ?? seedText;
 const initialScaleText = resolveInitialScaleText(hashDecoded, readSharedScale(), seedText);
 ```
-Add the import `import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT } from "../lib/scale-store.js";` to the import cell (lines 5–15). Path is `../lib/...` here.
+Add the import `import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT } from "../state/scale-store.js";` to the import cell (lines 5–15). The page is under `/pages` and the store is at `src/state/scale-store.ts` (D-08), so the path is `../state/...`.
 
 **Textarea split (lines 88–93)** — same refactor as Dashboard, feeding `initialScaleText`:
 ```ts
@@ -271,7 +281,7 @@ const scaleText = view(scaleInput);
 
 ---
 
-### `src/lib/__tests__/scale-store.test.ts` (test — NEW)
+### `src/state/__tests__/scale-store.test.ts` (test — NEW)
 
 **Analog:** `src/theme/__tests__/theme-prefs.test.ts` (read this session). Mirror its structure exactly:
 - **Constant regression guards** (theme-prefs.test.ts lines 19–37): assert `SCALE_STORAGE_KEY === "tuning-systems:scale"` and `SCALE_CHANGED_EVENT === "tuning-systems:scale-changed"` (renaming silently breaks persistence).
@@ -279,7 +289,7 @@ const scaleText = view(scaleInput);
 - **Round-trip** `writeSharedScale` then `readSharedScale` yields `{text, source}`.
 - **CustomEvent dispatch** in a `// @vitest-environment happy-dom` block (RESEARCH lines 468–481): `writeSharedScale` fires one `CustomEvent(SCALE_CHANGED_EVENT)` with `detail {text, source}`.
 
-Node env is the default (`vitest.config.ts` `environment: "node"`); happy-dom is opted-in per-file for the DOM/event test.
+Node env is the default (`vitest.config.ts` `environment: "node"`); happy-dom is opted-in per-file for the DOM/event test. The test lives at `src/state/__tests__/` and `vitest.config.ts` `test.include` must be extended to cover `src/state/**` (Plan 01 Task 2).
 
 ---
 
@@ -288,7 +298,7 @@ Node env is the default (`vitest.config.ts` `environment: "node"`); happy-dom is
 **Analog:** `src/__tests__/dashboard-seed.test.ts` (pure, node env, no DOM). RESEARCH lines 440–465. This is the wave gate: RED → GREEN **before any "Send to …" wiring exists**. Asserts the SYNC-04 invariant — empty-store boot ≡ today's `hash ?? seed` — plus the C-3 precedence (hash beats store beats seed) and never-throws-on-null:
 ```ts
 import { describe, it, expect } from "vitest";
-import { resolveInitialScaleText } from "../lib/scale-store.js";
+import { resolveInitialScaleText } from "../state/scale-store.js";   // D-08: store under src/state/
 // empty store: resolveInitialScaleText(null, null, seed) === seed; (hash, null, seed) === hash
 // precedence: (hash, stored, seed) === hash; (null, stored, seed) === stored.text; (null, null, seed) === seed
 ```
@@ -311,11 +321,11 @@ import { resolveInitialScaleText } from "../lib/scale-store.js";
 
 ### `#s=` hash transport (UNCHANGED `url.ts`)
 **Source:** `src/lib/url.ts` — `encodeScaleToHash`/`decodeHashToScale` (lines 46–92), `MAX_SCALE_TEXT_BYTES = 8192` (line 43), version byte, 8 KB / 16 KB caps. The existing producer precedent is `index.md` lines 208–216 ("Analyze this scale →").
-**Apply to:** `scale-store.ts` length cap (import the constant — do not re-declare `8192`) and the Send-to navigation (reuse the codec verbatim). Phase 5 changes nothing in `url.ts`.
+**Apply to:** `scale-store.ts` length cap (import the constant from `../lib/url.js` — do not re-declare `8192`) and the Send-to navigation (reuse the codec verbatim). Phase 5 changes nothing in `url.ts`.
 
 ### Namespaced-localStorage + CustomEvent state (the carve-out twin)
 **Source:** `src/theme/theme-prefs.ts` (whole file — namespaced key + event-name constants + try/catch read that returns default and never throws).
-**Apply to:** `scale-store.ts` structure 1:1. Three-layer purity held: no DOM, no top-level side effects in the read path; the write path's `localStorage.setItem` + `dispatchEvent` are the only side effects.
+**Apply to:** `src/state/scale-store.ts` structure 1:1. Three-layer purity held: no DOM, no top-level side effects in the read path; the write path's `localStorage.setItem` + `dispatchEvent` are the only side effects.
 
 ### One-way data flow (R2 guard — HARD constraint)
 **Source:** design constraint, RESEARCH lines 322–324, 367–372; UI-SPEC line 217.
@@ -325,12 +335,13 @@ import { resolveInitialScaleText } from "../lib/scale-store.js";
 
 ## No Analog Found
 
-None. Every new and edited file has a verified in-repo analog at HEAD. The only genuinely novel code is small and pattern-derived: `scale-store.ts` (a `theme-prefs.ts` clone + the `MAX_SCALE_TEXT_BYTES` import + the one-line `resolveInitialScaleText`), the `generate.md` shell (composed from `analysis.md` cells + the new grouped `Inputs.select` and host-div swap), and the two additive consumer edits. The reference exact-rational generator method (D-06/D-13, e.g. harmonic-segment) is the one piece with no direct analog — but it composes the same `Interval`/`Scale` → `scaleTable`+`playScale` path that `mos-builder.ts` already demonstrates, so the planner should follow the `mos-builder.ts` Pattern-2 factory shape (closure-local state, `replaceChildren` re-render) if it is built as a factory rather than inline cells.
+None. Every new and edited file has a verified in-repo analog at HEAD. The only genuinely novel code is small and pattern-derived: `src/state/scale-store.ts` (a `theme-prefs.ts` clone + the `MAX_SCALE_TEXT_BYTES` import + the one-line `resolveInitialScaleText`), the `generate.md` shell (composed from `analysis.md` cells + the new grouped `Inputs.select`/native-optgroup picker and host-div swap), and the two additive consumer edits. The reference exact-rational generator method (D-06/D-13, e.g. harmonic-segment) is the one piece with no direct analog — but it composes the same `Interval`/`Scale` → `scaleTable`+`playScale` path that `mos-builder.ts` already demonstrates, so the planner should follow the `mos-builder.ts` Pattern-2 factory shape (closure-local state, `replaceChildren` re-render) if it is built as a factory rather than inline cells.
 
 ---
 
 ## Metadata
 
-**Analog search scope:** `src/pages/`, `src/lib/`, `src/theme/`, `src/components/`, `src/audio/`, `src/__tests__/`, `observablehq.config.ts`.
+**Analog search scope:** `src/pages/`, `src/lib/`, `src/state/`, `src/theme/`, `src/components/`, `src/audio/`, `src/__tests__/`, `observablehq.config.ts`.
 **Files scanned / read at HEAD:** `src/pages/analysis.md`, `src/index.md`, `src/theme/theme-prefs.ts`, `src/theme/__tests__/theme-prefs.test.ts`, `src/components/mos-builder.ts`, `src/lib/url.ts`, `observablehq.config.ts` (+ directory listings confirming `scale-table.ts`, `play-scale.ts`, `synth.ts`, `scale.ts`, `scala.ts`, `dashboard-seed.test.ts`, `url-hash-integration.test.ts`).
 **Pattern extraction date:** 2026-06-08
+</content>
