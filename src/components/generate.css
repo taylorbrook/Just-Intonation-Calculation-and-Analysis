@@ -1,0 +1,57 @@
+/*
+ * generate.css — Generate surface page shell (Phase 5 SURF-01/02/03).
+ * Phase 3 D-25 colocation convention. Loaded via @import in src/styles.css.
+ *
+ * Design notes (05-UI-SPEC.md):
+ *   - 16px input font-size is set globally in styles.css to suppress iOS
+ *     auto-zoom (Phase 3 D-17); this stylesheet does NOT override it.
+ *   - Single-column vertical stack at all widths (inherited D-17 — no
+ *     min-width breakpoints).
+ *   - Spacing rhythm {8,12,16,24,32}; 12px house field gap.
+ *   - Accent (--theme-blue) is reserved for .play-btn CTAs / focus only; host
+ *     borders + field labels use neutral foreground tokens (UI-SPEC line 90).
+ *   - The page otherwise composes from existing classes (.play-btn,
+ *     .dashboard-helper, .dashboard-error, .stop-all-audio).
+ */
+
+.generate-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-block: 8px;
+  font-family: var(--sans-serif);
+}
+
+.generate-field__label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+}
+
+.generate-host {
+  margin-block: 16px;
+}
+
+.generate-host--params {
+  border: 1px solid var(--theme-foreground-faint);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.generate-host--params .dashboard-helper {
+  margin: 0;
+}
+
+.generate-host--preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Send-to action row — two .play-btn CTAs, 12px gap, wraps on narrow widths,
+ * 32px (2xl) margin-block above to separate from the preview (UI-SPEC line 176). */
+.generate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block: 32px 16px;
+}
