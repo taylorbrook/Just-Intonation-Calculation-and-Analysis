@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
 stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-06-09T02:36:43.032Z"
-last_activity: 2026-06-09 -- Phase 05 planning complete
+last_updated: "2026-06-09T06:07:30.612Z"
+last_activity: 2026-06-09 -- Phase 05 execution started
 progress:
   total_phases: 5
   completed_phases: 0
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Phase 5 — Generate Surface & Live Integration Foundation (Wave 0: the `/pages/generate` tab, the additive `scale-store`, and the empty-store boot-equivalence gate).
+**Current focus:** Phase 05 — generate-surface-live-integration-foundation
 
 ## Current Position
 
-Phase: 5 of 9 (Generate Surface & Live Integration Foundation) — first phase of v1.1
-Plan: — (ready to plan Phase 5)
-Status: Ready to execute
-Last activity: 2026-06-09 -- Phase 05 planning complete
+Phase: 05 (generate-surface-live-integration-foundation) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 05
+Last activity: 2026-06-09 -- Phase 05 execution started
 
 Progress: [░░░░░░░░░░] 0% (v1.1; v1.0 Phases 1–4 shipped)
 
