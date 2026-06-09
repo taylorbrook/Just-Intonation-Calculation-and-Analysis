@@ -1,10 +1,11 @@
 ---
 phase: 5
 slug: generate-surface-live-integration-foundation
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-08
+reviewed_at: 2026-06-08
 ---
 
 # Phase 5 — UI Design Contract
