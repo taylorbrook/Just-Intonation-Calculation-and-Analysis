@@ -140,10 +140,7 @@ describe("writeSharedScale persistence", () => {
     const setItem = vi.fn();
     vi.stubGlobal("localStorage", { setItem });
     writeSharedScale("5/4\n2/1");
-    expect(setItem).toHaveBeenCalledWith(
-      SCALE_STORAGE_KEY,
-      JSON.stringify({ text: "5/4\n2/1" }),
-    );
+    expect(setItem).toHaveBeenCalledWith(SCALE_STORAGE_KEY, JSON.stringify({ text: "5/4\n2/1" }));
   });
 
   it("is a silent no-op (does not persist) when text exceeds the 8 KB cap", () => {

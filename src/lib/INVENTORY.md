@@ -141,3 +141,22 @@ Note: components live in `src/components/` (not `src/lib/`), but they are listed
 | `scaleCompare` (`src/components/scale-compare.ts`) | Custom (this repo) | ANAL-03 / D-21..D-24/D-27/D-30/D-32/D-33. Three B-sources (preset / paste / .scl). Cents-position alignment (D-23). Common-subset via Interval.equals (BigInt — D-32 / Pitfall #1). Per-row sequential A→B audition (D-30). Observable Plot lollipop (D-24). |
 | `BUILTIN_B_SCALES` (`src/components/scale-compare.ts`) | Custom (this repo) | D-27 — six built-ins: 12tet, 19edo, 31edo, pythagorean-7, 5-limit-7, bohlen-pierce-9. Plain `Record<string, () => Scale>`; lazy construction so the dropdown's "12tet" only allocates a Scale on selection. |
 | `disposeScaleCompare` (`src/components/scale-compare.ts`) | Custom (this repo) | Phase 3 CR-02 panic-clear discipline carried into Phase 4. Page cells call this in `invalidation.then(...)` to drop pending B-note audition setTimeouts and remove the local Esc keydown listener. |
+
+### Phase 5 — scale generation foundation (Plan 05-01 / SYNC-01..04)
+
+Additive shared-scale store at `src/state/scale-store.ts` — the carve-out twin of
+`src/theme/theme-prefs.ts` (it lives under `src/state/`, not `src/lib/`, per D-08).
+**One-way data flow:** ONLY the producer (the Generate page, Plan 02) calls
+`writeSharedScale`; consumers (Dashboard / Analysis, Plan 03) read at boot and
+subscribe to `SCALE_CHANGED_EVENT`. No consumer writes back. Three-layer purity:
+the read path is side-effect-free; the only side effects in the module are the
+`setItem` persist + `dispatchEvent` broadcast inside `writeSharedScale`.
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `SCALE_STORAGE_KEY` (`src/state/scale-store.ts`) | Custom (this repo) | D-08. `"tuning-systems:scale"` — namespaced localStorage key, mirrors `tuning-systems:theme-prefs`. Constant-regression-guarded. |
+| `SCALE_CHANGED_EVENT` (`src/state/scale-store.ts`) | Custom (this repo) | D-08. `"tuning-systems:scale-changed"` — window CustomEvent name; the SYNC-01/02 live-update channel. Constant-regression-guarded. |
+| `readSharedScale` (`src/state/scale-store.ts`) | Custom (this repo) | SYNC-03. Mirrors `readThemePrefs`: globalThis.localStorage guard, JSON.parse, reject array/primitive/non-object, `typeof text !== "string"` → null, 8 KB UTF-8 cap on read → null (T-05-01/02), try/catch → null (T-05-03). Never throws. NO DOM. |
+| `writeSharedScale` (`src/state/scale-store.ts`) | Custom (this repo) | SYNC-01/02 write transport. Two best-effort side effects: persist `{text,source?}` JSON (silent on throw) + dispatch CustomEvent on `window`. Per RESEARCH A2 the event fires EVEN WHEN persistence throws (private-browsing live-update). 8 KB cap → silent no-op (no persist, no event — T-05-02). |
+| `resolveInitialScaleText` (`src/state/scale-store.ts`) | Custom (this repo) | D-12 / SYNC-04 anchor. `hashDecoded ?? stored?.text ?? seedText`. Empty-store boot (`stored === null`) is byte-identical to v1.0 `hash ?? seed` — the R1 gate (`src/__tests__/scale-store-boot.test.ts`). |
+| `MAX_SCALE_TEXT_BYTES` (reused from `src/lib/url.ts`) | Custom (this repo) | D-09. The 8 KB cap is imported, NOT redeclared — single source of truth shared with the `#s=` URL codec. No second serialization. |

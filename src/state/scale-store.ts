@@ -66,3 +66,83 @@ export function resolveInitialScaleText(
 ): string {
   return hashDecoded ?? stored?.text ?? seedText;
 }
+
+/**
+ * Read + validate the persisted shared scale. Mirrors `readThemePrefs` exactly.
+ * Safe — always returns a valid `SharedScale` or `null`, never throws — under:
+ *   - missing localStorage (Node/SSR contexts where the global is undefined)
+ *   - `getItem` throws (private browsing / disabled storage) — T-05-03
+ *   - missing key (`null` return)
+ *   - malformed JSON
+ *   - parsed value being a non-object primitive / array — T-05-01
+ *   - `text` field missing or not a string — T-05-01
+ *   - `text` exceeding the 8 KB UTF-8 cap — T-05-02 (oversized → null)
+ *
+ * NO DOM access here (three-layer purity, read path is side-effect-free).
+ */
+export function readSharedScale(): SharedScale | null {
+  try {
+    const storage = (globalThis as unknown as { localStorage?: Storage }).localStorage;
+    if (!storage) return null;
+    const raw = storage.getItem(SCALE_STORAGE_KEY);
+    if (raw == null) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+    const obj = parsed as Record<string, unknown>;
+    if (typeof obj.text !== "string") return null;
+    // T-05-02: cap the stored text on READ too (defense-in-depth — a tampered
+    // entry could exceed the write cap). UTF-8 byte length, shared cap.
+    if (new TextEncoder().encode(obj.text).length > MAX_SCALE_TEXT_BYTES) {
+      return null;
+    }
+    return typeof obj.source === "string"
+      ? { text: obj.text, source: obj.source }
+      : { text: obj.text };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Persist the shared scale AND broadcast a live-update CustomEvent. The SOLE
+ * transport for SYNC-01/02 — only the producer (Generate page, Plan 02) calls
+ * this; consumers (Plan 03) read at boot + subscribe to `SCALE_CHANGED_EVENT`.
+ *
+ * Two independent best-effort side effects, each wrapped so neither can throw:
+ *   1. Persist `{ text, source? }` JSON under `SCALE_STORAGE_KEY`
+ *      (silent no-op if `setItem` throws — private browsing, T-05-03).
+ *   2. Dispatch `CustomEvent(SCALE_CHANGED_EVENT, { detail: { text, source } })`
+ *      on `window` (guarded by `typeof window !== "undefined"`).
+ *
+ * RESEARCH decision A2: the event fires EVEN WHEN persistence throws, so an
+ * already-open consumer tab still updates live in private browsing. Live-update
+ * is best-effort and independent of persistence.
+ *
+ * T-05-02: text over the 8 KB UTF-8 cap is a silent no-op (no persist, no event).
+ */
+export function writeSharedScale(text: string, source?: string): void {
+  // Oversize guard first — reject before any side effect (no persist, no event).
+  if (new TextEncoder().encode(text).length > MAX_SCALE_TEXT_BYTES) {
+    return;
+  }
+  const payload: SharedScale = source !== undefined ? { text, source } : { text };
+
+  // (1) Persist — silent no-op if storage is absent or throws.
+  try {
+    const storage = (globalThis as unknown as { localStorage?: Storage }).localStorage;
+    if (storage) storage.setItem(SCALE_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // private browsing / quota — swallow; the live broadcast still fires (A2).
+  }
+
+  // (2) Broadcast — independent of (1) per A2. Guarded for DOM-less contexts.
+  try {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(SCALE_CHANGED_EVENT, { detail: payload }));
+    }
+  } catch {
+    // never let a dispatch failure escape into the caller.
+  }
+}
