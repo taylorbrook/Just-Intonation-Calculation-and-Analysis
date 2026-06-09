@@ -44,6 +44,12 @@ export default defineConfig({
       // QUICK-9MN-01 — surface src/theme/ tests for the dark-mode toggle's
       // constants/helpers spec. Matches the per-subsystem glob pattern above.
       "src/theme/**/__tests__/**/*.test.ts",
+      // Phase 5 (05-01) — surface src/state/ tests for the additive shared-scale
+      // store (scale-store.ts). Without this the store spec is silently never
+      // collected and the R1 / Nyquist gate is void. Matches the per-subsystem
+      // glob pattern above.
+      "src/state/**/__tests__/**/*.test.ts",
+      "src/state/**/*.test.ts",
     ],
     exclude: ["node_modules/**", "dist/**", ".observablehq/**", "src/**/*.md"],
     environment: "node",
