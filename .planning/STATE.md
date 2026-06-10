@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-06-10T15:10:20.109Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-06-10T15:18:16.787Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 10
-  completed_plans: 5
+  completed_plans: 6
   percent: 20
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 ## Current Position
 
 Phase: 06 (exact-rational-ji-harmonic-generators) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-06-10
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04-analysis-sharing P07 | 57min | 4 tasks | 5 files |
 | Phase 06-exact-rational-ji-harmonic-generators P01 | 3min | 2 tasks | 3 files |
 | Phase 06-exact-rational-ji-harmonic-generators P04 | 2min | 2 tasks | 3 files |
+| Phase 06-exact-rational-ji-harmonic-generators P02 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -130,6 +131,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 04]: Plan 07: INVENTORY consolidation — appended 15 Phase 4 rows (4 sub-tables: edo/mos/url kernels + components incl. disposeScaleCompare); intermediate plans deferred rows to avoid wave-2 merge conflicts
 - [Phase ?]: [Phase 04]: Plan 07: Both UAT checkpoints (10/10 each) approved — analysis page UAT (synth lifecycle clean, all 4 widgets functional, mobile-responsive) + URL share-path UAT (BigInt round-trip across fresh-tab paste, replaceState back-button cleanliness, malformed-hash D-20 retention)
 - [Phase ?]: [Phase 06]: CPS kernel roots each subset product at the lowest product (Wilson construction) before octave-reduce — canonical Hexany [1/1,7/6,5/4,35/24,5/3,7/4], not raw products
+- [Phase ?]: [Phase 06]: adoScale divides the full [1, equave] span arithmetically — (D·q + k·(p−q))/(D·q) BigInt-exact; equave 2/1 reproduces verified AFDO-6, non-octave equaves land top degree exactly on the equave
 
 ### Pending Todos
 
@@ -212,7 +214,7 @@ Notes:
 
 ## Session Continuity
 
-Last session: 2026-06-10T15:10:20.103Z
-Stopped at: Phase 6 context gathered
+Last session: 2026-06-10T15:18:16.779Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file:
 None
