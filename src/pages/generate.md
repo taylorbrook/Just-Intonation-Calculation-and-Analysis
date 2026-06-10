@@ -10,6 +10,8 @@ import { scaleTable } from "../components/scale-table.js";
 import { playScale } from "../components/play-scale.js";
 import { generateCps } from "../components/generate-cps.js";
 import { generateHarmonic } from "../components/generate-harmonic.js";
+import { generateJiSet } from "../components/generate-ji-set.js";
+import { generateEd } from "../components/generate-ed.js";
 import { encodeScaleToHash } from "../lib/url.js";
 import { writeSharedScale } from "../state/scale-store.js";
 ```
@@ -64,11 +66,14 @@ const seedText = `9/8
 const METHOD_FAMILIES = [
   {
     label: "Regular / equal temperament",
-    options: [{ id: "regular-placeholder", text: "(coming soon)", placeholder: true }],
+    options: [{ id: "ed", text: "EDO / equal division (ED-n)", placeholder: false }],
   },
   {
     label: "JI combinatorial",
-    options: [{ id: "cps", text: "CPS (Hexany / Dekany / Eikosany)", placeholder: false }],
+    options: [
+      { id: "cps", text: "CPS (Hexany / Dekany / Eikosany)", placeholder: false },
+      { id: "ji-set", text: "Diamond / odd-limit / prime-limit / Farey", placeholder: false },
+    ],
   },
   {
     label: "Harmonic & interval divisions",
@@ -202,6 +207,25 @@ const harmonicWidget = generateHarmonic(synth, { baseHz });
 ```
 
 ```ts
+// JI-set widget (GEN-04) — diamond / odd-limit / prime-limit / Farey. Instantiated
+// ONCE so its closure-local sub-method + per-sub-method limit survive mount/unmount
+// into paramsHost across picker swaps (the generateCps / generateHarmonic Pattern-2
+// precedent). It renders its own EXACT-JI scaleTable + ⏵⏵ Play internally and
+// exposes getScale() for the Send-to cell (serialized ratio-per-line — exact JI).
+const jiSetWidget = generateJiSet(synth, { baseHz });
+```
+
+```ts
+// Equal-division widget (GEN-05, SURF-06) — the FIRST tempered family (EDO / ED-n /
+// best-JI-in-EDO). Instantiated ONCE so its closure-local sub-method + divisions +
+// equave survive mount/unmount into paramsHost across picker swaps. It renders its
+// own TEMPERED scaleTable (cents-only + "tempered" badge, D-01/D-02) + ⏵⏵ Play and
+// exposes getScale() AND isTempered() so the Send-to cell serializes the scale as
+// cents-per-line (D-03), never ratios (no laundered JI — SURF-06).
+const edWidget = generateEd(synth, { baseHz });
+```
+
+```ts
 // ─── Compute the current scale from the picker + param ───────────────────────
 // Serialize the CPS widget's current Scale ratio-per-line (exact JI — D-06). Read
 // LIVE from the widget so the latest chip/preset edits round-trip (the widget's
@@ -228,12 +252,42 @@ function harmonicScaleText() {
   if (ivs.length > 0 && ivs[0].toString() === "1") ivs = ivs.slice(1);
   return ivs.map((iv) => iv.toString()).join("\n");
 }
+// JI-set widget (GEN-04) — exact JI, serialized ratio-per-line (same convention as
+// CPS / harmonic: drop a leading 1/1 to avoid a duplicate after parseScala's
+// auto-prepend).
+function jiSetScaleText() {
+  const scale = jiSetWidget.getScale();
+  if (!scale) return seedText;
+  let ivs = scale.intervals;
+  if (ivs.length > 0 && ivs[0].toString() === "1") ivs = ivs.slice(1);
+  return ivs.map((iv) => iv.toString()).join("\n");
+}
+// ED widget (GEN-05, SURF-06) — TEMPERED. The LOAD-BEARING D-03 branch: serialize
+// CENTS-per-line, NOT ratios. The tempered scale's pitches have no exact ratio of
+// record (cents is the source of truth), so emitting `iv.toString()` ratios would
+// launder the temperament as exact JI (SURF-06). Each cents value carries a `.`
+// which triggers parseScala's cents-detection on the receiving end (the Dashboard /
+// Analysis parse it as a cents-defined scale). We drop a leading 0.0000¢ unison to
+// avoid a duplicate after parseScala's auto-prepend of 1/1. `isTempered()` gates
+// this branch so a future non-tempered method never accidentally serializes cents.
+function edScaleText() {
+  const scale = edWidget.getScale();
+  if (!scale) return seedText;
+  let ivs = scale.intervals;
+  // The first pitch is the 0¢ unison (k=0); drop it (parseScala auto-prepends 1/1).
+  if (ivs.length > 0 && Math.abs(ivs[0].cents) < 1e-6) ivs = ivs.slice(1);
+  return ivs.map((iv) => iv.cents.toFixed(4)).join("\n");
+}
 const currentScaleText =
   method === "harmonic-segment"
     ? harmonicScaleText()
     : method === "cps"
       ? cpsScaleText()
-      : seedText;
+      : method === "ji-set"
+        ? jiSetScaleText()
+        : method === "ed"
+          ? edScaleText()
+          : seedText;
 ```
 
 ```ts
@@ -271,6 +325,18 @@ try {
     // the shared previewHost shows only a short caption (the preview-host swap
     // below). Mounting the persistent `cpsWidget` element preserves its state.
     paramsHost.replaceChildren(cpsWidget);
+  } else if (method === "ji-set") {
+    // Mount the JI-set widget (GEN-04). It owns its sub-method select + limit/order
+    // input AND renders its own EXACT-JI scaleTable + ⏵⏵ Play, so the shared
+    // previewHost shows only a pointer caption. The persistent `jiSetWidget` element
+    // preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(jiSetWidget);
+  } else if (method === "ed") {
+    // Mount the ED widget (GEN-05, SURF-06). It owns its sub-method select + params
+    // AND renders its own TEMPERED scaleTable (cents-only + badge) + ⏵⏵ Play, so the
+    // shared previewHost shows only a pointer caption. The persistent `edWidget`
+    // element preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(edWidget);
   } else if (method === "") {
     const caption = document.createElement("p");
     caption.className = "dashboard-helper";
@@ -312,6 +378,24 @@ try {
     caption.className = "dashboard-helper";
     caption.textContent =
       "The table and ⏵⏵ Play are shown above with the sub-method controls. Send-to serializes the current scale.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "ji-set") {
+    // The JI-set widget renders its own exact-JI scaleTable + ⏵⏵ Play (mounted into
+    // paramsHost above), so the shared previewHost shows only a pointer caption —
+    // no duplicate table. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The exact-JI table and ⏵⏵ Play are shown above with the sub-method controls. Send-to serializes the current scale ratio-per-line.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "ed") {
+    // The ED widget renders its own TEMPERED scaleTable (cents-only + "tempered"
+    // badge) + ⏵⏵ Play (mounted into paramsHost above), so the shared previewHost
+    // shows only a pointer caption — no duplicate table. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The tempered (cents-only) table and ⏵⏵ Play are shown above with the sub-method controls. Send-to serializes the scale as cents-per-line.";
     previewHost.replaceChildren(caption);
   } else if (currentScaleError) {
     const div = document.createElement("div");
@@ -390,7 +474,11 @@ function sendCurrentScaleTo(target) {
       ? cpsScaleText()
       : method === "harmonic-segment"
         ? harmonicScaleText()
-        : currentScaleText;
+        : method === "ji-set"
+          ? jiSetScaleText()
+          : method === "ed"
+            ? edScaleText() // D-03: tempered → cents-per-line (SURF-06).
+            : currentScaleText;
   writeSharedScale(scaleText, SEND_SOURCE); // each handler invokes this exactly once
   try {
     const hash = "#s=" + encodeScaleToHash(scaleText);
