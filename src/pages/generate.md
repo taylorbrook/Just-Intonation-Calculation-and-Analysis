@@ -9,6 +9,7 @@ import { createSynth } from "../audio/synth.js";
 import { scaleTable } from "../components/scale-table.js";
 import { playScale } from "../components/play-scale.js";
 import { generateCps } from "../components/generate-cps.js";
+import { generateHarmonic } from "../components/generate-harmonic.js";
 import { encodeScaleToHash } from "../lib/url.js";
 import { writeSharedScale } from "../state/scale-store.js";
 ```
@@ -71,7 +72,7 @@ const METHOD_FAMILIES = [
   },
   {
     label: "Harmonic & interval divisions",
-    options: [{ id: "harmonic-segment", text: "Harmonic segment (n : n+1 : … : 2n)", placeholder: false }],
+    options: [{ id: "harmonic-segment", text: "Harmonic / subharmonic / ADO / isoharmonic", placeholder: false }],
   },
   {
     label: "Advanced / algorithmic",
@@ -138,33 +139,6 @@ const method = view(picker);
 ```
 
 ```ts
-// Segment-size param input for the reference (harmonic-segment) method. Created
-// ONCE here so its reactive value survives mount/unmount into paramsHost. A
-// single integer param n produces the segment n : n+1 : … : 2n, making "preview
-// updates as params change" trivially true (D-06 / D-13). Native number input so
-// view() reads valueAsNumber on the "input" event.
-const segmentSizeInput = (() => {
-  const input = document.createElement("input");
-  input.type = "number";
-  input.min = "2";
-  input.max = "64";
-  input.step = "1";
-  input.value = "4";
-  input.name = "segment-size";
-  input.id = "generate-segment-size";
-  input.setAttribute("aria-label", "Harmonic segment size");
-  return input;
-})();
-```
-
-```ts
-// Reactive segment-size value (clamped at use-site). Tracked even while the
-// input is detached from paramsHost — Framework's Generators.input keeps the
-// listener bound to the element, not to the DOM tree.
-const segmentSize = view(segmentSizeInput);
-```
-
-```ts
 // Params host — the swap target (D-05). display() returns the live element so
 // the render cell below can replaceChildren into it (text via textContent only).
 const paramsHost = display(document.createElement("div"));
@@ -212,20 +186,23 @@ const cpsWidget = generateCps(synth, { baseHz });
 ```
 
 ```ts
+// Harmonic-family widget (GEN-02, GEN-03) — instantiated ONCE so its closure-local
+// sub-method + per-sub-method params survive mount/unmount into paramsHost across
+// picker swaps (the mosBuilder/generateCps Pattern-2 precedent). It renders its own
+// scaleTable + ⏵⏵ Play internally and exposes getScale() for the Send-to cell.
+//
+// D-08 migration: this widget REPLACES the Phase-5 standalone harmonic-segment
+// reference (the retired segmentSizeInput/buildHarmonicSegmentText path) under the
+// SAME `harmonic-segment` picker id, so the Harmonic family keeps ONE entry (D-10)
+// and harmonic segment stays the page's default landing method. The page's actual
+// first-paint (placeholder selected → demo seed) is unchanged byte-for-byte; the
+// widget's D-09 showcase default (harmonic segment 8..16) renders once the Harmonic
+// method is selected.
+const harmonicWidget = generateHarmonic(synth, { baseHz });
+```
+
+```ts
 // ─── Compute the current scale from the picker + param ───────────────────────
-// Reference method (harmonic-segment): build n : n+1 : … : 2n as exact ratios
-// over n (parseScala auto-prepends 1/1; the last line 2n/n = 2/1 is the period).
-// Any other selection (placeholder / nothing picked) falls back to the Phase-5
-// demo seed so the preview + audition + Send-to pipeline is always exercisable.
-function buildHarmonicSegmentText(n) {
-  const size = Number.isFinite(n) ? Math.trunc(n) : 0;
-  const clamped = Math.min(64, Math.max(2, size)); // bounded numeric input (T-05-06)
-  const lines = [];
-  for (let k = 1; k <= clamped; k++) {
-    lines.push(`${clamped + k}/${clamped}`); // (n+1)/n … 2n/n
-  }
-  return lines.join("\n");
-}
 // Serialize the CPS widget's current Scale ratio-per-line (exact JI — D-06). Read
 // LIVE from the widget so the latest chip/preset edits round-trip (the widget's
 // internal state changes don't tick Observable's reactive graph, so we read it at
@@ -241,9 +218,19 @@ function cpsScaleText() {
   if (ivs.length > 0 && ivs[0].toString() === "1") ivs = ivs.slice(1);
   return ivs.map((iv) => iv.toString()).join("\n");
 }
+// Same live-read + leading-1/1 strip for the harmonic-family widget. The literal
+// segments start at 8/8 = "1" (and the reduced/iso paths start at 1/1 too), so we
+// drop a leading unison to avoid a duplicate after parseScala's auto-prepend.
+function harmonicScaleText() {
+  const scale = harmonicWidget.getScale();
+  if (!scale) return seedText;
+  let ivs = scale.intervals;
+  if (ivs.length > 0 && ivs[0].toString() === "1") ivs = ivs.slice(1);
+  return ivs.map((iv) => iv.toString()).join("\n");
+}
 const currentScaleText =
   method === "harmonic-segment"
-    ? buildHarmonicSegmentText(segmentSize)
+    ? harmonicScaleText()
     : method === "cps"
       ? cpsScaleText()
       : seedText;
@@ -265,26 +252,19 @@ try {
 ```ts
 // ─── Params-host swap (D-05) ─────────────────────────────────────────────────
 // Re-render via replaceChildren only. All text via createElement +
-// textContent. Reference method → segment-size param input + caption; a
-// placeholder family → the "coming soon" caption; nothing picked → the
-// empty-state prompt.
+// textContent. Harmonic family → the full generateHarmonic widget; CPS → the
+// generateCps widget; a placeholder family → the "coming soon" caption; nothing
+// picked → the empty-state prompt.
 {
   if (method === "harmonic-segment") {
-    const field = document.createElement("div");
-    field.className = "generate-field";
-    const label = document.createElement("label");
-    label.className = "generate-field__label";
-    label.textContent = "Segment size";
-    label.htmlFor = "generate-segment-size";
-    field.appendChild(label);
-    field.appendChild(segmentSizeInput);
-
-    const caption = document.createElement("p");
-    caption.className = "dashboard-helper";
-    caption.textContent =
-      "Harmonic segment n : n+1 : … : 2n over the fundamental. Change the size to re-render the preview.";
-
-    paramsHost.replaceChildren(field, caption);
+    // Mount the harmonic-family widget (GEN-02, GEN-03). It owns its sub-method
+    // select + per-sub-method params AND renders its own scaleTable + ⏵⏵ Play, so
+    // for this branch the shared previewHost shows only a pointer caption (the
+    // preview-host swap below). Mounting the persistent `harmonicWidget` element
+    // preserves its closure-local state across picker swaps. D-08: harmonic
+    // segment is the widget's default sub-method (8..16, D-09) and the page's
+    // default landing method.
+    paramsHost.replaceChildren(harmonicWidget);
   } else if (method === "cps") {
     // Mount the CPS widget (GEN-01). It owns its own factor-chip + preset form
     // AND renders its own scaleTable + ⏵⏵ Play internally, so for the CPS branch
@@ -309,9 +289,11 @@ try {
 ```ts
 // ─── Preview-host swap (D-07) ────────────────────────────────────────────────
 // scaleTable (Degree/Ratio/Cents/¢-from-12tet) + playScale (⏵⏵ Play scale
-// arpeggio). Reactive on method, segmentSize, and baseHz. On parse error (should
-// not happen for the bounded reference method or the demo seed) show the
-// status copy. Text via textContent only.
+// arpeggio). Reactive on method and baseHz. The CPS + harmonic branches render
+// their own table inside the mounted widget, so this host shows a pointer caption
+// for them; the demo-seed / placeholder branches render the shared table here. On
+// parse error (should not happen for the demo seed) show the status copy. Text via
+// textContent only.
 {
   if (method === "cps") {
     // CPS renders its own scaleTable + ⏵⏵ Play inside the widget (mounted into
@@ -321,6 +303,15 @@ try {
     caption.className = "dashboard-helper";
     caption.textContent =
       "The CPS table and ⏵⏵ Play are shown above with the factor-set controls. Send-to serializes the current CPS scale.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "harmonic-segment") {
+    // The harmonic-family widget renders its own scaleTable + ⏵⏵ Play (mounted
+    // into paramsHost above), so the shared previewHost shows only a pointer
+    // caption — no duplicate table. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The table and ⏵⏵ Play are shown above with the sub-method controls. Send-to serializes the current scale.";
     previewHost.replaceChildren(caption);
   } else if (currentScaleError) {
     const div = document.createElement("div");
@@ -389,12 +380,17 @@ function showCapError() {
 // cap-error copy and navigate hashless. `target` is the relative route from
 // /pages/generate ("../" = Dashboard, "./analysis" = Analysis).
 //
-// For the CPS branch we re-read the widget's scale LIVE at click time (the
-// widget's internal chip/preset edits don't tick Observable's reactive graph,
+// For the widget branches (CPS, harmonic) we re-read the widget's scale LIVE at
+// click time (the widget's internal edits don't tick Observable's reactive graph,
 // so currentScaleText may be stale) — this guarantees Send-to round-trips the
-// exact scale currently shown in the CPS table.
+// exact scale currently shown in the widget's table.
 function sendCurrentScaleTo(target) {
-  const scaleText = method === "cps" ? cpsScaleText() : currentScaleText;
+  const scaleText =
+    method === "cps"
+      ? cpsScaleText()
+      : method === "harmonic-segment"
+        ? harmonicScaleText()
+        : currentScaleText;
   writeSharedScale(scaleText, SEND_SOURCE); // each handler invokes this exactly once
   try {
     const hash = "#s=" + encodeScaleToHash(scaleText);
