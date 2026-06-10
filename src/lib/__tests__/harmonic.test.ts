@@ -89,12 +89,14 @@ describe("adoScale — arithmetic division of the octave (AFDO)", () => {
     expect(scale.period.equals(new Interval("2/1"))).toBe(true);
   });
 
-  it("adoScale is intrinsically within one equave (3/1 equave example)", () => {
-    // ADO over a tritave: (3+k)/3 for k in 0..3 → 1/1, 4/3, 5/3, 2/1 (equave = 2/1? no — equave 3/1).
+  it("adoScale divides an arbitrary equave arithmetically (3/1 tritave)", () => {
+    // ADO over a tritave: 1 + k·(3−1)/3 = (3 + 2k)/3 for k in 0..3 →
+    // 3/3, 5/3, 7/3, 9/3 = 1/1, 5/3, 7/3, 3/1. Top lands exactly on the equave.
     const scale = adoScale(3, new Interval("3/1"));
-    // divisions=3 over equave 3/1: degrees (3+k)/3 → 3/3, 4/3, 5/3, 6/3=2/1 … last = equave.
+    expectExact(scale, ["1/1", "5/3", "7/3", "3/1"]);
     const last = scale.intervals[scale.intervals.length - 1];
     expect(last?.equals(new Interval("3/1"))).toBe(true);
+    expect(scale.period.equals(new Interval("3/1"))).toBe(true);
   });
 });
 
