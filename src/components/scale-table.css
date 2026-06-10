@@ -7,6 +7,23 @@
   margin-block: 16px;
 }
 
+/* SURF-06 tempered badge (D-02, D-15) — understated chip: muted label color +
+ * faint current-color border, consistent with the table's "no color-coding"
+ * restraint. Existing 05-UI-SPEC tokens only — never hard-coded hex. */
+.scale-table__badge {
+  display: inline-block;
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--theme-foreground-alt);
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-bottom: 8px;
+}
+
 .scale-table table {
   width: 100%;
   border-collapse: collapse;

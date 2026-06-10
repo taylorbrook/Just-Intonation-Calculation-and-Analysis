@@ -29,19 +29,40 @@ export interface ScaleTableOpts {
   copyButton?: boolean;
   /** Cents decimal places. Default 1 (0.1¢ — Pitfall #16). */
   precision?: number;
+  /**
+   * SURF-06 tempered variant (D-01, D-02). When true, the Ratio column is
+   * DROPPED entirely (Degree | Cents | ¢ from 12-TET only) and a visible
+   * "tempered" badge renders above the table — so EDO/ED-n output is never
+   * presented as exact JI ("tempered, not laundered JI"). Default false: the
+   * JI 4-column path is byte-for-byte unchanged (anti-regression).
+   */
+  tempered?: boolean;
 }
 
 export function scaleTable(scale: Scale, baseHz: number, opts: ScaleTableOpts = {}): HTMLElement {
   const precision = opts.precision ?? 1;
+  const tempered = opts.tempered === true;
 
   const wrapper = document.createElement("div");
   wrapper.className = "scale-table";
 
+  // D-02: tempered badge renders BEFORE the table. createElement + textContent
+  // (never innerHTML) — literal text, but follow the discipline (T-06-08).
+  if (tempered) {
+    const badge = document.createElement("span");
+    badge.className = "scale-table__badge";
+    badge.textContent = "tempered";
+    wrapper.appendChild(badge);
+  }
+
   const table = document.createElement("table");
   const thead = document.createElement("thead");
   // Static header content — no interpolated values, innerHTML is safe and
-  // keeps the four <th> tags readable.
-  thead.innerHTML = "<tr><th>Degree</th><th>Ratio</th><th>Cents</th><th>¢ from 12-TET</th></tr>";
+  // keeps the <th> tags readable. D-01: the tempered header has THREE columns
+  // (no Ratio); the JI header keeps the original four-column string verbatim.
+  thead.innerHTML = tempered
+    ? "<tr><th>Degree</th><th>Cents</th><th>¢ from 12-TET</th></tr>"
+    : "<tr><th>Degree</th><th>Ratio</th><th>Cents</th><th>¢ from 12-TET</th></tr>";
   table.appendChild(thead);
 
   const tbody = document.createElement("tbody");
@@ -49,16 +70,16 @@ export function scaleTable(scale: Scale, baseHz: number, opts: ScaleTableOpts = 
     const tr = document.createElement("tr");
     const cents = iv.cents;
     const delta = iv.centsFrom12tet;
-    const cells: string[] = [
-      String(i + 1),
-      iv.fraction.toFraction(),
-      cents.toFixed(precision),
-      // Render the deviation with an explicit + sign for positives so users
-      // can scan a column of "+3.9 / -13.7 / +4.0" at a glance. UI-SPEC color
-      // rule: NO color-coding the deviation column (no red/green) — sign is
-      // typographic only.
-      (delta > 0 ? "+" : "") + delta.toFixed(precision),
-    ];
+    // Render the deviation with an explicit + sign for positives so users
+    // can scan a column of "+3.9 / -13.7 / +4.0" at a glance. UI-SPEC color
+    // rule: NO color-coding the deviation column (no red/green) — sign is
+    // typographic only.
+    const deviation = (delta > 0 ? "+" : "") + delta.toFixed(precision);
+    // D-01: tempered drops the ratio cell entirely (no float-derived fraction
+    // masquerading as exact JI). The JI path keeps the original 4 cells verbatim.
+    const cells: string[] = tempered
+      ? [String(i + 1), cents.toFixed(precision), deviation]
+      : [String(i + 1), iv.fraction.toFraction(), cents.toFixed(precision), deviation];
     for (const value of cells) {
       const td = document.createElement("td");
       td.textContent = value; // T-02-23: textContent — never innerHTML.
