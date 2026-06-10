@@ -4,13 +4,13 @@ milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
 stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-06-10T16:28:18.352Z"
+last_updated: "2026-06-10T16:37:03.295Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
   percent: 20
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 ## Current Position
 
 Phase: 06 (exact-rational-ji-harmonic-generators) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-06-10
 
-Progress: [████████░░] 80%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Progress: [████████░░] 80%
 | Phase 06-exact-rational-ji-harmonic-generators P04 | 2min | 2 tasks | 3 files |
 | Phase 06-exact-rational-ji-harmonic-generators P02 | 4min | 2 tasks | 3 files |
 | Phase 06-exact-rational-ji-harmonic-generators P03 | 4min | 2 tasks | 3 files |
+| Phase 06-exact-rational-ji-harmonic-generators P06 | 5min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 06]: adoScale divides the full [1, equave] span arithmetically — (D·q + k·(p−q))/(D·q) BigInt-exact; equave 2/1 reproduces verified AFDO-6, non-octave equaves land top degree exactly on the equave
 - [Phase ?]: [Phase 06]: primeLimitSet enumerates a bounded integer grid (PRIME_SET_HEIGHT=81) because the prime-limit set is infinite; tests assert the prime-limit predicate + membership, not a full vector
 - [Phase ?]: [Phase 06]: edScale is TEMPERED — cents is source of truth via centsToRatio (SURF-06), no exact ratio of record; the exact equave is still passed as the Scale period
+- [Phase 06]: Honored D-08 via migration — replaced the Phase-5 harmonic-segment reference (segmentSizeInput/buildHarmonicSegmentText) with the full generateHarmonic widget under the same picker id; first paint (placeholder → demo seed) unchanged byte-for-byte, widget opens on harmonic 8..16 (D-09) when selected
+- [Phase 06]: generateHarmonic shares lo/hi/reduce closure state across harmonic+subharmonic; ADO has no reduce toggle (one equave); harmonicScaleText() drops a leading 1/1 to match parseScala auto-prepend (generateCps Send-to precedent)
 
 ### Pending Todos
 
@@ -217,7 +220,7 @@ Notes:
 
 ## Session Continuity
 
-Last session: 2026-06-10T16:28:18.345Z
+Last session: 2026-06-10T16:37:03.289Z
 Stopped at: Completed 06-03-PLAN.md
 Resume file:
 None
