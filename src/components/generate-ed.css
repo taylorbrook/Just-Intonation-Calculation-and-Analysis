@@ -1,0 +1,85 @@
+/*
+ * generate-ed.css — Equal-division (EDO / ED-n / best-JI-in-EDO) widget
+ * (Phase 6 GEN-05, SURF-06). Loaded via @import in src/styles.css alongside the
+ * other component sheets.
+ *
+ * D-15: only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors generate-harmonic.css / generate-cps.css house style (flex form row,
+ * the 16px input font is set globally in styles.css to suppress iOS auto-zoom —
+ * not overridden here). The "tempered" badge styling lives in scale-table.css
+ * (Plan 04) — this widget renders the same badged tempered table.
+ */
+
+.generate-ed {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-ed h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-ed__form,
+.generate-ed__params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-ed__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-ed__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.generate-ed__field select,
+.generate-ed__field input[type="number"] {
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-ed__field input[type="number"] {
+  width: 72px;
+}
+
+.generate-ed__field select:focus-visible,
+.generate-ed__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.generate-ed__slash {
+  font-family: var(--monospace);
+  color: var(--theme-foreground-alt);
+}
+
+.generate-ed__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.generate-ed__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-ed__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}
