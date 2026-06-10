@@ -209,7 +209,7 @@ Notes:
 
 ## Session Continuity
 
-Last session: 2026-06-09T01:48:50.953Z
-Stopped at: Phase 5 UI-SPEC approved
+Last session: 2026-06-09 — session resumed
+Stopped at: Phase 5 code-complete (3/3 plans, 5/5 must-haves code-verified); resumed to run 5 pending human UAT browser tests
 Resume file:
-.planning/phases/05-generate-surface-live-integration-foundation/05-UI-SPEC.md
+.planning/phases/05-generate-surface-live-integration-foundation/05-HUMAN-UAT.md
