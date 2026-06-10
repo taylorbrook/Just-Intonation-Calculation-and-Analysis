@@ -160,3 +160,11 @@ the read path is side-effect-free; the only side effects in the module are the
 | `writeSharedScale` (`src/state/scale-store.ts`) | Custom (this repo) | SYNC-01/02 write transport. Two best-effort side effects: persist `{text,source?}` JSON (silent on throw) + dispatch CustomEvent on `window`. Per RESEARCH A2 the event fires EVEN WHEN persistence throws (private-browsing live-update). 8 KB cap → silent no-op (no persist, no event — T-05-02). |
 | `resolveInitialScaleText` (`src/state/scale-store.ts`) | Custom (this repo) | D-12 / SYNC-04 anchor. `hashDecoded ?? stored?.text ?? seedText`. Empty-store boot (`stored === null`) is byte-identical to v1.0 `hash ?? seed` — the R1 gate (`src/__tests__/scale-store-boot.test.ts`). |
 | `MAX_SCALE_TEXT_BYTES` (reused from `src/lib/url.ts`) | Custom (this repo) | D-09. The 8 KB cap is imported, NOT redeclared — single source of truth shared with the `#s=` URL codec. No second serialization. |
+
+## Phase 6 entries
+
+### Phase 6 — CPS kernel (Plan 06-01 / GEN-01)
+
+| Symbol | Source | Notes |
+|--------|--------|-------|
+| `cps` | Custom (this repo) | Flagship JI structure; hand-rolled over xen-dev-utils' `kCombinations` for transparent BigInt ownership (OQ-4/D-12); SonicWeave's `cps` is the one-line alternative. Dedupe by exact `n/d` (Pitfall #1/#6), never cents. Period param exists per D-07; UI fixes it at 2/1. Subset products are rooted at the smallest product (Wilson construction → tonic 1/1) before octave-reduce. Defense-in-depth: `factors.length ≤ 12` (MAX_FACTORS) and `1 ≤ k ≤ factors.length` throw RangeError BEFORE enumeration (T-06-01, C(12,6)=924 worst case). |
