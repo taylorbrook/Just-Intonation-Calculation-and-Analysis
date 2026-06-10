@@ -1,0 +1,98 @@
+/*
+ * generate-harmonic.css — Harmonic-family widget (Phase 6 GEN-02, GEN-03).
+ * Loaded via @import in src/styles.css alongside the other component sheets.
+ *
+ * D-15: only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors mos-builder.css / generate-cps.css house style (flex form row; the
+ * global 16px input font in styles.css suppresses iOS auto-zoom — not overridden).
+ */
+
+.generate-harmonic {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-harmonic h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-harmonic__form,
+.generate-harmonic__params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-harmonic__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-harmonic__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.generate-harmonic__field select,
+.generate-harmonic__field input[type="number"] {
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-harmonic__field input[type="number"] {
+  width: 72px;
+}
+
+.generate-harmonic__field select:focus-visible,
+.generate-harmonic__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.generate-harmonic__slash {
+  font-family: var(--monospace);
+  color: var(--theme-foreground-alt);
+}
+
+/* ─── Reduce-to-octave toggle (D-04) ────────────────────────────────────────── */
+
+.generate-harmonic__reduce {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  color: var(--theme-foreground);
+  cursor: pointer;
+}
+
+.generate-harmonic__reduce input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.generate-harmonic__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.generate-harmonic__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-harmonic__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}
