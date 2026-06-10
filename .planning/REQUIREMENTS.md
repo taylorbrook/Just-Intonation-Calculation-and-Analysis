@@ -18,7 +18,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [ ] **SURF-03**: User sees a live preview table and can audition (play) the current generated scale as parameters change
 - [ ] **SURF-04**: User can rotate the generated scale to any mode and apply reduce / dedupe / transpose before exporting
 - [ ] **SURF-05**: User can view a circle-of-pitches visualization of the generated scale
-- [ ] **SURF-06**: Tempered scales (EDO, rank-2, well-temperament) are visibly distinguished from exact-JI scales — cents-primary with a "tempered" label; no float-derived ratios presented as exact JI
+- [x] **SURF-06**: Tempered scales (EDO, rank-2, well-temperament) are visibly distinguished from exact-JI scales — cents-primary with a "tempered" label; no float-derived ratios presented as exact JI
 
 ### GEN — Scale Generators
 
@@ -89,7 +89,7 @@ Which phases cover which requirements. Populated during roadmap creation (v1.1 p
 | SURF-03 | Phase 5 | Pending |
 | SURF-04 | Phase 8 | Pending |
 | SURF-05 | Phase 8 | Pending |
-| SURF-06 | Phase 6 | Pending |
+| SURF-06 | Phase 6 | Complete |
 | GEN-01 | Phase 6 | Complete |
 | GEN-02 | Phase 6 | Pending |
 | GEN-03 | Phase 6 | Pending |
