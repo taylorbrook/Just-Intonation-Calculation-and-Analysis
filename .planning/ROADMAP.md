@@ -37,7 +37,7 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 **Milestone Goal:** A dedicated Generate surface where the user produces JI / tempered / harmonic scales by many methods and loads named scales from the Scala archive — auditioning any result and pushing it live into the Dashboard and Analysis.
 
 - [x] **Phase 5: Generate Surface & Live Integration Foundation** - The `/pages/generate` tab, the additive `scale-store`, and the empty-store boot-equivalence gate (completed 2026-06-09)
-- [ ] **Phase 6: Exact-Rational JI & Harmonic Generators** - CPS, harmonic/subharmonic/ADO/isoharmonic, diamond/odd/prime/Farey sets, EDO/ED-n
+- [x] **Phase 6: Exact-Rational JI & Harmonic Generators** - CPS, harmonic/subharmonic/ADO/isoharmonic, diamond/odd/prime/Farey sets, EDO/ED-n (completed 2026-06-10)
 - [ ] **Phase 7: SonicWeave Adapter — Tempered, Lattice & Free-Text** - Rank-2, well-temperament, Fokker blocks, and a free-text SonicWeave escape hatch
 - [ ] **Phase 8: Preview, Transforms & Advanced Generators** - Circle-of-pitches viz, rotate/reduce/dedupe/transpose strip, tempered distinction, Wilson/metallic + constant-structure
 - [ ] **Phase 9: Scala Archive Browser** - Browse / search / load named scales from the bundled Scala archive into the Generate surface
@@ -76,7 +76,7 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 - [x] 06-04-PLAN.md — Tempered scale-table variant: cents-only (no ratio column) + "tempered" badge (SURF-06 presentation)
 - [x] 06-05-PLAN.md — CPS method widget (generate-cps.ts): factor-set chip input + presets + picker wiring
 - [x] 06-06-PLAN.md — Harmonic-family method widget (generate-harmonic.ts): 4 sub-methods + reduce toggle + picker wiring (preserves default landing)
-- [ ] 06-07-PLAN.md — JI-set + EDO/ED-n widgets (generate-ji-set.ts, generate-ed.ts): exact JI sets + tempered EDO/ED-n with badge + cents-per-line Send-to
+- [x] 06-07-PLAN.md — JI-set + EDO/ED-n widgets (generate-ji-set.ts, generate-ed.ts): exact JI sets + tempered EDO/ED-n with badge + cents-per-line Send-to
 
 ### Phase 7: SonicWeave Adapter — Tempered, Lattice & Free-Text
 **Goal**: The genuinely advanced methods (rank-2 with optimal tunings, well-temperaments, Fokker periodicity blocks) ship as thin, well-tested wrappers over the already-installed `sonic-weave` prelude via a single kernel adapter, plus a free-text SonicWeave escape hatch — delivering parked TEMP-01, TEMP-07, and TEMP-08.
@@ -125,7 +125,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 3. Visualization + Mobile Audio Audit      | v1.0 | 7/7 | Complete    | 2026-05-06 |
 | 4. Analysis & Sharing                      | v1.0 | 7/7 | Complete    | 2026-05-06 |
 | 5. Generate Surface & Live Integration Foundation | v1.1 | 3/3 | Complete   | 2026-06-09 |
-| 6. Exact-Rational JI & Harmonic Generators | v1.1 | 6/7 | In Progress|  |
+| 6. Exact-Rational JI & Harmonic Generators | v1.1 | 7/7 | Complete   | 2026-06-10 |
 | 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 0/TBD | Not started | - |
 | 8. Preview, Transforms & Advanced Generators | v1.1 | 0/TBD | Not started | - |
 | 9. Scala Archive Browser                   | v1.1 | 0/TBD | Not started | - |
