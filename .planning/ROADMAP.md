@@ -69,7 +69,14 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
   3. User can generate a tonality-diamond scale, an odd/prime-limit JI set, and a Farey / Stern-Brocot subset — exact and deduped.
   4. User can generate an EDO and an equal-division-of-any-interval (ED-n) scale, and these tempered scales are visibly distinguished from exact JI (a "tempered" label, cents-primary presentation) with no float-derived ratios presented as exact JI.
   5. Every generated scale auditions and can be sent to Dashboard / Analysis (tempered scales serialize as cents-per-line text).
-**Plans**: TBD
+**Plans**: 7 plans
+- [ ] 06-01-PLAN.md — CPS kernel primitive (cps.ts): hand-rolled BigInt-exact Combination Product Set + Hexany/Dekany/Eikosany presets
+- [ ] 06-02-PLAN.md — Harmonic-family kernel (harmonic.ts): harmonic/subharmonic segment, ADO, isoharmonic + reduce-to-octave flag
+- [ ] 06-03-PLAN.md — Generators kernel (generators.ts): diamond/odd-limit/prime-limit/Farey exact JI sets + edScale (tempered EDO/ED-n)
+- [ ] 06-04-PLAN.md — Tempered scale-table variant: cents-only (no ratio column) + "tempered" badge (SURF-06 presentation)
+- [ ] 06-05-PLAN.md — CPS method widget (generate-cps.ts): factor-set chip input + presets + picker wiring
+- [ ] 06-06-PLAN.md — Harmonic-family method widget (generate-harmonic.ts): 4 sub-methods + reduce toggle + picker wiring (preserves default landing)
+- [ ] 06-07-PLAN.md — JI-set + EDO/ED-n widgets (generate-ji-set.ts, generate-ed.ts): exact JI sets + tempered EDO/ED-n with badge + cents-per-line Send-to
 
 ### Phase 7: SonicWeave Adapter — Tempered, Lattice & Free-Text
 **Goal**: The genuinely advanced methods (rank-2 with optimal tunings, well-temperaments, Fokker periodicity blocks) ship as thin, well-tested wrappers over the already-installed `sonic-weave` prelude via a single kernel adapter, plus a free-text SonicWeave escape hatch — delivering parked TEMP-01, TEMP-07, and TEMP-08.
