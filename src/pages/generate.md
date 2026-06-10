@@ -8,6 +8,7 @@ import { parseScala } from "../lib/scala.js";
 import { createSynth } from "../audio/synth.js";
 import { scaleTable } from "../components/scale-table.js";
 import { playScale } from "../components/play-scale.js";
+import { generateCps } from "../components/generate-cps.js";
 import { encodeScaleToHash } from "../lib/url.js";
 import { writeSharedScale } from "../state/scale-store.js";
 ```
@@ -66,7 +67,7 @@ const METHOD_FAMILIES = [
   },
   {
     label: "JI combinatorial",
-    options: [{ id: "ji-placeholder", text: "(coming soon)", placeholder: true }],
+    options: [{ id: "cps", text: "CPS (Hexany / Dekany / Eikosany)", placeholder: false }],
   },
   {
     label: "Harmonic & interval divisions",
@@ -200,6 +201,17 @@ const baseHz = view(Inputs.number({ value: 440, step: 0.01, label: "Reference pi
 ```
 
 ```ts
+// CPS method widget (GEN-01) — instantiated ONCE so its closure-local factor
+// chips + preset + k survive mount/unmount into paramsHost across picker swaps
+// (the mosBuilder Pattern-2 precedent). The widget renders its own scaleTable +
+// ⏵⏵ Play internally and exposes getScale() so the Send-to serialization cell
+// can read the current CPS Scale. baseHz is read once here; the widget owns its
+// own reference-pitch projection for the CPS branch (the harmonic-segment branch
+// keeps its reactive baseHz preview unchanged — D-08).
+const cpsWidget = generateCps(synth, { baseHz });
+```
+
+```ts
 // ─── Compute the current scale from the picker + param ───────────────────────
 // Reference method (harmonic-segment): build n : n+1 : … : 2n as exact ratios
 // over n (parseScala auto-prepends 1/1; the last line 2n/n = 2/1 is the period).
@@ -214,7 +226,27 @@ function buildHarmonicSegmentText(n) {
   }
   return lines.join("\n");
 }
-const currentScaleText = method === "harmonic-segment" ? buildHarmonicSegmentText(segmentSize) : seedText;
+// Serialize the CPS widget's current Scale ratio-per-line (exact JI — D-06). Read
+// LIVE from the widget so the latest chip/preset edits round-trip (the widget's
+// internal state changes don't tick Observable's reactive graph, so we read it at
+// call time, not via a captured cell value). Null scale → fall back to seedText.
+//
+// parseScala (the text-input path Send-to feeds) auto-prepends 1/1, so we DROP a
+// leading unison from the CPS scale to avoid a duplicate 1/1 — matching the
+// harmonic-segment convention (its text starts at (n+1)/n, omitting 1/1).
+function cpsScaleText() {
+  const scale = cpsWidget.getScale();
+  if (!scale) return seedText;
+  let ivs = scale.intervals;
+  if (ivs.length > 0 && ivs[0].toString() === "1") ivs = ivs.slice(1);
+  return ivs.map((iv) => iv.toString()).join("\n");
+}
+const currentScaleText =
+  method === "harmonic-segment"
+    ? buildHarmonicSegmentText(segmentSize)
+    : method === "cps"
+      ? cpsScaleText()
+      : seedText;
 ```
 
 ```ts
@@ -253,6 +285,12 @@ try {
       "Harmonic segment n : n+1 : … : 2n over the fundamental. Change the size to re-render the preview.";
 
     paramsHost.replaceChildren(field, caption);
+  } else if (method === "cps") {
+    // Mount the CPS widget (GEN-01). It owns its own factor-chip + preset form
+    // AND renders its own scaleTable + ⏵⏵ Play internally, so for the CPS branch
+    // the shared previewHost shows only a short caption (the preview-host swap
+    // below). Mounting the persistent `cpsWidget` element preserves its state.
+    paramsHost.replaceChildren(cpsWidget);
   } else if (method === "") {
     const caption = document.createElement("p");
     caption.className = "dashboard-helper";
@@ -275,7 +313,16 @@ try {
 // not happen for the bounded reference method or the demo seed) show the
 // status copy. Text via textContent only.
 {
-  if (currentScaleError) {
+  if (method === "cps") {
+    // CPS renders its own scaleTable + ⏵⏵ Play inside the widget (mounted into
+    // paramsHost above), so the shared previewHost shows only a pointer caption —
+    // no duplicate table. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The CPS table and ⏵⏵ Play are shown above with the factor-set controls. Send-to serializes the current CPS scale.";
+    previewHost.replaceChildren(caption);
+  } else if (currentScaleError) {
     const div = document.createElement("div");
     div.setAttribute("role", "status");
     div.setAttribute("aria-live", "polite");
@@ -323,7 +370,9 @@ sendStatus.setAttribute("aria-live", "polite");
 // scaleText is read at click time via a Mutable; here the value is a cell).
 const CAP_ERROR_COPY =
   "Scale is too large to send (8 KB limit). Reduce the number of pitches and try again.";
-const SEND_SOURCE = "generate:harmonic-segment";
+// Derive the store-write source label from the active method so the shared store
+// records WHICH generator produced the scale (informative provenance, D-11).
+const SEND_SOURCE = `generate:${method || "demo"}`;
 
 function clearSendStatus() {
   sendStatus.className = "";
@@ -339,10 +388,16 @@ function showCapError() {
 // D-11) then deep-link-navigate with #s=; on > 8 KB RangeError surface the
 // cap-error copy and navigate hashless. `target` is the relative route from
 // /pages/generate ("../" = Dashboard, "./analysis" = Analysis).
+//
+// For the CPS branch we re-read the widget's scale LIVE at click time (the
+// widget's internal chip/preset edits don't tick Observable's reactive graph,
+// so currentScaleText may be stale) — this guarantees Send-to round-trips the
+// exact scale currently shown in the CPS table.
 function sendCurrentScaleTo(target) {
-  writeSharedScale(currentScaleText, SEND_SOURCE); // each handler invokes this exactly once
+  const scaleText = method === "cps" ? cpsScaleText() : currentScaleText;
+  writeSharedScale(scaleText, SEND_SOURCE); // each handler invokes this exactly once
   try {
-    const hash = "#s=" + encodeScaleToHash(currentScaleText);
+    const hash = "#s=" + encodeScaleToHash(scaleText);
     clearSendStatus();
     window.location.assign(target + hash);
   } catch (err) {
