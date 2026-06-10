@@ -1,0 +1,160 @@
+/*
+ * generate-cps.css — Combination Product Set widget (Phase 6 GEN-01).
+ * Loaded via @import in src/styles.css alongside the other component sheets.
+ *
+ * D-15: only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors mos-builder.css house style (flex form row, 16px input font set
+ * globally in styles.css to suppress iOS auto-zoom — not overridden here).
+ */
+
+.generate-cps {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-cps h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-cps__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-cps__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-cps__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.generate-cps__field select,
+.generate-cps__field input[type="number"] {
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-cps__field input[type="number"] {
+  width: 72px;
+}
+
+.generate-cps__field select:focus-visible,
+.generate-cps__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* ─── Factor-set chip input (D-13) ──────────────────────────────────────────── */
+
+.generate-cps__chip-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-cps__chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.generate-cps__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
+  font-family: var(--monospace);
+  font-size: 13px;
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-foreground) 8%, var(--theme-background));
+  border: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  border-radius: 999px;
+}
+
+.generate-cps__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-family: var(--sans-serif);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--theme-foreground-alt);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.generate-cps__chip-remove:hover,
+.generate-cps__chip-remove:focus-visible {
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-foreground) 14%, transparent);
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 1px;
+}
+
+.generate-cps__chip-form input[type="number"] {
+  width: 72px;
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-cps__add {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  color: var(--theme-foreground);
+  background: var(--theme-background);
+  border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.generate-cps__add:hover,
+.generate-cps__add:focus-visible {
+  background: color-mix(in oklab, var(--theme-foreground) 8%, var(--theme-background));
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.generate-cps__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.generate-cps__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-cps__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}
