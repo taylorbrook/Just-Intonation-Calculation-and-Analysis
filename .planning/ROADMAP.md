@@ -72,7 +72,7 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 **Plans**: 7 plans
 - [x] 06-01-PLAN.md — CPS kernel primitive (cps.ts): hand-rolled BigInt-exact Combination Product Set + Hexany/Dekany/Eikosany presets
 - [x] 06-02-PLAN.md — Harmonic-family kernel (harmonic.ts): harmonic/subharmonic segment, ADO, isoharmonic + reduce-to-octave flag
-- [ ] 06-03-PLAN.md — Generators kernel (generators.ts): diamond/odd-limit/prime-limit/Farey exact JI sets + edScale (tempered EDO/ED-n)
+- [x] 06-03-PLAN.md — Generators kernel (generators.ts): diamond/odd-limit/prime-limit/Farey exact JI sets + edScale (tempered EDO/ED-n)
 - [x] 06-04-PLAN.md — Tempered scale-table variant: cents-only (no ratio column) + "tempered" badge (SURF-06 presentation)
 - [x] 06-05-PLAN.md — CPS method widget (generate-cps.ts): factor-set chip input + presets + picker wiring
 - [ ] 06-06-PLAN.md — Harmonic-family method widget (generate-harmonic.ts): 4 sub-methods + reduce toggle + picker wiring (preserves default landing)
@@ -125,7 +125,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 3. Visualization + Mobile Audio Audit      | v1.0 | 7/7 | Complete    | 2026-05-06 |
 | 4. Analysis & Sharing                      | v1.0 | 7/7 | Complete    | 2026-05-06 |
 | 5. Generate Surface & Live Integration Foundation | v1.1 | 3/3 | Complete   | 2026-06-09 |
-| 6. Exact-Rational JI & Harmonic Generators | v1.1 | 4/7 | In Progress|  |
+| 6. Exact-Rational JI & Harmonic Generators | v1.1 | 5/7 | In Progress|  |
 | 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 0/TBD | Not started | - |
 | 8. Preview, Transforms & Advanced Generators | v1.1 | 0/TBD | Not started | - |
 | 9. Scala Archive Browser                   | v1.1 | 0/TBD | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-06-10T15:29:32.472Z"
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-06-10T16:28:18.352Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
   percent: 20
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 ## Current Position
 
 Phase: 06 (exact-rational-ji-harmonic-generators) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-06-10
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [███████░░░] 70%
 | Phase 06-exact-rational-ji-harmonic-generators P01 | 3min | 2 tasks | 3 files |
 | Phase 06-exact-rational-ji-harmonic-generators P04 | 2min | 2 tasks | 3 files |
 | Phase 06-exact-rational-ji-harmonic-generators P02 | 4min | 2 tasks | 3 files |
+| Phase 06-exact-rational-ji-harmonic-generators P03 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 04]: Plan 07: Both UAT checkpoints (10/10 each) approved — analysis page UAT (synth lifecycle clean, all 4 widgets functional, mobile-responsive) + URL share-path UAT (BigInt round-trip across fresh-tab paste, replaceState back-button cleanliness, malformed-hash D-20 retention)
 - [Phase ?]: [Phase 06]: CPS kernel roots each subset product at the lowest product (Wilson construction) before octave-reduce — canonical Hexany [1/1,7/6,5/4,35/24,5/3,7/4], not raw products
 - [Phase ?]: [Phase 06]: adoScale divides the full [1, equave] span arithmetically — (D·q + k·(p−q))/(D·q) BigInt-exact; equave 2/1 reproduces verified AFDO-6, non-octave equaves land top degree exactly on the equave
+- [Phase ?]: [Phase 06]: primeLimitSet enumerates a bounded integer grid (PRIME_SET_HEIGHT=81) because the prime-limit set is infinite; tests assert the prime-limit predicate + membership, not a full vector
+- [Phase ?]: [Phase 06]: edScale is TEMPERED — cents is source of truth via centsToRatio (SURF-06), no exact ratio of record; the exact equave is still passed as the Scale period
 
 ### Pending Todos
 
@@ -214,7 +217,7 @@ Notes:
 
 ## Session Continuity
 
-Last session: 2026-06-10T15:18:16.779Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-06-10T16:28:18.345Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file:
 None

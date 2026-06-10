@@ -25,8 +25,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [x] **GEN-01**: User can generate a Combination Product Set (CPS) from a factor set and choose-k, with Hexany / Dekany / Eikosany presets
 - [x] **GEN-02**: User can generate harmonic and subharmonic segment scales over a chosen harmonic range
 - [x] **GEN-03**: User can generate an arithmetic-division-of-the-octave (ADO) scale and isoharmonic chords
-- [ ] **GEN-04**: User can generate a tonality-diamond scale, an odd/prime-limit JI set, and a Farey / Stern-Brocot subset
-- [ ] **GEN-05**: User can generate an EDO and an equal-division-of-any-interval (ED-n) scale
+- [x] **GEN-04**: User can generate a tonality-diamond scale, an odd/prime-limit JI set, and a Farey / Stern-Brocot subset
+- [x] **GEN-05**: User can generate an EDO and an equal-division-of-any-interval (ED-n) scale
 - [ ] **GEN-06**: User can generate a rank-2 regular-temperament scale (generator + period, with optimal tunings) — advances parked TEMP-01
 - [ ] **GEN-07**: User can generate a well-temperament scale (per-fifth comma tempering)
 - [ ] **GEN-08**: User can generate a Fokker periodicity-block scale — delivers parked TEMP-08
@@ -93,8 +93,8 @@ Which phases cover which requirements. Populated during roadmap creation (v1.1 p
 | GEN-01 | Phase 6 | Complete |
 | GEN-02 | Phase 6 | Complete |
 | GEN-03 | Phase 6 | Complete |
-| GEN-04 | Phase 6 | Pending |
-| GEN-05 | Phase 6 | Pending |
+| GEN-04 | Phase 6 | Complete |
+| GEN-05 | Phase 6 | Complete |
 | GEN-06 | Phase 7 | Pending |
 | GEN-07 | Phase 7 | Pending |
 | GEN-08 | Phase 7 | Pending |
