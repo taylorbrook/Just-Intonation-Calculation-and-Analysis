@@ -4,13 +4,13 @@ milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
 stopped_at: Phase 6 context gathered
-last_updated: "2026-06-10T14:53:32.011Z"
-last_activity: 2026-06-10 -- Phase 06 planning complete
+last_updated: "2026-06-10T15:04:22.723Z"
+last_activity: 2026-06-10
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 10
-  completed_plans: 3
+  completed_plans: 4
   percent: 20
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Phase 05 — generate-surface-live-integration-foundation
+**Current focus:** Phase 06 — exact-rational-ji-harmonic-generators
 
 ## Current Position
 
-Phase: 05 (generate-surface-live-integration-foundation) — EXECUTING
-Plan: 1 of 3
+Phase: 06 (exact-rational-ji-harmonic-generators) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-06-10 -- Phase 06 planning complete
+Last activity: 2026-06-10
 
-Progress: [░░░░░░░░░░] 0% (v1.1; v1.0 Phases 1–4 shipped)
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1; v1.0 Phases 1–4 shipped)
 | Phase 02-math-kernel-composition-anchor-mvp P07 | 50min | 3 tasks | 6 files |
 | Phase 03-visualization-mobile-audio-audit P06 | ~10h | 6 tasks | 11 files |
 | Phase 04-analysis-sharing P07 | 57min | 4 tasks | 5 files |
+| Phase 06-exact-rational-ji-harmonic-generators P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 04]: Plan 07: Honored D-34 + Pitfall #11 — analysis page synth cell is verbatim mirror of dashboard's; Esc + activeVoices polling bound IN the synth cell (not in feature cells); two pages own SEPARATE AudioContexts (Pattern 4 inheritance verified at Checkpoint 1)
 - [Phase ?]: [Phase 04]: Plan 07: INVENTORY consolidation — appended 15 Phase 4 rows (4 sub-tables: edo/mos/url kernels + components incl. disposeScaleCompare); intermediate plans deferred rows to avoid wave-2 merge conflicts
 - [Phase ?]: [Phase 04]: Plan 07: Both UAT checkpoints (10/10 each) approved — analysis page UAT (synth lifecycle clean, all 4 widgets functional, mobile-responsive) + URL share-path UAT (BigInt round-trip across fresh-tab paste, replaceState back-button cleanliness, malformed-hash D-20 retention)
+- [Phase ?]: [Phase 06]: CPS kernel roots each subset product at the lowest product (Wilson construction) before octave-reduce — canonical Hexany [1/1,7/6,5/4,35/24,5/3,7/4], not raw products
 
 ### Pending Todos
 
@@ -209,7 +211,7 @@ Notes:
 
 ## Session Continuity
 
-Last session: 2026-06-10T05:47:07.840Z
+Last session: 2026-06-10T15:04:09.819Z
 Stopped at: Phase 6 context gathered
 Resume file:
-.planning/phases/06-exact-rational-ji-harmonic-generators/06-CONTEXT.md
+None

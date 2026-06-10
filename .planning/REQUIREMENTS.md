@@ -22,7 +22,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### GEN — Scale Generators
 
-- [ ] **GEN-01**: User can generate a Combination Product Set (CPS) from a factor set and choose-k, with Hexany / Dekany / Eikosany presets
+- [x] **GEN-01**: User can generate a Combination Product Set (CPS) from a factor set and choose-k, with Hexany / Dekany / Eikosany presets
 - [ ] **GEN-02**: User can generate harmonic and subharmonic segment scales over a chosen harmonic range
 - [ ] **GEN-03**: User can generate an arithmetic-division-of-the-octave (ADO) scale and isoharmonic chords
 - [ ] **GEN-04**: User can generate a tonality-diamond scale, an odd/prime-limit JI set, and a Farey / Stern-Brocot subset
@@ -90,7 +90,7 @@ Which phases cover which requirements. Populated during roadmap creation (v1.1 p
 | SURF-04 | Phase 8 | Pending |
 | SURF-05 | Phase 8 | Pending |
 | SURF-06 | Phase 6 | Pending |
-| GEN-01 | Phase 6 | Pending |
+| GEN-01 | Phase 6 | Complete |
 | GEN-02 | Phase 6 | Pending |
 | GEN-03 | Phase 6 | Pending |
 | GEN-04 | Phase 6 | Pending |
