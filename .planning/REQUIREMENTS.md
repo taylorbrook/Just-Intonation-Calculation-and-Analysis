@@ -27,10 +27,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [x] **GEN-03**: User can generate an arithmetic-division-of-the-octave (ADO) scale and isoharmonic chords
 - [x] **GEN-04**: User can generate a tonality-diamond scale, an odd/prime-limit JI set, and a Farey / Stern-Brocot subset
 - [x] **GEN-05**: User can generate an EDO and an equal-division-of-any-interval (ED-n) scale
-- [ ] **GEN-06**: User can generate a rank-2 regular-temperament scale (generator + period, with optimal tunings) — advances parked TEMP-01
-- [ ] **GEN-07**: User can generate a well-temperament scale (per-fifth comma tempering)
-- [ ] **GEN-08**: User can generate a Fokker periodicity-block scale — delivers parked TEMP-08
-- [ ] **GEN-09**: User can enter a free-text SonicWeave expression and compile it to a scale — delivers parked TEMP-07
+- [x] **GEN-06**: User can generate a rank-2 regular-temperament scale (generator + period, with optimal tunings) — advances parked TEMP-01
+- [x] **GEN-07**: User can generate a well-temperament scale (per-fifth comma tempering)
+- [x] **GEN-08**: User can generate a Fokker periodicity-block scale — delivers parked TEMP-08
+- [x] **GEN-09**: User can enter a free-text SonicWeave expression and compile it to a scale — delivers parked TEMP-07
 - [ ] **GEN-10**: User can generate Wilson recurrence / metallic-ratio (Mt. Meru) and constant-structure scales
 
 ### SYNC — Live Shared-State Integration
@@ -95,10 +95,10 @@ Which phases cover which requirements. Populated during roadmap creation (v1.1 p
 | GEN-03 | Phase 6 | Complete |
 | GEN-04 | Phase 6 | Complete |
 | GEN-05 | Phase 6 | Complete |
-| GEN-06 | Phase 7 | Pending |
-| GEN-07 | Phase 7 | Pending |
-| GEN-08 | Phase 7 | Pending |
-| GEN-09 | Phase 7 | Pending |
+| GEN-06 | Phase 7 | Complete |
+| GEN-07 | Phase 7 | Complete |
+| GEN-08 | Phase 7 | Complete |
+| GEN-09 | Phase 7 | Complete |
 | GEN-10 | Phase 8 | Pending |
 | SYNC-01 | Phase 5 | Pending |
 | SYNC-02 | Phase 5 | Pending |

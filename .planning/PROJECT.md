@@ -19,6 +19,8 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 **Pages:** `/` (composition dashboard) · `/pages/syntonic-comma` (theory page) · `/pages/analysis` (EDO + MOS + scale-compare + URL share)
 **Open after v1.0:** one deferred Safari RDM smoke-test re-walk to sign the `mobile-audit.md` Post-CR-02 footer (unit-level regression test already passes; documentation-trail item only). See STATE.md → Deferred Items.
 
+**v1.1 progress:** Phase 7 complete (2026-06-12) — rank-2 / well-temperament / Fokker / free-text SonicWeave generators ship over a single `sonicweave.ts` kernel adapter (GEN-06..09, delivering parked TEMP-01/07/08); 567 tests passing. Remaining: Phase 8 (preview, transforms & advanced generators), Phase 9 (Scala archive browser).
+
 ## Current Milestone: v1.1 Scale Generation & Library
 
 **Goal:** A dedicated Generate surface where the user produces JI / tempered / harmonic scales by many methods and loads named scales from the Scala archive — auditioning any result and pushing it live into the Dashboard and Analysis.
@@ -128,4 +130,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-08 — started milestone v1.1 Scale Generation & Library (continues numbering from v1.0's Phase 4). v1.0 MVP archive at `milestones/v1.0-ROADMAP.md` and `milestones/v1.0-REQUIREMENTS.md`.*
+*Last updated: 2026-06-12 — Phase 7 complete (SonicWeave adapter: rank-2, well-temperament, Fokker, free-text — GEN-06..09 validated). v1.0 MVP archive at `milestones/v1.0-ROADMAP.md` and `milestones/v1.0-REQUIREMENTS.md`.*
