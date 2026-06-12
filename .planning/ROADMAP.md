@@ -38,7 +38,7 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 
 - [x] **Phase 5: Generate Surface & Live Integration Foundation** - The `/pages/generate` tab, the additive `scale-store`, and the empty-store boot-equivalence gate (completed 2026-06-09)
 - [x] **Phase 6: Exact-Rational JI & Harmonic Generators** - CPS, harmonic/subharmonic/ADO/isoharmonic, diamond/odd/prime/Farey sets, EDO/ED-n (completed 2026-06-10)
-- [ ] **Phase 7: SonicWeave Adapter — Tempered, Lattice & Free-Text** - Rank-2, well-temperament, Fokker blocks, and a free-text SonicWeave escape hatch
+- [x] **Phase 7: SonicWeave Adapter — Tempered, Lattice & Free-Text** - Rank-2, well-temperament, Fokker blocks, and a free-text SonicWeave escape hatch (completed 2026-06-12)
 - [ ] **Phase 8: Preview, Transforms & Advanced Generators** - Circle-of-pitches viz, rotate/reduce/dedupe/transpose strip, tempered distinction, Wilson/metallic + constant-structure
 - [ ] **Phase 9: Scala Archive Browser** - Browse / search / load named scales from the bundled Scala archive into the Generate surface
 
@@ -92,7 +92,7 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 - [x] 07-01-PLAN.md — `sonicweave.ts` adapter (`scaleFromSonicWeave`, `isFractional()` discriminator + R-01 round-trip + cents-of-record) + `fokker.ts` `fokkerCardinality` |det| helper (TDD) [Wave 1]
 - [x] 07-02-PLAN.md — rank-2 (GEN-06, quarter-comma default) + well-temperament (GEN-07, Vallotti default + D-08 roster) widgets under "Regular" [Wave 2]
 - [x] 07-03-PLAN.md — Fokker periodicity-block (GEN-08, basis+comma modes, live |det| readout) + free-text SonicWeave (GEN-09, evaluate-on-click, raw errors) widgets [Wave 2]
-- [ ] 07-04-PLAN.md — register all four widgets in `generate.md` (optgroups, swaps, Send-to serialization) + CSS imports + human-verify [Wave 3]
+- [x] 07-04-PLAN.md — register all four widgets in `generate.md` (optgroups, swaps, Send-to serialization) + CSS imports + human-verify [Wave 3]
 
 ### Phase 8: Preview, Transforms & Advanced Generators
 **Goal**: The "shape at a glance" preview and the cheap polish that applies to every generator — a circle-of-pitches visualization and a rotate-to-mode + reduce/dedupe/transpose strip — plus the remaining advanced generators (Wilson recurrence / metallic, constant-structure), with the tempered-vs-JI distinction enforced consistently across all families.
@@ -130,7 +130,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 4. Analysis & Sharing                      | v1.0 | 7/7 | Complete    | 2026-05-06 |
 | 5. Generate Surface & Live Integration Foundation | v1.1 | 3/3 | Complete   | 2026-06-09 |
 | 6. Exact-Rational JI & Harmonic Generators | v1.1 | 7/7 | Complete   | 2026-06-10 |
-| 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 3/4 | In Progress|  |
+| 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 4/4 | Complete   | 2026-06-12 |
 | 8. Preview, Transforms & Advanced Generators | v1.1 | 0/TBD | Not started | - |
 | 9. Scala Archive Browser                   | v1.1 | 0/TBD | Not started | - |
 </content>
