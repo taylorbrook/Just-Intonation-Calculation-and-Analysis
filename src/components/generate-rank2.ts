@@ -24,7 +24,8 @@
  * Tuning select (D-03) {pure | quarter-comma | POTE | TE | CTE}:
  *   - pure          → `rank2(${gen}, ${up}, ${down})` (exact JI)
  *   - quarter-comma → `rank2(696.578428466209, ${up}, ${down})` (literal-cents D-02 default)
- *   - POTE/TE/CTE   → `rank2(3/2, ${up}, ${down})\n${TUNING}([${commaList}])` (RESEARCH Pattern 2)
+ *   - POTE/TE/CTE   → `rank2(${gen}, ${up}, ${down})\n${TUNING}([${commaList}])` (RESEARCH Pattern 2;
+ *                      `gen` is the preset's genN/genD — Magic 5/4, Hanson 6/5 — NOT a hardcoded 3/2, CR-01)
  *   - custom + ratio gen → `rank2(${n}/${d}, ${up}, ${down})` (exact);
  *     custom + cents gen  → `rank2(${cents}, ${up}, ${down})` (tempered).
  *
@@ -296,9 +297,14 @@ export function generateRank2(
       return `rank2(${QUARTER_COMMA_FIFTH}, ${String(up)}, ${String(down)})`;
     }
     // POTE / TE / CTE — the two-line temper pattern (RESEARCH Pattern 2).
+    // CR-01 fix: the generator is the PRESET's genN/genD (Magic 5/4, Hanson 6/5,
+    // custom n/d), NOT a hardcoded 3/2 — otherwise the displayed Generator field
+    // and the produced scale disagree (a tempered chain of fifths). Build the gen
+    // token exactly as the `pure` branch does so the two paths stay in lockstep.
     const seed = PRESETS[preset];
     const comma = seed ? seed.comma : "81/80";
-    return `rank2(3/2, ${String(up)}, ${String(down)})\n${tuning}([${comma}])`;
+    const gen = `${String(genN)}/${String(genD)}`;
+    return `rank2(${gen}, ${String(up)}, ${String(down)})\n${tuning}([${comma}])`;
   }
 
   function rebuild(): void {
