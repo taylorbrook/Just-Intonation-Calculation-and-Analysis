@@ -1,0 +1,173 @@
+/*
+ * generate-fokker.css — Fokker periodicity-block widget (Phase 7 GEN-08).
+ * Loaded via @import in src/styles.css alongside the other component sheets
+ * (the @import wiring is Plan 04).
+ *
+ * D-15 (Phase 6): only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors generate-cps.css house style (flex form row, chip input, status
+ * region) and adds the live "→ N notes" readout (D-12) rule.
+ */
+
+.generate-fokker {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-fokker h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-fokker__form,
+.generate-fokker__params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-fokker__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-fokker__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.generate-fokker__field select,
+.generate-fokker__field input[type="number"],
+.generate-fokker__field input[type="text"] {
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-fokker__field input[type="number"] {
+  width: 72px;
+}
+
+.generate-fokker__field select:focus-visible,
+.generate-fokker__field input:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* ─── Chip input (basis intervals + comma unison vectors) ─────────────────── */
+
+.generate-fokker__chip-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-fokker__chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.generate-fokker__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
+  font-family: var(--monospace);
+  font-size: 13px;
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-foreground) 8%, var(--theme-background));
+  border: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  border-radius: 999px;
+}
+
+.generate-fokker__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-family: var(--sans-serif);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--theme-foreground-alt);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.generate-fokker__chip-remove:hover,
+.generate-fokker__chip-remove:focus-visible {
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-foreground) 14%, transparent);
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 1px;
+}
+
+.generate-fokker__chip-form input[type="text"] {
+  width: 96px;
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-fokker__add {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  color: var(--theme-foreground);
+  background: var(--theme-background);
+  border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.generate-fokker__add:hover,
+.generate-fokker__add:focus-visible {
+  background: color-mix(in oklab, var(--theme-foreground) 8%, var(--theme-background));
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* ─── Live "→ N notes" readout (D-12) ─────────────────────────────────────── */
+
+.generate-fokker__readout {
+  font-family: var(--monospace);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--theme-foreground);
+  padding: 2px 0;
+}
+
+.generate-fokker__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.generate-fokker__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-fokker__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}
