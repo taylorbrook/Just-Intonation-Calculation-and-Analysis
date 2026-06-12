@@ -1,0 +1,14 @@
+diff --git a/node_modules/sonic-weave/package.json b/node_modules/sonic-weave/package.json
+index e7deeab..3856fe0 100644
+--- a/node_modules/sonic-weave/package.json
++++ b/node_modules/sonic-weave/package.json
+@@ -82,7 +82,8 @@
+   "exports": {
+     ".": {
+       "types": "./dist/index.d.ts",
+-      "import": "./dist/index.js"
++      "import": "./dist/index.js",
++      "default": "./dist/index.js"
+     },
+     "./ast": {
+       "types": "./dist/ast.d.ts",
