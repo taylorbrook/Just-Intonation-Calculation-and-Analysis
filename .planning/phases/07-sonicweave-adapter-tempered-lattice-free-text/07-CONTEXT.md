@@ -53,7 +53,7 @@ Ship the **genuinely advanced methods as thin, well-tested wrappers over the alr
 
 ### Claude's Discretion
 - **D-17:** Exact rank-2 preset roster beyond the named examples (D-01 lists the spirit; pick well-known temperaments with citable generator values), and each preset's default up/down counts.
-- **D-18:** Adapter error shape (structured return vs typed throw), the rational-vs-tempered discriminator (`iv.value instanceof TimeReal` per blueprint Assumption A4 — verify empirically), and defense-in-depth caps (Fokker extents, rank-2 up/down bounds) mirroring Phase-6 D-14 conventions.
+- **D-18:** Adapter error shape (structured return vs typed throw), the rational-vs-tempered discriminator (~~`iv.value instanceof TimeReal` per blueprint Assumption A4~~ — **RESEARCH verified this is WRONG**; tempered cents-based intervals are `TimeMonzo`, not `TimeReal`. Use `iv.value.isFractional()` as the discriminator, see 07-RESEARCH.md Pitfall 1 + Pattern 1), and defense-in-depth caps (Fokker extents, rank-2 up/down bounds) mirroring Phase-6 D-14 conventions.
 - **D-19:** Comma-mode input idiom for Fokker (chip input vs ratio fields) and how mode toggling preserves state between the two formulations.
 - **D-20:** Where the free-text widget's docs link points (the most stable SonicWeave docs URL at implementation time).
 

@@ -437,22 +437,27 @@ fn CTE(valsOrCommas, primeLimit = niente)  # Constrained (pure-equave) TE
 
 **If this table is non-empty:** A1 is the one the planner/discuss-phase should treat as needing per-preset verification (it directly affects historical correctness of GEN-07 presets). A2/A3 are implementation choices with verified anchors.
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three are bounded implementation choices resolved by concrete plan tasks (not open research). RESOLVED markers cite the resolving plan/task.
 
 1. **Exact well-temperament comma vectors for the full D-08 roster.**
    - What we know: the mechanism (`wellTemperament(fractions, 531441/524288, down, 3/2)`), Vallotti = 1/6 Pythagorean ×6 + pure ×6, Werckmeister III = four 1/4-comma fifths at specific positions + rest pure (8 pure fifths), and the pure-fifth counts (Werckmeister 8, Kellner 7, Vallotti 6) as assertable invariants.
    - What's unclear: the precise `commaFractions` array ordering and `down` reference for each of the 8 presets such that the per-degree cents match the canonical published values.
    - Recommendation: TDD per preset — source the scheme (arXiv 1912.10918 + Wikipedia + tonalsoft), encode the vector, assert (a) the pure-fifth count and (b) 2–3 published degree cents. This is bounded implementation work, not open research.
+   - **RESOLVED:** TDD per preset, owned by **Plan 02 Task 2** (`generate-welltemp.ts` + per-preset vectors appended to `sonicweave.test.ts`). Each preset's `commaFractions` vector is sourced from a citable reference (arXiv 1912.10918 + Wikipedia + tonalsoft, cross-checked against `src/pages/well-temperament.md`) and verified by an asserted test vector (pure-fifth count + 2–3 published degree cents). If a preset's vector cannot be confidently sourced, the plan ships a smaller verified roster and records the omission in the SUMMARY rather than a plausible-but-wrong vector.
 
 2. **Comma-mode Fokker enumeration implementation.**
    - What we know: \|det\| cardinality is exact via `integerDet`; `parallelotope` enumerates basis-mode blocks exactly.
    - What's unclear: whether to (a) convert comma kernel → basis via `xen-dev-utils` `kernel`/`hnf` then `parallelotope`, or (b) enumerate the block directly from the unison-vector lattice.
    - Recommendation: prefer (a) — reuse the verified `parallelotope` enumerator; verify the classic 81/80+128/125 block renders exactly 12 rational notes. Keep comma mode's primary job the \|det\| readout (D-12) + the comma→basis bridge.
+   - **RESOLVED:** Path (a), owned by **Plan 03 Task 1** (`generate-fokker.ts`). Comma mode's primary job is the live \|det\| readout via `fokkerCardinality` (Plan 01); enumeration reuses the verified `parallelotope` basis enumerator via a comma→basis bridge, and the plan's test asserts the classic 81/80 + 128/125 block renders exactly 12 exact-rational notes.
 
 3. **Rank-2 default: quarter-comma (historical) vs POTE (optimal).**
    - What we know: D-02 fixes quarter-comma meantone (696.578¢) as the landing default; POTE meantone is 696.239¢.
    - What's unclear: nothing blocking — just ensure the "pure"/"custom" generator path passes the literal 696.578¢ cents while the POTE/TE/CTE options use the temper pattern.
    - Recommendation: model the tuning select as {pure | quarter-comma | POTE | TE | CTE} where quarter-comma is a literal-cents preset and POTE/TE/CTE drive the temper pattern.
+   - **RESOLVED:** Owned by **Plan 02 Task 1** (`generate-rank2.ts`). The tuning select is modeled as {pure | quarter-comma | POTE | TE | CTE}: quarter-comma is the literal-cents landing default (`rank2(696.578428466209, up, down)`, D-02), pure passes the exact ratio, and POTE/TE/CTE drive the two-line temper pattern (RESEARCH Pattern 2).
 
 ## Environment Availability
 
