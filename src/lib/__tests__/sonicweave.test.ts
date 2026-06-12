@@ -125,6 +125,43 @@ describe("scaleFromSonicWeave — the Phase-7 DSL→kernel boundary", () => {
       expect(iv.equals(new Interval(nd))).toBe(true);
     }
   });
+
+  // ── WR-01 / WR-02: fail closed on non-positive intervals ──────────────────────
+  // fraction.js v5 keeps n/d non-negative and stores the sign in f.s, so the R-01
+  // round-trip used to LAUNDER a negative rational positive (`-3/2` → `3/2`) and
+  // accept the zero interval (`0/1` → -Infinity cents). The adapter contract is
+  // "all failure modes return a structured error" — these degenerate intervals
+  // must be among them (07-REVIEW.md WR-01/WR-02).
+  it("WR-01: a negative rational (-3/2) returns { scale: null, error } — no sign laundering", () => {
+    const result = scaleFromSonicWeave("-3/2\n2/1");
+    expect(result.scale).toBeNull();
+    expect(typeof result.error).toBe("string");
+    expect(result.error && result.error.length).toBeGreaterThan(0);
+  });
+
+  it("WR-02: the zero interval (0/1) returns { scale: null, error } — no -Infinity cents row", () => {
+    const result = scaleFromSonicWeave("0/1\n2/1");
+    expect(result.scale).toBeNull();
+    expect(typeof result.error).toBe("string");
+    expect(result.error && result.error.length).toBeGreaterThan(0);
+  });
+
+  it("regression: a positive-rational source still returns a non-null scale with unchanged intervals", () => {
+    const result = scaleFromSonicWeave("rank2(3/2, 5, 1)");
+    expect(result.error).toBeUndefined();
+    expect(result.tempered).toBe(false);
+    expect(result.scale).not.toBeNull();
+    expect(ndStrings(result.scale!)).toEqual([
+      "1/1",
+      "9/8",
+      "81/64",
+      "4/3",
+      "3/2",
+      "27/16",
+      "243/128",
+      "2/1",
+    ]);
+  });
 });
 
 /**
