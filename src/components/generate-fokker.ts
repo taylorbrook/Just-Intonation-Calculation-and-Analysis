@@ -102,9 +102,13 @@ function parseRatio(raw: string): string | null {
   const trimmed = raw.trim();
   const m = /^(\d+)\/(\d+)$/.exec(trimmed);
   if (!m) return null;
-  const n = parseInt(m[1]!, 10);
-  const d = parseInt(m[2]!, 10);
-  if (!Number.isInteger(n) || !Number.isInteger(d) || n < 1 || d < 1) return null;
+  // WR-04: validate/normalize with BigInt, NOT parseInt — the project has no
+  // prime-limit ceiling (CLAUDE.md disqualifies Number-backed ratio paths), so a
+  // comma whose numerator/denominator exceeds 2^53 must be preserved exactly, not
+  // rounded. The regex already guarantees digit-only groups, so BigInt cannot throw.
+  const n = BigInt(m[1]!);
+  const d = BigInt(m[2]!);
+  if (n < 1n || d < 1n) return null;
   return `${String(n)}/${String(d)}`;
 }
 
@@ -264,6 +268,14 @@ export function generateFokker(
    * A generic chip input (the generate-cps chip idiom): a labelled list of chips
    * each with a "×" remove control, plus an input + "Add" button. `validate`
    * turns the raw input string into the stored value (or null to reject).
+   *
+   * `cap` is the maximum chip count for THIS instance (MAX_BASIS for basis,
+   * MAX_COMMAS for commas — WR-03); hitting it writes a status message instead of
+   * silently dropping the chip. `onListChanged` (optional) runs after every
+   * mutation of the list (Add and Remove), so the caller can re-render dependent
+   * UI such as the per-axis extent fields (CR-02) — the basis instance binds it to
+   * renderExtents() so a new axis gets its own editable Up/Down controls and a
+   * removed axis leaves no stale field.
    */
   function makeChipInput(
     labelText: string,
@@ -272,6 +284,8 @@ export function generateFokker(
     setList: (next: string[]) => void,
     validate: (raw: string) => string | null,
     placeholder: string,
+    cap: number,
+    onListChanged?: () => void,
   ): HTMLElement {
     const chipForm = document.createElement("div");
     chipForm.className = "generate-fokker__chip-form";
@@ -320,6 +334,7 @@ export function generateFokker(
           next.splice(i, 1);
           setList(next);
           renderChips();
+          onListChanged?.(); // CR-02: regenerate dependent UI (extent fields).
           rebuild();
         });
         chip.appendChild(remove);
@@ -332,16 +347,65 @@ export function generateFokker(
       const validated = validate(chipInput.value);
       if (validated === null) return; // invalid → no chip, no crash.
       const next = getList().slice();
-      if (next.length >= MAX_COMMAS) return; // defense-in-depth cap.
+      // WR-03: cap is per-instance (MAX_BASIS for basis, MAX_COMMAS for commas).
+      // At the cap, surface a visible status message instead of silently dropping
+      // the chip (the basis slice no longer swallows the 7th chip without feedback).
+      if (next.length >= cap) {
+        status.textContent = `At most ${String(cap)} ${labelText.toLowerCase()}.`;
+        return;
+      }
       next.push(validated);
       setList(next);
       chipInput.value = "";
       renderChips();
+      onListChanged?.(); // CR-02: regenerate dependent UI (extent fields).
       rebuild();
     });
 
     renderChips();
     return chipForm;
+  }
+
+  // ── A dedicated host for the per-axis extent fields. Re-rendering only this
+  //    host (CR-02) regenerates the Up/Down inputs on a basis-list change WITHOUT
+  //    recreating the chip input (which would drop an in-progress chip value).
+  const extentsHost = document.createElement("div");
+  extentsHost.className = "generate-fokker__extents";
+
+  /**
+   * Rebuild ONLY the per-axis Up/Down extent cells from the current
+   * basisGenerators/ups/downs (CR-02). Called on initial basis render and after
+   * every basis-list mutation (Add/Remove) so each surviving axis owns correctly-
+   * indexed `fokker-up-${i}` / `fokker-down-${i}` inputs and no stale field
+   * remains for a removed axis.
+   */
+  function renderExtents(): void {
+    const extentCells: HTMLElement[] = [];
+    basisGenerators.forEach((gen, i) => {
+      extentCells.push(
+        makeIntField(
+          `Up (prime ${String(gen)})`,
+          `fokker-up-${String(i)}`,
+          ups[i] ?? 0,
+          (n) => {
+            ups[i] = Math.max(0, Math.min(MAX_EXTENT, n));
+          },
+          { min: "0", max: String(MAX_EXTENT) },
+        ),
+      );
+      extentCells.push(
+        makeIntField(
+          `Down (prime ${String(gen)})`,
+          `fokker-down-${String(i)}`,
+          downs[i] ?? 0,
+          (n) => {
+            downs[i] = Math.max(0, Math.min(MAX_EXTENT, n));
+          },
+          { min: "0", max: String(MAX_EXTENT) },
+        ),
+      );
+    });
+    extentsHost.replaceChildren(...extentCells);
   }
 
   /** Rebuild the params sub-region for the active mode (basis vs comma). */
@@ -363,35 +427,14 @@ export function generateFokker(
           return n === null ? null : String(n);
         },
         "e.g. 7",
+        MAX_BASIS,
+        // CR-02: regenerate the extent fields after every basis-list change so a
+        // newly added axis is editable and a removed axis leaves no stale field.
+        renderExtents,
       );
 
-      const extentCells: HTMLElement[] = [];
-      basisGenerators.forEach((gen, i) => {
-        extentCells.push(
-          makeIntField(
-            `Up (prime ${String(gen)})`,
-            `fokker-up-${String(i)}`,
-            ups[i] ?? 0,
-            (n) => {
-              ups[i] = Math.max(0, Math.min(MAX_EXTENT, n));
-            },
-            { min: "0", max: String(MAX_EXTENT) },
-          ),
-        );
-        extentCells.push(
-          makeIntField(
-            `Down (prime ${String(gen)})`,
-            `fokker-down-${String(i)}`,
-            downs[i] ?? 0,
-            (n) => {
-              downs[i] = Math.max(0, Math.min(MAX_EXTENT, n));
-            },
-            { min: "0", max: String(MAX_EXTENT) },
-          ),
-        );
-      });
-
-      paramsRegion.replaceChildren(basisChips, ...extentCells);
+      renderExtents();
+      paramsRegion.replaceChildren(basisChips, extentsHost);
     } else {
       // Comma-ratio chips (each chip an n/d unison vector).
       const commaChips = makeChipInput(
@@ -403,6 +446,7 @@ export function generateFokker(
         },
         parseRatio,
         "e.g. 81/80",
+        MAX_COMMAS,
       );
       paramsRegion.replaceChildren(commaChips);
     }

@@ -147,4 +147,140 @@ describe("generateFokker factory", () => {
     expect(generateFokker(synth)).toBeInstanceOf(HTMLElement);
     expect(generateFokker(synth, { baseHz: 256, precision: 2 })).toBeInstanceOf(HTMLElement);
   });
+
+  // ─── CR-02: basis-chip add/remove regenerates the per-axis extent fields ─────
+  it("CR-02: adding a basis chip regenerates the extent fields so the new axis has its own Up/Down inputs (not frozen at 0/0)", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+
+    // Default basis = [3, 5] → 2 axes → 4 extent inputs (up/down × 2).
+    const upInputsBefore = el.querySelectorAll('input[name^="fokker-up-"]');
+    const downInputsBefore = el.querySelectorAll('input[name^="fokker-down-"]');
+    expect(upInputsBefore.length).toBe(2);
+    expect(downInputsBefore.length).toBe(2);
+    expect(el.querySelector('input[name="fokker-up-2"]')).toBeNull();
+
+    // Add basis interval 7 (the third axis).
+    const basisInput = el.querySelector('input[name="fokker-basis-input"]') as HTMLInputElement;
+    const basisAdd = el.querySelector('button[name="fokker-basis-add"]') as HTMLButtonElement;
+    expect(basisInput).not.toBeNull();
+    expect(basisAdd).not.toBeNull();
+    basisInput.value = "7";
+    basisAdd.click();
+
+    // After Add: 3 axes → 6 extent inputs, and the new axis exists.
+    const upInputsAfter = el.querySelectorAll('input[name^="fokker-up-"]');
+    const downInputsAfter = el.querySelectorAll('input[name^="fokker-down-"]');
+    expect(upInputsAfter.length).toBe(3);
+    expect(downInputsAfter.length).toBe(3);
+    expect(el.querySelector('input[name="fokker-up-2"]')).not.toBeNull();
+    expect(el.querySelector('input[name="fokker-down-2"]')).not.toBeNull();
+  });
+
+  it("CR-02: editing the Up extent of a newly added basis axis changes the rendered scale cardinality (the axis is functionally usable)", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+
+    // Add basis 7.
+    const basisInput = el.querySelector('input[name="fokker-basis-input"]') as HTMLInputElement;
+    const basisAdd = el.querySelector('button[name="fokker-basis-add"]') as HTMLButtonElement;
+    basisInput.value = "7";
+    basisAdd.click();
+
+    // Row count before editing the new axis (the new axis defaults to up=0/down=0,
+    // contributing a factor of 1 — so cardinality is unchanged from the default 13).
+    const rowsBefore = el.querySelectorAll("tbody tr").length;
+
+    // Set the new axis's Up extent to a positive value → the axis now contributes,
+    // multiplying the parallelotope cardinality.
+    const newUp = el.querySelector('input[name="fokker-up-2"]') as HTMLInputElement;
+    expect(newUp).not.toBeNull();
+    newUp.value = "2";
+    newUp.dispatchEvent(new Event("input", { bubbles: true }));
+
+    const rowsAfter = el.querySelectorAll("tbody tr").length;
+    expect(rowsAfter).toBeGreaterThan(rowsBefore);
+
+    // The readout reflects the larger cardinality too.
+    const readout = el.querySelector(".generate-fokker__readout");
+    expect(readout?.textContent ?? "").not.toContain("→ 12 notes");
+  });
+
+  it("CR-02: removing a basis chip regenerates the extent fields so the input count matches the remaining axis count (no stale fields, no crash)", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+
+    // Default basis = [3, 5] → 2 axes → 4 extent inputs.
+    expect(el.querySelectorAll('input[name^="fokker-up-"]').length).toBe(2);
+    expect(el.querySelectorAll('input[name^="fokker-down-"]').length).toBe(2);
+
+    // Remove the first basis chip → 1 axis remains.
+    const firstRemove = el.querySelector(
+      ".generate-fokker__chip .generate-fokker__chip-remove",
+    ) as HTMLButtonElement;
+    expect(firstRemove).not.toBeNull();
+    firstRemove.click();
+
+    // Extent inputs now match the surviving axis count (1 axis → 2 inputs), with
+    // no stale field pointing past the basis length.
+    const upInputs = el.querySelectorAll('input[name^="fokker-up-"]');
+    const downInputs = el.querySelectorAll('input[name^="fokker-down-"]');
+    expect(upInputs.length).toBe(1);
+    expect(downInputs.length).toBe(1);
+    expect(el.querySelector('input[name="fokker-up-1"]')).toBeNull();
+    expect(el.querySelector('input[name="fokker-down-1"]')).toBeNull();
+  });
+
+  // ─── WR-03: basis chip cap is MAX_BASIS (6) with a visible status message ─────
+  it("WR-03: adding a 7th basis chip is rejected at MAX_BASIS (6) with a status message, not silently swallowed", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+
+    const basisInput = el.querySelector('input[name="fokker-basis-input"]') as HTMLInputElement;
+    const basisAdd = el.querySelector('button[name="fokker-basis-add"]') as HTMLButtonElement;
+    const status = el.querySelector(".generate-fokker__status");
+
+    // Default basis = [3, 5] (2 chips). Add four more to reach the cap of 6.
+    for (const prime of ["7", "11", "13", "17"]) {
+      basisInput.value = prime;
+      basisAdd.click();
+    }
+    expect(el.querySelectorAll(".generate-fokker__chip").length).toBe(6);
+
+    // The 7th chip must be rejected: chip count stays at 6 AND a status message
+    // mentioning the limit is shown (not a silent slice).
+    basisInput.value = "19";
+    basisAdd.click();
+    expect(el.querySelectorAll(".generate-fokker__chip").length).toBe(6);
+    const statusText = status?.textContent ?? "";
+    expect(statusText.length).toBeGreaterThan(0);
+    expect(statusText).toContain("6");
+  });
+
+  // ─── WR-04: comma ratios past 2^53 are BigInt-exact (no parseInt rounding) ────
+  it("WR-04: a comma ratio with a numerator above 2^53 round-trips through the chip label unchanged (BigInt-exact, not rounded)", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+    const modeSelect = el.querySelector('select[name="fokker-mode"]') as HTMLSelectElement;
+    modeSelect.value = "comma";
+    modeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // 2^53 + 1 = 9007199254740993, the first odd integer not representable as a
+    // JS Number — parseInt would round it to 9007199254740992 (an even number).
+    const bigNumerator = "9007199254740993";
+    const commaInput = el.querySelector('input[name="fokker-comma-input"]') as HTMLInputElement;
+    const commaAdd = el.querySelector('button[name="fokker-comma-add"]') as HTMLButtonElement;
+    expect(commaInput).not.toBeNull();
+    expect(commaAdd).not.toBeNull();
+    commaInput.value = `${bigNumerator}/1`;
+    commaAdd.click();
+
+    // The new chip label preserves the EXACT digits — no rounding.
+    const chipTexts = Array.from(el.querySelectorAll(".generate-fokker__chip-label")).map(
+      (c) => c.textContent ?? "",
+    );
+    expect(chipTexts).toContain(`${bigNumerator}/1`);
+    // And the rounded Number value must NOT appear.
+    expect(chipTexts).not.toContain("9007199254740992/1");
+  });
 });
