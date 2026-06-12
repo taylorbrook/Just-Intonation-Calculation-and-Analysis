@@ -31,12 +31,11 @@ export default defineConfig({
       // `npm:` prefix Framework resolves at runtime; Vitest needs a local
       // alias. @observablehq/plot is a devDependency (matches sw-synth pattern).
       "npm:@observablehq/plot": "@observablehq/plot",
-      // Plan 07-04 deviation (Rule 3): src/lib/sonicweave.ts imports
-      // `npm:sonic-weave` so Framework resolves it at build (Node's CJS loader
-      // can't resolve the bare specifier — sonic-weave@0.14.1's "exports" map
-      // has no `require`/`default` condition, only `import`/`types`). Vitest
-      // needs the local alias. Matches the sw-synth / ji-lattice pattern.
-      "npm:sonic-weave": "sonic-weave",
+      // NOTE (07-04): sonic-weave is imported BARE in src/lib/sonicweave.ts (not
+      // via `npm:`), so no vitest alias is needed — Node/Vitest resolve the bare
+      // specifier natively. Framework serves the local build from `/_node/...`
+      // after a patch-package patch adds a `default` export condition (jsDelivr's
+      // `npm:` bundle is broken upstream — see src/lib/sonicweave.ts header).
     },
   },
   test: {
