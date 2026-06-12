@@ -2,6 +2,10 @@
 import { describe, it, expect } from "vitest";
 import { generateRank2 } from "../generate-rank2.js";
 import { makeStubSynth } from "./test-utils.js";
+import type { Scale } from "../../lib/scale.js";
+
+/** The widget's getScale() narrowing (the tempered scale's cents-of-record). */
+type Rank2El = HTMLElement & { getScale: () => Scale | null };
 
 /**
  * generate-rank2.test.ts — Rank-2 regular-temperament widget (GEN-06, Plan 07-02
@@ -93,6 +97,42 @@ describe("generateRank2 factory", () => {
     const headers = Array.from(el.querySelectorAll("thead th")).map((th) => th.textContent);
     expect(headers).not.toContain("Ratio");
     expect((el as unknown as { isTempered: () => boolean }).isTempered()).toBe(true);
+  });
+
+  // ── CR-01 regression: POTE/TE/CTE must build from the PRESET'S generator ──────
+  // The bug hardcoded `rank2(3/2, …)` in the POTE/TE/CTE branch, so Magic (5/4)
+  // and Hanson (6/5) silently produced a tempered chain-of-FIFTHS. We assert on
+  // the OBSERVABLE consequence — the rendered tempered scale's cents (getScale()
+  // returns cents-of-record). The second degree (index 1) most cleanly separates
+  // the two chains: empirically verified (07-REVIEW.md CR-01) that Magic's 5/4
+  // chain puts ≈59.8¢ there while the buggy 3/2 chain puts ≈200.6¢; Hanson's 6/5
+  // chain puts ≈68.0¢ vs the 3/2 chain's ≈204.1¢.
+  it("selecting the Magic preset (POTE) builds the 5/4 third-chain, NOT a tempered chain of fifths (CR-01)", () => {
+    const el = generateRank2(makeStubSynth()) as Rank2El;
+    document.body.appendChild(el);
+    const preset = el.querySelector('select[name="rank2-preset"]') as HTMLSelectElement;
+    preset.value = "magic";
+    preset.dispatchEvent(new Event("change", { bubbles: true }));
+    const scale = el.getScale();
+    expect(scale).not.toBeNull();
+    const secondDegreeCents = scale!.intervals[1]!.cents;
+    // 5/4 chain → ≈59.8¢ (NOT the 3/2 chain's ≈200.6¢).
+    expect(secondDegreeCents).toBeCloseTo(59.8, 0);
+    expect(secondDegreeCents).not.toBeCloseTo(200.6, 0);
+  });
+
+  it("selecting the Hanson preset (POTE) builds the 6/5 minor-third-chain, NOT a tempered chain of fifths (CR-01)", () => {
+    const el = generateRank2(makeStubSynth()) as Rank2El;
+    document.body.appendChild(el);
+    const preset = el.querySelector('select[name="rank2-preset"]') as HTMLSelectElement;
+    preset.value = "hanson";
+    preset.dispatchEvent(new Event("change", { bubbles: true }));
+    const scale = el.getScale();
+    expect(scale).not.toBeNull();
+    const secondDegreeCents = scale!.intervals[1]!.cents;
+    // 6/5 chain → ≈68.0¢ (NOT the 3/2 chain's ≈204.1¢).
+    expect(secondDegreeCents).toBeCloseTo(68.0, 0);
+    expect(secondDegreeCents).not.toBeCloseTo(204.1, 0);
   });
 
   it("up/down generator count inputs drive scale size (D-04): raising up from 5 to 6 adds a row", () => {
