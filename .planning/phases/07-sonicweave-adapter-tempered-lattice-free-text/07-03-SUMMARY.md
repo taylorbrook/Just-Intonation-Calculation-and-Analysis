@@ -121,6 +121,12 @@ None — no external service configuration required.
 - GEN-08 + GEN-09 widgets ship file-disjoint from Plan 02 (no `generate.md` / `styles.css` touched). **Plan 04 owns:** CSS `@import` wiring (`generate-fokker.css`, `generate-sonicweave.css`) into `src/styles.css` and picker registration in `generate.md` (Fokker -> "Advanced" optgroup; free-text -> a new "SonicWeave" optgroup).
 - Both widgets expose `getScale()` + `isTempered()` for the established Send-to serialization (ratios for JI / cents-per-line for tempered).
 
+## Self-Check: PASSED
+
+- All 6 created source files exist on disk.
+- All task commits (8de883f, be8722f, e423efa, 579d12b) + the SUMMARY commit (785f918) are reachable.
+- Both new test files green; full suite 527/527 green; all six plan files lint-clean.
+
 ---
 *Phase: 07-sonicweave-adapter-tempered-lattice-free-text*
 *Completed: 2026-06-11*
