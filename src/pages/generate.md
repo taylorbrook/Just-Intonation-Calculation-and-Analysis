@@ -12,6 +12,10 @@ import { generateCps } from "../components/generate-cps.js";
 import { generateHarmonic } from "../components/generate-harmonic.js";
 import { generateJiSet } from "../components/generate-ji-set.js";
 import { generateEd } from "../components/generate-ed.js";
+import { generateRank2 } from "../components/generate-rank2.js";
+import { generateWelltemp } from "../components/generate-welltemp.js";
+import { generateFokker } from "../components/generate-fokker.js";
+import { generateSonicweave } from "../components/generate-sonicweave.js";
 import { encodeScaleToHash } from "../lib/url.js";
 import { writeSharedScale } from "../state/scale-store.js";
 ```
@@ -66,7 +70,11 @@ const seedText = `9/8
 const METHOD_FAMILIES = [
   {
     label: "Regular / equal temperament",
-    options: [{ id: "ed", text: "EDO / equal division (ED-n)", placeholder: false }],
+    options: [
+      { id: "ed", text: "EDO / equal division (ED-n)", placeholder: false },
+      { id: "rank2", text: "Rank-2 regular temperament", placeholder: false },
+      { id: "welltemp", text: "Well-temperament", placeholder: false },
+    ],
   },
   {
     label: "JI combinatorial",
@@ -81,7 +89,11 @@ const METHOD_FAMILIES = [
   },
   {
     label: "Advanced / algorithmic",
-    options: [{ id: "advanced-placeholder", text: "(coming soon)", placeholder: true }],
+    options: [{ id: "fokker", text: "Fokker periodicity block", placeholder: false }],
+  },
+  {
+    label: "SonicWeave",
+    options: [{ id: "sonicweave", text: "Free-text SonicWeave", placeholder: false }],
   },
 ];
 ```
@@ -226,6 +238,46 @@ const edWidget = generateEd(synth, { baseHz });
 ```
 
 ```ts
+// Rank-2 regular-temperament widget (GEN-06, Plan 07-02). Instantiated ONCE so its
+// closure-local preset + tuning + generator + up/down survive mount/unmount into
+// paramsHost across picker swaps (the generateEd / generateCps Pattern-2 precedent).
+// It renders its own scaleTable + ⏵⏵ Play internally and exposes getScale() AND
+// isTempered() — CONDITIONALLY tempered (quarter-comma default → tempered cents-of-
+// record; the Pythagorean pure preset → exact JI ratios). The Send-to cell branches
+// on isTempered() to serialize cents-per-line (tempered) or ratio-per-line (pure).
+const rank2Widget = generateRank2(synth, { baseHz });
+```
+
+```ts
+// Well-temperament widget (GEN-07, Plan 07-02). Instantiated ONCE so its closure-
+// local preset + per-fifth comma-fraction vector survive mount/unmount into
+// paramsHost across picker swaps. It renders its own TEMPERED scaleTable (cents-only
+// + "tempered" badge) + ⏵⏵ Play and exposes getScale() AND isTempered() (ALWAYS true
+// — well-temperament is cents-of-record), so the Send-to cell serializes the scale as
+// cents-per-line (D-03), never ratios.
+const welltempWidget = generateWelltemp(synth, { baseHz });
+```
+
+```ts
+// Fokker periodicity-block widget (GEN-08, Plan 07-03). Instantiated ONCE so its
+// closure-local mode (basis ↔ comma) + basis/extents + comma chips survive
+// mount/unmount into paramsHost across picker swaps. It renders its own EXACT-JI
+// scaleTable + ⏵⏵ Play and exposes getScale() AND isTempered() (ALWAYS false — Fokker
+// blocks are exact rational), so the Send-to cell serializes ratio-per-line.
+const fokkerWidget = generateFokker(synth, { baseHz });
+```
+
+```ts
+// Free-text SonicWeave widget (GEN-09, Plan 07-03). Instantiated ONCE so its closure-
+// local textarea program survives mount/unmount into paramsHost across picker swaps.
+// It renders its own scaleTable + ⏵⏵ Play and exposes getScale() AND isTempered() —
+// CONDITIONALLY tempered (the cps([1,3,5,7],2) default is exact JI → false; a tempered
+// program → true). The Send-to cell branches on isTempered() to serialize cents-per-
+// line (tempered) or ratio-per-line (exact JI).
+const sonicweaveWidget = generateSonicweave(synth, { baseHz });
+```
+
+```ts
 // ─── Compute the current scale from the picker + param ───────────────────────
 // Serialize the CPS widget's current Scale ratio-per-line (exact JI — D-06). Read
 // LIVE from the widget so the latest chip/preset edits round-trip (the widget's
@@ -278,6 +330,55 @@ function edScaleText() {
   if (ivs.length > 0 && Math.abs(ivs[0].cents) < 1e-6) ivs = ivs.slice(1);
   return ivs.map((iv) => iv.cents.toFixed(4)).join("\n");
 }
+// ─── Phase-7 widgets (GEN-06..09). All read LIVE from the widget at call time
+// (the widget's internal edits don't tick Observable's reactive graph — the
+// live-read rationale above). Each drops a leading unison so parseScala's
+// auto-prepended 1/1 isn't duplicated.
+//
+// Exact-JI serializers emit ratios (cpsScaleText idiom, drop leading "1"); tempered
+// serializers emit cents-per-line (edScaleText idiom: iv.cents.toFixed(4), drop the
+// leading 0¢ unison). The CONDITIONAL widgets (rank-2, free-text) branch on the
+// widget's LIVE isTempered() so a pure tuning serializes ratios and a tempered tuning
+// serializes cents — never laundering a temperament as exact JI (T-07-15 / SURF-06).
+
+/** Exact-JI ratio-per-line serialization (drop a leading 1/1). */
+function ratioPerLine(scale) {
+  let ivs = scale.intervals;
+  if (ivs.length > 0 && ivs[0].toString() === "1") ivs = ivs.slice(1);
+  return ivs.map((iv) => iv.toString()).join("\n");
+}
+
+/** Tempered cents-per-line serialization (drop a leading 0¢ unison). */
+function centsPerLine(scale) {
+  let ivs = scale.intervals;
+  if (ivs.length > 0 && Math.abs(ivs[0].cents) < 1e-6) ivs = ivs.slice(1);
+  return ivs.map((iv) => iv.cents.toFixed(4)).join("\n");
+}
+
+// Rank-2 (GEN-06) — CONDITIONAL: tempered → cents-per-line; pure → ratio-per-line.
+function rank2ScaleText() {
+  const scale = rank2Widget.getScale();
+  if (!scale) return seedText;
+  return rank2Widget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
+}
+// Well-temperament (GEN-07) — ALWAYS tempered: cents-per-line (T-07-15 / SURF-06).
+function welltempScaleText() {
+  const scale = welltempWidget.getScale();
+  if (!scale) return seedText;
+  return centsPerLine(scale);
+}
+// Fokker periodicity block (GEN-08) — EXACT JI: ratio-per-line, never cents.
+function fokkerScaleText() {
+  const scale = fokkerWidget.getScale();
+  if (!scale) return seedText;
+  return ratioPerLine(scale);
+}
+// Free-text SonicWeave (GEN-09) — CONDITIONAL: tempered → cents-per-line; JI → ratios.
+function sonicweaveScaleText() {
+  const scale = sonicweaveWidget.getScale();
+  if (!scale) return seedText;
+  return sonicweaveWidget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
+}
 const currentScaleText =
   method === "harmonic-segment"
     ? harmonicScaleText()
@@ -287,7 +388,15 @@ const currentScaleText =
         ? jiSetScaleText()
         : method === "ed"
           ? edScaleText()
-          : seedText;
+          : method === "rank2"
+            ? rank2ScaleText()
+            : method === "welltemp"
+              ? welltempScaleText()
+              : method === "fokker"
+                ? fokkerScaleText()
+                : method === "sonicweave"
+                  ? sonicweaveScaleText()
+                  : seedText;
 ```
 
 ```ts
@@ -337,6 +446,30 @@ try {
     // shared previewHost shows only a pointer caption. The persistent `edWidget`
     // element preserves its closure-local state across picker swaps.
     paramsHost.replaceChildren(edWidget);
+  } else if (method === "rank2") {
+    // Mount the rank-2 widget (GEN-06). It owns its preset + tuning + generator +
+    // up/down controls AND renders its own scaleTable (conditionally tempered) +
+    // ⏵⏵ Play, so the shared previewHost shows only a pointer caption. The persistent
+    // `rank2Widget` element preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(rank2Widget);
+  } else if (method === "welltemp") {
+    // Mount the well-temperament widget (GEN-07). It owns its preset + per-fifth
+    // comma-fraction controls AND renders its own TEMPERED scaleTable (cents-only +
+    // badge) + ⏵⏵ Play, so the shared previewHost shows only a pointer caption. The
+    // persistent `welltempWidget` element preserves its closure-local state.
+    paramsHost.replaceChildren(welltempWidget);
+  } else if (method === "fokker") {
+    // Mount the Fokker periodicity-block widget (GEN-08). It owns its mode (basis ↔
+    // comma) + basis/extents/comma controls AND renders its own EXACT-JI scaleTable +
+    // ⏵⏵ Play, so the shared previewHost shows only a pointer caption. The persistent
+    // `fokkerWidget` element preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(fokkerWidget);
+  } else if (method === "sonicweave") {
+    // Mount the free-text SonicWeave widget (GEN-09). It owns its textarea + Evaluate
+    // button AND renders its own scaleTable (conditionally tempered) + ⏵⏵ Play, so the
+    // shared previewHost shows only a pointer caption. The persistent `sonicweaveWidget`
+    // element preserves its closure-local textarea program across picker swaps.
+    paramsHost.replaceChildren(sonicweaveWidget);
   } else if (method === "") {
     const caption = document.createElement("p");
     caption.className = "dashboard-helper";
@@ -396,6 +529,42 @@ try {
     caption.className = "dashboard-helper";
     caption.textContent =
       "The tempered (cents-only) table and ⏵⏵ Play are shown above with the sub-method controls. Send-to serializes the scale as cents-per-line.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "rank2") {
+    // The rank-2 widget renders its own scaleTable (exact-JI ratios when pure, tempered
+    // cents-only + badge when not) + ⏵⏵ Play (mounted into paramsHost above), so the
+    // shared previewHost shows only a pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The rank-2 table and ⏵⏵ Play are shown above with the preset/tuning controls. Send-to serializes ratios for pure tunings and cents-per-line for tempered ones.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "welltemp") {
+    // The well-temperament widget renders its own TEMPERED scaleTable (cents-only +
+    // badge) + ⏵⏵ Play (mounted into paramsHost above), so the shared previewHost
+    // shows only a pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The tempered (cents-only) table and ⏵⏵ Play are shown above with the preset/fifth controls. Send-to serializes the scale as cents-per-line.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "fokker") {
+    // The Fokker widget renders its own EXACT-JI scaleTable + ⏵⏵ Play and the live
+    // "→ N notes" readout (mounted into paramsHost above), so the shared previewHost
+    // shows only a pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The exact-JI block table and ⏵⏵ Play are shown above with the basis/comma controls. Send-to serializes the current block ratio-per-line.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "sonicweave") {
+    // The free-text SonicWeave widget renders its own scaleTable (conditionally
+    // tempered) + ⏵⏵ Play (mounted into paramsHost above), so the shared previewHost
+    // shows only a pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The table and ⏵⏵ Play are shown above with the program textarea. Send-to serializes ratios for exact-JI programs and cents-per-line for tempered ones.";
     previewHost.replaceChildren(caption);
   } else if (currentScaleError) {
     const div = document.createElement("div");
@@ -478,7 +647,15 @@ function sendCurrentScaleTo(target) {
           ? jiSetScaleText()
           : method === "ed"
             ? edScaleText() // D-03: tempered → cents-per-line (SURF-06).
-            : currentScaleText;
+            : method === "rank2"
+              ? rank2ScaleText() // CONDITIONAL: ratios (pure) or cents (tempered).
+              : method === "welltemp"
+                ? welltempScaleText() // ALWAYS tempered → cents-per-line (SURF-06).
+                : method === "fokker"
+                  ? fokkerScaleText() // EXACT JI → ratio-per-line.
+                  : method === "sonicweave"
+                    ? sonicweaveScaleText() // CONDITIONAL: ratios (JI) or cents (tempered).
+                    : currentScaleText;
   writeSharedScale(scaleText, SEND_SOURCE); // each handler invokes this exactly once
   try {
     const hash = "#s=" + encodeScaleToHash(scaleText);

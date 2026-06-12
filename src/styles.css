@@ -37,6 +37,10 @@
 @import "./components/generate-harmonic.css";
 @import "./components/generate-ji-set.css";
 @import "./components/generate-ed.css";
+@import "./components/generate-rank2.css";
+@import "./components/generate-welltemp.css";
+@import "./components/generate-fokker.css";
+@import "./components/generate-sonicweave.css";
 
 /* Phase 3 (D-17) — global iOS Safari auto-zoom suppression.
  * iOS Safari auto-zooms any input whose font-size is < 16px on focus. Set

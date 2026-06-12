@@ -42,6 +42,27 @@
  * Number-backed `Fraction`.
  */
 
+// Plan 04 resolution (Rule 3 — blocking issue): import bare `sonic-weave` so
+// Observable Framework serves the REAL local build from `/_node/sonic-weave...`
+// (the same path that resolves `xen-dev-utils`/`fraction.js`).
+//
+// Why NOT `npm:sonic-weave`: Framework routes the `npm:` prefix through
+// jsDelivr's `+esm` bundle, and jsDelivr CANNOT bundle sonic-weave@0.14.1 —
+// `/_npm/sonic-weave@0.14.1/_esm.js` is a stub that only `throw`s
+// "Failed to bundle using Rollup v2.79.2…". No exports exist, so every widget
+// cell died with `does not provide an export named 'evaluateSource'`. This is an
+// upstream jsDelivr/Rollup failure, not fixable from our side — the `npm:` path
+// is off the table for this package.
+//
+// Why bare `sonic-weave` needs a patch: sonic-weave@0.14.1's "exports" map
+// declares ONLY `types` + `import` for every subpath (no `require`, no
+// `default`). Framework 1.13.4's node-import resolver follows a CJS-style
+// resolve that requires a `require` or `default` condition, so it threw
+// ERR_PACKAGE_PATH_NOT_EXPORTED on the bare specifier. We patch the package's
+// `.` export to add a `default` condition (pointing at the same `./dist/index.js`
+// as `import`) via patch-package (see patches/ + the `postinstall` script). With
+// that condition present, Framework resolves the bare import and serves
+// `/_node/sonic-weave@0.14.1/index.js` — the real, complete build.
 import { evaluateSource } from "sonic-weave";
 import { Interval } from "./interval.js";
 import { Scale } from "./scale.js";
