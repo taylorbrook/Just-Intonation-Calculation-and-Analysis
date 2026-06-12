@@ -115,27 +115,49 @@ export function scaleFromSonicWeave(src: string): SonicWeaveResult {
   const out: Interval[] = [];
   let tempered = false;
   for (const iv of visitor.currentScale) {
-    if (iv.value.isFractional()) {
-      // Exact rational: R-01 round-trip via the n/d string — the SonicWeave
-      // Fraction object NEVER crosses into the kernel (T-07-02).
-      const f = iv.toFraction();
-      // WR-01 / WR-02: the SonicWeave fraction keeps n/d non-negative and stores
-      // the sign in f.s (-1 negative | 0 zero | 1 positive). The n/d round-trip
-      // would otherwise LAUNDER a negative rational positive (`-3/2` → `3/2`) and
-      // admit the zero interval (`0/1` → -Infinity cents). Fail closed, like
-      // parseScala (Pitfall #6). Also neutralizes WR-06 (custom negative rank-2
-      // generator). NOTE: f.s / f.n arrive as runtime Numbers here (NOT BigInts
-      // as the blueprint assumed), so the zero test goes through Number(f.n) — a
-      // strict `f.n === 0n` would silently miss the zero interval (number !== bigint).
-      if (f.s < 0n || Number(f.n) === 0) {
-        return { scale: null, tempered, error: "Scale contains a non-positive interval." };
+    // The mapping itself can throw on legitimate input — sonic-weave's
+    // Number-backed Fraction throws "Numerator above safe limit" past 2^53
+    // (`3^45`, Mercator's comma 3^53/2^84), even though isFractional() is true.
+    // Fail closed per the never-throws contract (D-18 / T-07-04).
+    try {
+      if (iv.value.isFractional()) {
+        // Exact rational: R-01 round-trip via the n/d string — the SonicWeave
+        // Fraction object NEVER crosses into the kernel (T-07-02).
+        const f = iv.toFraction();
+        // WR-01 / WR-02: the SonicWeave fraction keeps n/d non-negative and stores
+        // the sign in f.s (-1 negative | 0 zero | 1 positive). The n/d round-trip
+        // would otherwise LAUNDER a negative rational positive (`-3/2` → `3/2`) and
+        // admit the zero interval (`0/1` → -Infinity cents). Fail closed, like
+        // parseScala (Pitfall #6). Also neutralizes WR-06 (custom negative rank-2
+        // generator). NOTE: f.s / f.n arrive as runtime Numbers here (NOT BigInts
+        // as the blueprint assumed), so the zero test goes through Number(f.n) — a
+        // strict `f.n === 0n` would silently miss the zero interval (number !== bigint).
+        if (f.s < 0n || Number(f.n) === 0) {
+          return { scale: null, tempered, error: "Scale contains a non-positive interval." };
+        }
+        out.push(new Interval(`${String(f.n)}/${String(f.d)}`));
+      } else {
+        // Tempered/irrational: cents is the source of record (Pitfall #1 / T-07-03).
+        // No exact ratio exists; we project cents → ratio for display/audio only.
+        tempered = true;
+        const ratio = centsToRatio(iv.totalCents());
+        // centsToRatio overflows to Infinity ≥ ~1,228,800 cents; fraction.js
+        // throws converting non-finite Numbers to BigInt.
+        if (!Number.isFinite(ratio) || ratio <= 0) {
+          return {
+            scale: null,
+            tempered,
+            error: "Scale contains an interval too large to represent.",
+          };
+        }
+        out.push(new Interval(ratio));
       }
-      out.push(new Interval(`${String(f.n)}/${String(f.d)}`));
-    } else {
-      // Tempered/irrational: cents is the source of record (Pitfall #1 / T-07-03).
-      // No exact ratio exists; we project cents → ratio for display/audio only.
-      tempered = true;
-      out.push(new Interval(centsToRatio(iv.totalCents())));
+    } catch (e) {
+      return {
+        scale: null,
+        tempered,
+        error: e instanceof Error ? e.message : String(e),
+      };
     }
   }
 

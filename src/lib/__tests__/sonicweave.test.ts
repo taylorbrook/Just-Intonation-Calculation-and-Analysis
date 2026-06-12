@@ -146,6 +146,32 @@ describe("scaleFromSonicWeave — the Phase-7 DSL→kernel boundary", () => {
     expect(result.error && result.error.length).toBeGreaterThan(0);
   });
 
+  // ── CR-01 (re-review): the STEP 3 mapping loop must never throw ────────────────
+  // sonic-weave's Number-backed Fraction throws "Numerator above safe limit" for
+  // rationals past 2^53 even though isFractional() is true, and centsToRatio
+  // overflows to Infinity for extreme cents (fraction.js then throws converting
+  // to BigInt). All three must come back as structured errors (07-REVIEW.md CR-01).
+  it("CR-01: a rational past 2^53 (3^45) returns { scale: null, error } — no throw", () => {
+    const result = scaleFromSonicWeave("3^45");
+    expect(result.scale).toBeNull();
+    expect(typeof result.error).toBe("string");
+    expect(result.error && result.error.length).toBeGreaterThan(0);
+  });
+
+  it("CR-01: Mercator's comma (3^53/2^84) returns { scale: null, error } — no throw", () => {
+    const result = scaleFromSonicWeave("3^53/2^84\n2/1");
+    expect(result.scale).toBeNull();
+    expect(typeof result.error).toBe("string");
+    expect(result.error && result.error.length).toBeGreaterThan(0);
+  });
+
+  it("CR-01: a non-finite cents projection (1228801.) returns { scale: null, error } — no throw", () => {
+    const result = scaleFromSonicWeave("1228801.");
+    expect(result.scale).toBeNull();
+    expect(typeof result.error).toBe("string");
+    expect(result.error && result.error.length).toBeGreaterThan(0);
+  });
+
   it("regression: a positive-rational source still returns a non-null scale with unchanged intervals", () => {
     const result = scaleFromSonicWeave("rank2(3/2, 5, 1)");
     expect(result.error).toBeUndefined();
