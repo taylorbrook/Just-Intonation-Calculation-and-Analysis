@@ -42,7 +42,18 @@
  * Number-backed `Fraction`.
  */
 
-import { evaluateSource } from "sonic-weave";
+// Plan 04 deviation (Rule 3 — blocking issue): import via the `npm:` prefix.
+// Observable Framework resolves bare specifiers ("sonic-weave") through Node's
+// CJS loader, which enforces the package's "exports" field. sonic-weave@0.14.1
+// declares an "exports" map with only `import`/`types` conditions (no `require`
+// or unconditional `default`), so Framework's `require.resolve` throws
+// ERR_PACKAGE_PATH_NOT_EXPORTED the moment a BUILT page imports a module that
+// imports sonic-weave bare. Plans 01–03 never tripped this because no page
+// imported the adapter/widgets; Plan 04 is the first page to reach it. Framework's
+// documented workaround is the `npm:` prefix (routed through jsDelivr `+esm`),
+// matching the existing `npm:sw-synth` / `npm:ji-lattice` treatment. vitest.config.ts
+// aliases `npm:sonic-weave` → `sonic-weave` so unit tests still resolve the local install.
+import { evaluateSource } from "npm:sonic-weave";
 import { Interval } from "./interval.js";
 import { Scale } from "./scale.js";
 import { centsToRatio } from "./cents.js";
