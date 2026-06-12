@@ -93,8 +93,8 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 - [x] 07-02-PLAN.md — rank-2 (GEN-06, quarter-comma default) + well-temperament (GEN-07, Vallotti default + D-08 roster) widgets under "Regular" [Wave 2]
 - [x] 07-03-PLAN.md — Fokker periodicity-block (GEN-08, basis+comma modes, live |det| readout) + free-text SonicWeave (GEN-09, evaluate-on-click, raw errors) widgets [Wave 2]
 - [x] 07-04-PLAN.md — register all four widgets in `generate.md` (optgroups, swaps, Send-to serialization) + CSS imports + human-verify [Wave 3]
-- [ ] 07-05-PLAN.md — gap closure: fix rank-2 POTE/TE/CTE generator (CR-01, Magic/Hanson use preset gen) + adapter negative/zero-interval guard (WR-01/WR-02) (GEN-06) [Wave 1]
-- [ ] 07-06-PLAN.md — gap closure: Fokker basis-chip add/remove re-renders extent fields (CR-02) + basis cap status message (WR-03) + BigInt comma validation (WR-04) (GEN-08) [Wave 1]
+- [x] 07-05-PLAN.md — gap closure: fix rank-2 POTE/TE/CTE generator (CR-01, Magic/Hanson use preset gen) + adapter negative/zero-interval guard (WR-01/WR-02) (GEN-06) [Wave 1]
+- [x] 07-06-PLAN.md — gap closure: Fokker basis-chip add/remove re-renders extent fields (CR-02) + basis cap status message (WR-03) + BigInt comma validation (WR-04) (GEN-08) [Wave 1]
 
 ### Phase 8: Preview, Transforms & Advanced Generators
 **Goal**: The "shape at a glance" preview and the cheap polish that applies to every generator — a circle-of-pitches visualization and a rotate-to-mode + reduce/dedupe/transpose strip — plus the remaining advanced generators (Wilson recurrence / metallic, constant-structure), with the tempered-vs-JI distinction enforced consistently across all families.
@@ -132,7 +132,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 4. Analysis & Sharing                      | v1.0 | 7/7 | Complete    | 2026-05-06 |
 | 5. Generate Surface & Live Integration Foundation | v1.1 | 3/3 | Complete   | 2026-06-09 |
 | 6. Exact-Rational JI & Harmonic Generators | v1.1 | 7/7 | Complete   | 2026-06-10 |
-| 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 4/4 | Complete   | 2026-06-12 |
+| 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 6/6 | Complete   | 2026-06-12 |
 | 8. Preview, Transforms & Advanced Generators | v1.1 | 0/TBD | Not started | - |
 | 9. Scala Archive Browser                   | v1.1 | 0/TBD | Not started | - |
 </content>
