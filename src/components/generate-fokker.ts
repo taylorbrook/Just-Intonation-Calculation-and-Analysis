@@ -102,9 +102,13 @@ function parseRatio(raw: string): string | null {
   const trimmed = raw.trim();
   const m = /^(\d+)\/(\d+)$/.exec(trimmed);
   if (!m) return null;
-  const n = parseInt(m[1]!, 10);
-  const d = parseInt(m[2]!, 10);
-  if (!Number.isInteger(n) || !Number.isInteger(d) || n < 1 || d < 1) return null;
+  // WR-04: validate/normalize with BigInt, NOT parseInt — the project has no
+  // prime-limit ceiling (CLAUDE.md disqualifies Number-backed ratio paths), so a
+  // comma whose numerator/denominator exceeds 2^53 must be preserved exactly, not
+  // rounded. The regex already guarantees digit-only groups, so BigInt cannot throw.
+  const n = BigInt(m[1]!);
+  const d = BigInt(m[2]!);
+  if (n < 1n || d < 1n) return null;
   return `${String(n)}/${String(d)}`;
 }
 

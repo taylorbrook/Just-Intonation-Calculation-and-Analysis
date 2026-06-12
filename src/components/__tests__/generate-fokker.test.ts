@@ -230,4 +230,57 @@ describe("generateFokker factory", () => {
     expect(el.querySelector('input[name="fokker-up-1"]')).toBeNull();
     expect(el.querySelector('input[name="fokker-down-1"]')).toBeNull();
   });
+
+  // ─── WR-03: basis chip cap is MAX_BASIS (6) with a visible status message ─────
+  it("WR-03: adding a 7th basis chip is rejected at MAX_BASIS (6) with a status message, not silently swallowed", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+
+    const basisInput = el.querySelector('input[name="fokker-basis-input"]') as HTMLInputElement;
+    const basisAdd = el.querySelector('button[name="fokker-basis-add"]') as HTMLButtonElement;
+    const status = el.querySelector(".generate-fokker__status");
+
+    // Default basis = [3, 5] (2 chips). Add four more to reach the cap of 6.
+    for (const prime of ["7", "11", "13", "17"]) {
+      basisInput.value = prime;
+      basisAdd.click();
+    }
+    expect(el.querySelectorAll(".generate-fokker__chip").length).toBe(6);
+
+    // The 7th chip must be rejected: chip count stays at 6 AND a status message
+    // mentioning the limit is shown (not a silent slice).
+    basisInput.value = "19";
+    basisAdd.click();
+    expect(el.querySelectorAll(".generate-fokker__chip").length).toBe(6);
+    const statusText = status?.textContent ?? "";
+    expect(statusText.length).toBeGreaterThan(0);
+    expect(statusText).toContain("6");
+  });
+
+  // ─── WR-04: comma ratios past 2^53 are BigInt-exact (no parseInt rounding) ────
+  it("WR-04: a comma ratio with a numerator above 2^53 round-trips through the chip label unchanged (BigInt-exact, not rounded)", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+    const modeSelect = el.querySelector('select[name="fokker-mode"]') as HTMLSelectElement;
+    modeSelect.value = "comma";
+    modeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // 2^53 + 1 = 9007199254740993, the first odd integer not representable as a
+    // JS Number — parseInt would round it to 9007199254740992 (an even number).
+    const bigNumerator = "9007199254740993";
+    const commaInput = el.querySelector('input[name="fokker-comma-input"]') as HTMLInputElement;
+    const commaAdd = el.querySelector('button[name="fokker-comma-add"]') as HTMLButtonElement;
+    expect(commaInput).not.toBeNull();
+    expect(commaAdd).not.toBeNull();
+    commaInput.value = `${bigNumerator}/1`;
+    commaAdd.click();
+
+    // The new chip label preserves the EXACT digits — no rounding.
+    const chipTexts = Array.from(el.querySelectorAll(".generate-fokker__chip-label")).map(
+      (c) => c.textContent ?? "",
+    );
+    expect(chipTexts).toContain(`${bigNumerator}/1`);
+    // And the rounded Number value must NOT appear.
+    expect(chipTexts).not.toContain("9007199254740992/1");
+  });
 });
