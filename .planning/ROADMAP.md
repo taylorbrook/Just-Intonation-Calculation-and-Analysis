@@ -88,11 +88,13 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
   3. User can generate a Fokker periodicity-block scale whose cardinality matches the chosen basis extents, rendered as exact rational ratios.
   4. User can enter a free-text SonicWeave expression and compile it to a scale, with malformed input surfacing a safe error in a status region without destroying the prior preview.
   5. At the adapter boundary, every rational SonicWeave result round-trips into the kernel's BigInt `Interval` via the `n/d` string (R-01 ESLint stays green); tempered results carry cents and are flagged, never laundered as exact JI.
-**Plans**: 4 plans (3 waves)
+**Plans**: 6 plans (4 waves — 2 gap-closure plans added 2026-06-11)
 - [x] 07-01-PLAN.md — `sonicweave.ts` adapter (`scaleFromSonicWeave`, `isFractional()` discriminator + R-01 round-trip + cents-of-record) + `fokker.ts` `fokkerCardinality` |det| helper (TDD) [Wave 1]
 - [x] 07-02-PLAN.md — rank-2 (GEN-06, quarter-comma default) + well-temperament (GEN-07, Vallotti default + D-08 roster) widgets under "Regular" [Wave 2]
 - [x] 07-03-PLAN.md — Fokker periodicity-block (GEN-08, basis+comma modes, live |det| readout) + free-text SonicWeave (GEN-09, evaluate-on-click, raw errors) widgets [Wave 2]
 - [x] 07-04-PLAN.md — register all four widgets in `generate.md` (optgroups, swaps, Send-to serialization) + CSS imports + human-verify [Wave 3]
+- [ ] 07-05-PLAN.md — gap closure: fix rank-2 POTE/TE/CTE generator (CR-01, Magic/Hanson use preset gen) + adapter negative/zero-interval guard (WR-01/WR-02) (GEN-06) [Wave 1]
+- [ ] 07-06-PLAN.md — gap closure: Fokker basis-chip add/remove re-renders extent fields (CR-02) + basis cap status message (WR-03) + BigInt comma validation (WR-04) (GEN-08) [Wave 1]
 
 ### Phase 8: Preview, Transforms & Advanced Generators
 **Goal**: The "shape at a glance" preview and the cheap polish that applies to every generator — a circle-of-pitches visualization and a rotate-to-mode + reduce/dedupe/transpose strip — plus the remaining advanced generators (Wilson recurrence / metallic, constant-structure), with the tempered-vs-JI distinction enforced consistently across all families.
