@@ -108,7 +108,7 @@ describe("generateSonicweave factory", () => {
   it("a docs <a> with rel='noopener noreferrer' is present (D-14/D-20)", () => {
     const el = generateSonicweave(makeStubSynth());
     document.body.appendChild(el);
-    const links = Array.from(el.querySelectorAll("a")) as HTMLAnchorElement[];
+    const links = Array.from(el.querySelectorAll("a"));
     const docsLink = links.find((a) => a.rel.includes("noopener") && a.rel.includes("noreferrer"));
     expect(docsLink).not.toBeUndefined();
     expect(docsLink?.href ?? "").toMatch(/sonic-weave|sonicweave|xenharmonic/i);

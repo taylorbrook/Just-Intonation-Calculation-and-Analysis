@@ -1,0 +1,100 @@
+/*
+ * generate-sonicweave.css — free-text SonicWeave widget (Phase 7 GEN-09).
+ * Loaded via @import in src/styles.css alongside the other component sheets
+ * (the @import wiring is Plan 04).
+ *
+ * D-15 (Phase 6): only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors generate-cps.css house style and ADDS a textarea rule (the free-text
+ * input surface) mirroring the input[type=number] rule.
+ */
+
+.generate-sonicweave {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-sonicweave h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-sonicweave__docs {
+  margin: 0;
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+}
+
+.generate-sonicweave__docs a {
+  color: var(--theme-foreground);
+}
+
+.generate-sonicweave__docs a:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* ─── Free-text input surface — mirrors the input[type=number] rule. ────────── */
+
+.generate-sonicweave__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 6em;
+  resize: vertical;
+  font-family: var(--monospace);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 6px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-sonicweave__textarea:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.generate-sonicweave__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.generate-sonicweave__evaluate {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 16px;
+  color: var(--theme-foreground);
+  background: var(--theme-background);
+  border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.generate-sonicweave__evaluate:hover,
+.generate-sonicweave__evaluate:focus-visible {
+  background: color-mix(in oklab, var(--theme-foreground) 8%, var(--theme-background));
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.generate-sonicweave__status {
+  font-family: var(--monospace);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  white-space: pre-wrap;
+  min-height: 1.5em;
+}
+
+.generate-sonicweave__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-sonicweave__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}
