@@ -78,9 +78,7 @@ describe("scaleFromSonicWeave — the Phase-7 DSL→kernel boundary", () => {
     const firstCents = scale.intervals[0]?.cents ?? NaN;
     expect(firstCents).toBeCloseTo(0, 3);
 
-    const expectedCents = [
-      193.157, 386.314, 503.422, 696.578, 889.735, 1082.892, 1200.0,
-    ];
+    const expectedCents = [193.157, 386.314, 503.422, 696.578, 889.735, 1082.892, 1200.0];
     const degreeCents = scale.intervals.slice(1).map((iv) => iv.cents);
     expect(degreeCents.length).toBe(expectedCents.length);
     expectedCents.forEach((c, i) => {
