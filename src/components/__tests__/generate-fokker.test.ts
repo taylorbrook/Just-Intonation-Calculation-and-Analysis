@@ -24,12 +24,13 @@ describe("generateFokker factory", () => {
     expect(el.className).toContain("generate-fokker");
   });
 
-  it("default landing (D-11) renders the classic 12-tone block as EXACT JI: 12 rows, Ratio header, NO tempered badge", () => {
+  it("default landing (D-11) renders the classic 12-tone block as EXACT JI: 13 rows (12 block notes + 1/1 unison), Ratio header, NO tempered badge", () => {
     const el = generateFokker(makeStubSynth());
     document.body.appendChild(el);
-    // 12 exact-rational notes.
+    // The classic 12-tone block (12 block notes) + the kernel-convention 1/1
+    // unison (D-13, the cps Hexany 6→7 precedent) = 13 rows.
     const rows = el.querySelectorAll("tbody tr");
-    expect(rows.length).toBe(12);
+    expect(rows.length).toBe(13);
     // Exact-JI table: the "Ratio" header column is present.
     const headers = Array.from(el.querySelectorAll("thead th")).map((th) => th.textContent ?? "");
     expect(headers).toContain("Ratio");
@@ -80,9 +81,10 @@ describe("generateFokker factory", () => {
     const readout = el.querySelector(".generate-fokker__readout");
     expect(readout?.textContent ?? "").toContain("12");
 
-    // The block renders 12 exact-rational rows (Ratio column present, no badge).
+    // The block renders 13 exact-rational rows (12 block notes + 1/1 unison;
+    // Ratio column present, no badge).
     const rows = el.querySelectorAll("tbody tr");
-    expect(rows.length).toBe(12);
+    expect(rows.length).toBe(13);
     const headers = Array.from(el.querySelectorAll("thead th")).map((th) => th.textContent ?? "");
     expect(headers).toContain("Ratio");
     expect(el.querySelector(".scale-table__badge")).toBeNull();
@@ -95,9 +97,9 @@ describe("generateFokker factory", () => {
     modeSelect.value = "comma";
     modeSelect.dispatchEvent(new Event("change", { bubbles: true }));
 
-    // Prior render (the default comma block) is present.
+    // Prior render (the default comma block) is present (12 block notes + 1/1).
     const rowsBefore = el.querySelectorAll("tbody tr").length;
-    expect(rowsBefore).toBe(12);
+    expect(rowsBefore).toBe(13);
 
     // Remove one comma → a single comma over the (3,5) subspace is non-square.
     const firstRemove = el.querySelector(
@@ -118,13 +120,13 @@ describe("generateFokker factory", () => {
     expect(el.querySelectorAll("tbody tr").length).toBe(rowsBefore);
   });
 
-  it("exposes getScale() returning the current exact-rational Scale (12 intervals by default)", () => {
+  it("exposes getScale() returning the current exact-rational Scale (13 intervals by default: 12 block notes + 1/1)", () => {
     const el = generateFokker(makeStubSynth());
     document.body.appendChild(el);
     const scale = (el as unknown as { getScale: () => unknown }).getScale();
     expect(scale).not.toBeNull();
     const intervals = (scale as { intervals: readonly unknown[] }).intervals;
-    expect(intervals.length).toBe(12);
+    expect(intervals.length).toBe(13);
   });
 
   it("a ⏵⏵ Play button is present and arpeggiates the current scale once", () => {
@@ -136,8 +138,8 @@ describe("generateFokker factory", () => {
     playBtn.click();
     expect(synth.playArpeggio).toHaveBeenCalledTimes(1);
     const freqs = synth.playArpeggio.mock.calls[0]![0] as number[];
-    // Default block = 12 intervals.
-    expect(freqs.length).toBe(12);
+    // Default block = 13 intervals (12 block notes + 1/1 unison).
+    expect(freqs.length).toBe(13);
   });
 
   it("factory takes (synth, opts?) — no scale arg (the widget owns its scale)", () => {
