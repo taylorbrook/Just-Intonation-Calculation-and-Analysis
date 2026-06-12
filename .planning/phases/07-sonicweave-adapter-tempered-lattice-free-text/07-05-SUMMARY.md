@@ -92,3 +92,7 @@ None.
 ## Threat Flags
 
 None — no new network endpoints, auth paths, file-access patterns, or trust-boundary schema changes. Both changes harden existing surface (the sign guard strictly narrows what the adapter accepts).
+
+## Self-Check: PASSED
+
+All claimed files exist (4 modified + SUMMARY) and all 5 commits (c2b9218, 92ecb0a, a7ca885, e66e385, 9525d3c) are present in git history. Working tree clean.
