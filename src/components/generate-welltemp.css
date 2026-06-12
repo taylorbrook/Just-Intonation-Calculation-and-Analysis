@@ -1,0 +1,91 @@
+/*
+ * generate-welltemp.css — Historical well-temperament widget (Phase 7 GEN-07).
+ * Loaded via @import in src/styles.css alongside the other component sheets
+ * (the @import wiring is deferred to Plan 04 to stay file-disjoint from Plan 03).
+ *
+ * D-15: only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors generate-cps.css house style (flex form row, 16px input font set
+ * globally in styles.css to suppress iOS auto-zoom — not overridden here).
+ */
+
+.generate-welltemp {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-welltemp h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-welltemp__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-welltemp__params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-welltemp__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-welltemp__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.generate-welltemp__field select,
+.generate-welltemp__field input[type="number"] {
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-welltemp__field input[type="number"] {
+  width: 64px;
+}
+
+.generate-welltemp__field select:focus-visible,
+.generate-welltemp__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.generate-welltemp__slash {
+  font-family: var(--monospace);
+  color: var(--theme-foreground-alt);
+}
+
+.generate-welltemp__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.generate-welltemp__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-welltemp__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}

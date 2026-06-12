@@ -126,3 +126,112 @@ describe("scaleFromSonicWeave — the Phase-7 DSL→kernel boundary", () => {
     }
   });
 });
+
+/**
+ * Per-preset well-temperament vectors (GEN-07, Plan 07-02 Task 2, Open Question 1 /
+ * Assumption A1). Each vector's commaFractions ordering, sign, and the EXPLICIT
+ * Pythagorean comma 531441/524288 (D-07, Pitfall 2) are asserted against published
+ * per-degree cents + the pure-fifth-count invariant (Pitfall 3 warning sign).
+ *
+ * SOURCING / CITATIONS — these two presets cross-check EXACTLY (sub-0.01¢) against
+ * the repo's own authoritative theory page src/pages/well-temperament.md, which
+ * itself cites:
+ *   - Vallotti (1779): Wikipedia "Vallotti temperament"; tonalsoft encyclopedia;
+ *     well-temperament.md vallottiFifths (six 1/6-Pythagorean-comma fifths + six
+ *     pure). Pure-fifth invariant: 6 pure / 6 tempered.
+ *   - Werckmeister III (1691): Werckmeister, *Musicalische Temperatur* (1691);
+ *     Wikipedia "Werckmeister temperament"; well-temperament.md werckFifths (four
+ *     1/4-Pythagorean-comma fifths C-G, G-D, D-A, B-F♯ + eight pure). Pure-fifth
+ *     invariant: 8 pure / 4 tempered.
+ *   - Cross-reference for the full historical roster: arXiv 1912.10918 "Well
+ *     Temperaments based on the Werckmeister Definition".
+ *
+ * The well-temperament.md chain indexes fifths from C: 0 = C–G, 1 = G–D, 2 = D–A,
+ * 3 = A–E, 4 = E–B, 5 = B–F♯, … 11 = F–C. SonicWeave's wellTemperament walks the
+ * SAME chain of fifths from the generator (3/2) reference, so the per-fifth fraction
+ * list aligns position-for-position with well-temperament.md's fifth arrays.
+ */
+describe("scaleFromSonicWeave — well-temperament preset vectors (GEN-07 A1 sourcing)", () => {
+  const PYTH_COMMA = "531441/524288";
+
+  /** Build a wellTemperament source with the EXPLICIT Pythagorean comma (D-07). */
+  function welltempSrc(fractions: string[]): string {
+    return `wellTemperament([${fractions.join(", ")}], ${PYTH_COMMA})`;
+  }
+
+  it("Vallotti (six 1/6-PC fifths + six pure) → 12 tempered notes; degree cents match the canonical scheme", () => {
+    // Six 1/6-Pythagorean-comma fifths on the contiguous chain C-G…B-F♯, six pure.
+    const result = scaleFromSonicWeave(
+      welltempSrc(["-1/6", "-1/6", "-1/6", "-1/6", "-1/6", "-1/6", "0", "0", "0", "0", "0"]),
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.tempered).toBe(true);
+    expect(result.scale).not.toBeNull();
+
+    const scale = result.scale!;
+    // 12-note well-temperament: the adapter prepends the kernel-convention unison
+    // (D-13) → 13 intervals (1/1 + 11 chromatic degrees + the 2/1 octave).
+    expect(scale.intervals.length).toBe(13);
+    expect(scale.intervals[0]?.cents ?? NaN).toBeCloseTo(0, 3); // leading unison.
+
+    // Published Vallotti degree cents above the unison (well-temperament.md
+    // vallottiFifths, C-based) — the 12 non-unison degrees.
+    const degreeCents = scale.intervals.slice(1).map((iv) => iv.cents);
+    const expected = [
+      90.225, 196.09, 294.135, 392.18, 498.045, 588.27, 698.045, 792.18, 894.135,
+      996.09, 1090.225, 1200.0,
+    ];
+    expect(degreeCents.length).toBe(expected.length);
+    expected.forEach((c, i) => {
+      expect(degreeCents[i]).toBeCloseTo(c, 1);
+    });
+  });
+
+  it("Werckmeister III (four 1/4-PC fifths C-G,G-D,D-A,B-F♯ + eight pure) → 12 tempered notes; canonical degree cents", () => {
+    // Four 1/4-Pythagorean-comma fifths at chain positions 0,1,2,5 (C-G, G-D, D-A,
+    // B-F♯); the other eight pure (Werckmeister III's 8-pure-fifth invariant).
+    const result = scaleFromSonicWeave(
+      welltempSrc(["-1/4", "-1/4", "-1/4", "0", "0", "-1/4", "0", "0", "0", "0", "0"]),
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.tempered).toBe(true);
+    expect(result.scale).not.toBeNull();
+
+    const scale = result.scale!;
+    // 13 intervals = 1/1 + 11 chromatic degrees + the 2/1 octave (D-13 unison).
+    expect(scale.intervals.length).toBe(13);
+    expect(scale.intervals[0]?.cents ?? NaN).toBeCloseTo(0, 3);
+
+    // Published Werckmeister III degree cents above the unison (well-temperament.md
+    // werckFifths) — the 12 non-unison degrees.
+    const degreeCents = scale.intervals.slice(1).map((iv) => iv.cents);
+    const expected = [
+      90.225, 192.18, 294.135, 390.225, 498.045, 588.27, 696.09, 792.18, 888.27,
+      996.09, 1092.18, 1200.0,
+    ];
+    expect(degreeCents.length).toBe(expected.length);
+    expected.forEach((c, i) => {
+      expect(degreeCents[i]).toBeCloseTo(c, 1);
+    });
+  });
+
+  it("D-07: passing the syntonic-comma DEFAULT (no explicit comma) yields a DIFFERENT scale (Pitfall 2)", () => {
+    // The Pythagorean-comma Vallotti and the (wrong) syntonic-default version must
+    // NOT coincide — proving the explicit 531441/524288 argument is load-bearing.
+    const pyth = scaleFromSonicWeave(
+      `wellTemperament([-1/6, -1/6, -1/6, -1/6, -1/6, -1/6, 0, 0, 0, 0, 0], ${PYTH_COMMA})`,
+    );
+    const syntonicDefault = scaleFromSonicWeave(
+      `wellTemperament([-1/6, -1/6, -1/6, -1/6, -1/6, -1/6, 0, 0, 0, 0, 0])`,
+    );
+    expect(pyth.scale).not.toBeNull();
+    expect(syntonicDefault.scale).not.toBeNull();
+    const pythCents = pyth.scale!.intervals.map((iv) => iv.cents);
+    const synCents = syntonicDefault.scale!.intervals.map((iv) => iv.cents);
+    // At least one non-octave degree differs by more than 0.1¢.
+    const maxDelta = Math.max(
+      ...pythCents.slice(0, -1).map((c, i) => Math.abs(c - (synCents[i] ?? c))),
+    );
+    expect(maxDelta).toBeGreaterThan(0.1);
+  });
+});
