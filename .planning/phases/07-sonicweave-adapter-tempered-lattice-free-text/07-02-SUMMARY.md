@@ -135,3 +135,10 @@ None - no external service configuration required. (CSS @import wiring into `src
 ---
 *Phase: 07-sonicweave-adapter-tempered-lattice-free-text*
 *Completed: 2026-06-12*
+
+## Self-Check: PASSED
+
+- All 6 created source/test files + SUMMARY.md verified on disk.
+- All task commits verified in git log: `b14a534` (test), `48e0c61` (feat), `fe258e8` (test), `90bbef4` (feat), `e682296` (docs).
+- TDD gate sequence intact per task: test(RED) → feat(GREEN).
+- Target tests: 34 passing. Full suite: 531 passing, 40 files, no regressions.
