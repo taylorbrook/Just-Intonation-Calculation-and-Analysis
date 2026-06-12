@@ -1,0 +1,82 @@
+/*
+ * generate-rank2.css — Rank-2 regular-temperament widget (Phase 7 GEN-06).
+ * Loaded via @import in src/styles.css alongside the other component sheets
+ * (the @import wiring is deferred to Plan 04 to stay file-disjoint from Plan 03).
+ *
+ * D-15: only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors generate-cps.css house style (flex form row, 16px input font set
+ * globally in styles.css to suppress iOS auto-zoom — not overridden here).
+ */
+
+.generate-rank2 {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-rank2 h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-rank2__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-rank2__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-rank2__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.generate-rank2__field select,
+.generate-rank2__field input[type="number"] {
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-rank2__field input[type="number"] {
+  width: 72px;
+}
+
+.generate-rank2__field select:focus-visible,
+.generate-rank2__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.generate-rank2__slash {
+  font-family: var(--monospace);
+  color: var(--theme-foreground-alt);
+}
+
+.generate-rank2__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.generate-rank2__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-rank2__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}

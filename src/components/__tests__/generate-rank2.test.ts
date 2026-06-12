@@ -25,11 +25,14 @@ describe("generateRank2 factory", () => {
     expect(el.querySelector("h2")).not.toBeNull();
   });
 
-  it("default landing is quarter-comma meantone (D-02): 7 rows, tempered badge, NO 'Ratio' header, isTempered() true", () => {
+  it("default landing is quarter-comma meantone (D-02): 8 rows, tempered badge, NO 'Ratio' header, isTempered() true", () => {
     const el = generateRank2(makeStubSynth());
     document.body.appendChild(el);
     const rows = el.querySelectorAll("tbody tr");
-    expect(rows.length).toBe(7); // unison + 6 → up=5/down=1 quarter-comma diatonic = 7 degrees incl octave.
+    // D-02 "7 notes" = the 7 generated diatonic degrees; the adapter prepends the
+    // kernel-convention unison (D-13) → 8 table rows (1/1 … 2/1), matching the
+    // sonicweave.test.ts quarter-comma length-8 cross-check.
+    expect(rows.length).toBe(8);
     const badge = el.querySelector(".scale-table__badge") as HTMLElement;
     expect(badge).not.toBeNull();
     expect(badge.textContent).toBe("tempered");
