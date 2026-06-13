@@ -1,0 +1,176 @@
+/*
+ * generate-cs.css — constant-structure (csgs) widget (Phase 8 GEN-10).
+ * Loaded via @import in src/styles.css alongside the other component sheets.
+ *
+ * D-17: only locked 05-UI-SPEC theme tokens —
+ *   var(--theme-*) / var(--sans-serif) / var(--monospace).
+ * Mirrors generate-fokker.css / generate-cps.css house style (flex form row, chip
+ * pills; the 16px input font is set globally in styles.css to suppress iOS auto-zoom).
+ */
+
+.generate-cs {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generate-cs h2 {
+  margin: 0 0 8px 0;
+}
+
+.generate-cs__params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-cs__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generate-cs__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.generate-cs__field input[type="number"] {
+  width: 72px;
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-cs__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* ─── Generator ratio chips (D-13) ──────────────────────────────────────────── */
+
+.generate-cs__chip-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.generate-cs__chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.generate-cs__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
+  font-family: var(--monospace);
+  font-size: 13px;
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-foreground) 8%, var(--theme-background));
+  border: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  border-radius: 999px;
+}
+
+.generate-cs__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-family: var(--sans-serif);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--theme-foreground-alt);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.generate-cs__chip-remove:hover,
+.generate-cs__chip-remove:focus-visible {
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-foreground) 14%, transparent);
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 1px;
+}
+
+.generate-cs__chip-form input[type="text"] {
+  width: 96px;
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.generate-cs__add {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  color: var(--theme-foreground);
+  background: var(--theme-background);
+  border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.generate-cs__add:hover,
+.generate-cs__add:focus-visible {
+  background: color-mix(in oklab, var(--theme-foreground) 8%, var(--theme-background));
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+/* ─── Ordinal helper note ───────────────────────────────────────────────────── */
+
+.generate-cs__helper {
+  flex-basis: 100%;
+  margin: 0;
+  font-family: var(--sans-serif);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--theme-foreground-muted, var(--theme-foreground-alt));
+}
+
+/* ─── D-14 CS-status readout ────────────────────────────────────────────────── */
+
+.generate-cs__cs-status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--theme-foreground-alt);
+  align-self: flex-start;
+}
+
+.generate-cs__status {
+  font-family: var(--sans-serif);
+  font-size: 13px;
+  color: var(--theme-foreground-alt);
+  min-height: 1.5em;
+}
+
+.generate-cs__table-host {
+  /* scaleTable owns its own internal spacing; this host is just a slot. */
+}
+
+.generate-cs__play-host {
+  /* playScale renders a single inline button; no extra layout needed. */
+}
