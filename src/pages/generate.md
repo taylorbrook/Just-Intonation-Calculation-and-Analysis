@@ -16,6 +16,10 @@ import { generateRank2 } from "../components/generate-rank2.js";
 import { generateWelltemp } from "../components/generate-welltemp.js";
 import { generateFokker } from "../components/generate-fokker.js";
 import { generateSonicweave } from "../components/generate-sonicweave.js";
+import { generateMeru } from "../components/generate-meru.js";
+import { generateCs } from "../components/generate-cs.js";
+import { circleOfPitches } from "../components/circle-of-pitches.js";
+import { scaleTransformStrip } from "../components/scale-transform-strip.js";
 import { encodeScaleToHash } from "../lib/url.js";
 import { writeSharedScale } from "../state/scale-store.js";
 ```
@@ -89,7 +93,11 @@ const METHOD_FAMILIES = [
   },
   {
     label: "Advanced / algorithmic",
-    options: [{ id: "fokker", text: "Fokker periodicity block", placeholder: false }],
+    options: [
+      { id: "fokker", text: "Fokker periodicity block", placeholder: false },
+      { id: "meru", text: "Wilson recurrence / metallic (Mt. Meru)", placeholder: false },
+      { id: "cs", text: "Constant structure", placeholder: false },
+    ],
   },
   {
     label: "SonicWeave",
@@ -278,6 +286,28 @@ const sonicweaveWidget = generateSonicweave(synth, { baseHz });
 ```
 
 ```ts
+// Wilson recurrence / metallic (Mt. Meru) widget (GEN-10, Plan 08-03). Instantiated
+// ONCE so its closure-local preset + a/b/x₀/x₁/term-count fields survive mount/unmount
+// into paramsHost across picker swaps (the generateFokker / generateCps Pattern-2
+// precedent). It renders its own EXACT-JI convergent scaleTable + ⏵⏵ Play and a SEPARATE
+// tempered-flagged metallic-limit (φ ≈ 833.1¢) readout BESIDE the table (D-09 — never a
+// scale degree), and exposes getScale() AND isTempered() (ALWAYS false — Wilson
+// convergents are exact rational), so the Send-to cell serializes ratio-per-line.
+const meruWidget = generateMeru(synth, { baseHz });
+```
+
+```ts
+// Constant-structure (csgs) widget (GEN-10, Plan 08-03). Instantiated ONCE so its
+// closure-local generator-ratio chips + ordinal field survive mount/unmount into
+// paramsHost across picker swaps (the generateFokker Pattern-2 precedent minus the
+// mode toggle). It renders its own scaleTable + ⏵⏵ Play and a live "✓ constant
+// structure" readout, lands on the corrected csgs([3/2], 3) → 7-note Pythagorean
+// diatonic default, and exposes getScale() AND isTempered() (the adapter flag —
+// normally false, exact JI). The Send-to cell branches on isTempered().
+const csWidget = generateCs(synth, { baseHz });
+```
+
+```ts
 // ─── Compute the current scale from the picker + param ───────────────────────
 // Serialize the CPS widget's current Scale ratio-per-line (exact JI — D-06). Read
 // LIVE from the widget so the latest chip/preset edits round-trip (the widget's
@@ -379,6 +409,24 @@ function sonicweaveScaleText() {
   if (!scale) return seedText;
   return sonicweaveWidget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
 }
+// Wilson recurrence / metallic Mt. Meru (GEN-10) — EXACT JI: ratio-per-line, never
+// cents (isTempered() is ALWAYS false; the irrational metallic limit is a separate
+// readout, NOT a scale degree). Same drop-leading-1/1 convention as the other exact-JI
+// serializers.
+function meruScaleText() {
+  const scale = meruWidget.getScale();
+  if (!scale) return seedText;
+  return ratioPerLine(scale);
+}
+// Constant structure (GEN-10) — CONDITIONAL on the adapter's live isTempered() flag:
+// tempered → cents-per-line; exact JI (the normal csgs case) → ratio-per-line. Mirrors
+// the rank-2 / free-text conditional precedent so a tempered result is never laundered
+// as exact JI (SURF-06).
+function csScaleText() {
+  const scale = csWidget.getScale();
+  if (!scale) return seedText;
+  return csWidget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
+}
 const currentScaleText =
   method === "harmonic-segment"
     ? harmonicScaleText()
@@ -396,7 +444,11 @@ const currentScaleText =
                 ? fokkerScaleText()
                 : method === "sonicweave"
                   ? sonicweaveScaleText()
-                  : seedText;
+                  : method === "meru"
+                    ? meruScaleText()
+                    : method === "cs"
+                      ? csScaleText()
+                      : seedText;
 ```
 
 ```ts
@@ -470,6 +522,19 @@ try {
     // shared previewHost shows only a pointer caption. The persistent `sonicweaveWidget`
     // element preserves its closure-local textarea program across picker swaps.
     paramsHost.replaceChildren(sonicweaveWidget);
+  } else if (method === "meru") {
+    // Mount the Wilson recurrence / metallic (Mt. Meru) widget (GEN-10). It owns its
+    // preset + a/b/x₀/x₁/term-count controls AND renders its own EXACT-JI convergent
+    // scaleTable + ⏵⏵ Play + the separate tempered metallic-limit readout, so the shared
+    // previewHost shows only a pointer caption. The persistent `meruWidget` element
+    // preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(meruWidget);
+  } else if (method === "cs") {
+    // Mount the constant-structure widget (GEN-10). It owns its generator-ratio chips +
+    // ordinal field AND renders its own scaleTable + ⏵⏵ Play + the live CS-status readout,
+    // so the shared previewHost shows only a pointer caption. The persistent `csWidget`
+    // element preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(csWidget);
   } else if (method === "") {
     const caption = document.createElement("p");
     caption.className = "dashboard-helper";
@@ -566,6 +631,25 @@ try {
     caption.textContent =
       "The table and ⏵⏵ Play are shown above with the program textarea. Send-to serializes ratios for exact-JI programs and cents-per-line for tempered ones.";
     previewHost.replaceChildren(caption);
+  } else if (method === "meru") {
+    // The Wilson recurrence / metallic (Mt. Meru) widget renders its own EXACT-JI
+    // convergent scaleTable + ⏵⏵ Play + the separate tempered metallic-limit (φ ≈ 833.1¢)
+    // readout (mounted into paramsHost above), so the shared previewHost shows only a
+    // pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The exact-JI convergent table, the metallic-limit readout, and ⏵⏵ Play are shown above with the preset/term controls. Send-to serializes the convergents ratio-per-line.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "cs") {
+    // The constant-structure widget renders its own scaleTable + ⏵⏵ Play + the live
+    // CS-status readout (mounted into paramsHost above), so the shared previewHost shows
+    // only a pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The constant-structure table, the ✓ CS-status readout, and ⏵⏵ Play are shown above with the generator/ordinal controls. Send-to serializes the scale ratio-per-line.";
+    previewHost.replaceChildren(caption);
   } else if (currentScaleError) {
     const div = document.createElement("div");
     div.setAttribute("role", "status");
@@ -655,7 +739,11 @@ function sendCurrentScaleTo(target) {
                   ? fokkerScaleText() // EXACT JI → ratio-per-line.
                   : method === "sonicweave"
                     ? sonicweaveScaleText() // CONDITIONAL: ratios (JI) or cents (tempered).
-                    : currentScaleText;
+                    : method === "meru"
+                      ? meruScaleText() // EXACT JI → ratio-per-line (convergents).
+                      : method === "cs"
+                        ? csScaleText() // CONDITIONAL: ratios (JI) or cents (tempered).
+                        : currentScaleText;
   writeSharedScale(scaleText, SEND_SOURCE); // each handler invokes this exactly once
   try {
     const hash = "#s=" + encodeScaleToHash(scaleText);
