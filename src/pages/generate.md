@@ -16,6 +16,10 @@ import { generateRank2 } from "../components/generate-rank2.js";
 import { generateWelltemp } from "../components/generate-welltemp.js";
 import { generateFokker } from "../components/generate-fokker.js";
 import { generateSonicweave } from "../components/generate-sonicweave.js";
+import { generateMeru } from "../components/generate-meru.js";
+import { generateCs } from "../components/generate-cs.js";
+import { circleOfPitches } from "../components/circle-of-pitches.js";
+import { scaleTransformStrip } from "../components/scale-transform-strip.js";
 import { encodeScaleToHash } from "../lib/url.js";
 import { writeSharedScale } from "../state/scale-store.js";
 ```
@@ -89,7 +93,11 @@ const METHOD_FAMILIES = [
   },
   {
     label: "Advanced / algorithmic",
-    options: [{ id: "fokker", text: "Fokker periodicity block", placeholder: false }],
+    options: [
+      { id: "fokker", text: "Fokker periodicity block", placeholder: false },
+      { id: "meru", text: "Wilson recurrence / metallic (Mt. Meru)", placeholder: false },
+      { id: "cs", text: "Constant structure", placeholder: false },
+    ],
   },
   {
     label: "SonicWeave",
@@ -278,6 +286,28 @@ const sonicweaveWidget = generateSonicweave(synth, { baseHz });
 ```
 
 ```ts
+// Wilson recurrence / metallic (Mt. Meru) widget (GEN-10, Plan 08-03). Instantiated
+// ONCE so its closure-local preset + a/b/x₀/x₁/term-count fields survive mount/unmount
+// into paramsHost across picker swaps (the generateFokker / generateCps Pattern-2
+// precedent). It renders its own EXACT-JI convergent scaleTable + ⏵⏵ Play and a SEPARATE
+// tempered-flagged metallic-limit (φ ≈ 833.1¢) readout BESIDE the table (D-09 — never a
+// scale degree), and exposes getScale() AND isTempered() (ALWAYS false — Wilson
+// convergents are exact rational), so the Send-to cell serializes ratio-per-line.
+const meruWidget = generateMeru(synth, { baseHz });
+```
+
+```ts
+// Constant-structure (csgs) widget (GEN-10, Plan 08-03). Instantiated ONCE so its
+// closure-local generator-ratio chips + ordinal field survive mount/unmount into
+// paramsHost across picker swaps (the generateFokker Pattern-2 precedent minus the
+// mode toggle). It renders its own scaleTable + ⏵⏵ Play and a live "✓ constant
+// structure" readout, lands on the corrected csgs([3/2], 3) → 7-note Pythagorean
+// diatonic default, and exposes getScale() AND isTempered() (the adapter flag —
+// normally false, exact JI). The Send-to cell branches on isTempered().
+const csWidget = generateCs(synth, { baseHz });
+```
+
+```ts
 // ─── Compute the current scale from the picker + param ───────────────────────
 // Serialize the CPS widget's current Scale ratio-per-line (exact JI — D-06). Read
 // LIVE from the widget so the latest chip/preset edits round-trip (the widget's
@@ -379,6 +409,24 @@ function sonicweaveScaleText() {
   if (!scale) return seedText;
   return sonicweaveWidget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
 }
+// Wilson recurrence / metallic Mt. Meru (GEN-10) — EXACT JI: ratio-per-line, never
+// cents (isTempered() is ALWAYS false; the irrational metallic limit is a separate
+// readout, NOT a scale degree). Same drop-leading-1/1 convention as the other exact-JI
+// serializers.
+function meruScaleText() {
+  const scale = meruWidget.getScale();
+  if (!scale) return seedText;
+  return ratioPerLine(scale);
+}
+// Constant structure (GEN-10) — CONDITIONAL on the adapter's live isTempered() flag:
+// tempered → cents-per-line; exact JI (the normal csgs case) → ratio-per-line. Mirrors
+// the rank-2 / free-text conditional precedent so a tempered result is never laundered
+// as exact JI (SURF-06).
+function csScaleText() {
+  const scale = csWidget.getScale();
+  if (!scale) return seedText;
+  return csWidget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
+}
 const currentScaleText =
   method === "harmonic-segment"
     ? harmonicScaleText()
@@ -396,7 +444,11 @@ const currentScaleText =
                 ? fokkerScaleText()
                 : method === "sonicweave"
                   ? sonicweaveScaleText()
-                  : seedText;
+                  : method === "meru"
+                    ? meruScaleText()
+                    : method === "cs"
+                      ? csScaleText()
+                      : seedText;
 ```
 
 ```ts
@@ -470,6 +522,19 @@ try {
     // shared previewHost shows only a pointer caption. The persistent `sonicweaveWidget`
     // element preserves its closure-local textarea program across picker swaps.
     paramsHost.replaceChildren(sonicweaveWidget);
+  } else if (method === "meru") {
+    // Mount the Wilson recurrence / metallic (Mt. Meru) widget (GEN-10). It owns its
+    // preset + a/b/x₀/x₁/term-count controls AND renders its own EXACT-JI convergent
+    // scaleTable + ⏵⏵ Play + the separate tempered metallic-limit readout, so the shared
+    // previewHost shows only a pointer caption. The persistent `meruWidget` element
+    // preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(meruWidget);
+  } else if (method === "cs") {
+    // Mount the constant-structure widget (GEN-10). It owns its generator-ratio chips +
+    // ordinal field AND renders its own scaleTable + ⏵⏵ Play + the live CS-status readout,
+    // so the shared previewHost shows only a pointer caption. The persistent `csWidget`
+    // element preserves its closure-local state across picker swaps.
+    paramsHost.replaceChildren(csWidget);
   } else if (method === "") {
     const caption = document.createElement("p");
     caption.className = "dashboard-helper";
@@ -566,6 +631,25 @@ try {
     caption.textContent =
       "The table and ⏵⏵ Play are shown above with the program textarea. Send-to serializes ratios for exact-JI programs and cents-per-line for tempered ones.";
     previewHost.replaceChildren(caption);
+  } else if (method === "meru") {
+    // The Wilson recurrence / metallic (Mt. Meru) widget renders its own EXACT-JI
+    // convergent scaleTable + ⏵⏵ Play + the separate tempered metallic-limit (φ ≈ 833.1¢)
+    // readout (mounted into paramsHost above), so the shared previewHost shows only a
+    // pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The exact-JI convergent table, the metallic-limit readout, and ⏵⏵ Play are shown above with the preset/term controls. Send-to serializes the convergents ratio-per-line.";
+    previewHost.replaceChildren(caption);
+  } else if (method === "cs") {
+    // The constant-structure widget renders its own scaleTable + ⏵⏵ Play + the live
+    // CS-status readout (mounted into paramsHost above), so the shared previewHost shows
+    // only a pointer caption. Text via textContent only.
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The constant-structure table, the ✓ CS-status readout, and ⏵⏵ Play are shown above with the generator/ordinal controls. Send-to serializes the scale ratio-per-line.";
+    previewHost.replaceChildren(caption);
   } else if (currentScaleError) {
     const div = document.createElement("div");
     div.setAttribute("role", "status");
@@ -585,6 +669,121 @@ try {
     div.className = "dashboard-helper";
     div.textContent = "No scale yet. Pick a method to generate one.";
     previewHost.replaceChildren(div);
+  }
+}
+```
+
+## Shared preview
+
+```ts
+// Shared-preview host — the FIRST cross-widget consumer (SURF-04 + SURF-05). The
+// circle-of-pitches viz + the rotate/reduce/dedupe/transpose strip + the TRANSFORMED
+// scale table mount ONCE here and apply uniformly to EVERY generator family's output
+// (success criterion 4). The raw per-widget table stays in paramsHost (D-06 — the
+// widget owns its own table); this shared area shows the TRANSFORMED scale that Send-to
+// serializes (D-06 / SURF-06). display() returns the live element for replaceChildren
+// swaps; text via textContent only.
+const sharedHelper = (() => {
+  const p = document.createElement("p");
+  p.className = "dashboard-helper";
+  p.textContent =
+    "Shared preview — applies a non-destructive transform (mode / reduce / dedupe / transpose) to whatever the active method produces. The transformed scale is what Send-to serializes.";
+  return p;
+})();
+display(sharedHelper);
+const sharedPreviewHost = display(document.createElement("div"));
+sharedPreviewHost.className = "generate-host generate-host--shared";
+```
+
+```ts
+// Transform strip — instantiated ONCE (Pattern-2 closure-local mode/transpose state
+// survives method/baseHz re-renders, like the persistent widget elements above). The
+// strip's baseHz opt is reserved for downstream wiring only, so this cell intentionally
+// does NOT depend on the reactive baseHz — re-instantiating on every reference-pitch
+// edit would wipe the user's chosen mode/transpose. The live baseHz is forwarded to the
+// circle + transformed table in the render callback below instead. display() mounts the
+// strip's own controls; the circle + transformed table render beneath it.
+const transformStrip = scaleTransformStrip({});
+display(transformStrip);
+```
+
+```ts
+// Mutable reactive bridge (the audioActive precedent, lines 35–38). The strip's
+// onChange ticks this so any reactive consumer (the Send-to cell) re-runs with the
+// latest transformed scale. Holds a monotonically-incrementing token, not the scale
+// itself — the scale is always re-read LIVE from transformStrip.getTransformedScale()
+// at use time (the live-read discipline used throughout this page).
+const transformedTick = Mutable(0);
+```
+
+```ts
+// ─── Shared-preview reactive wiring (RESEARCH Open Q1 — the first cross-widget
+// consumer) ───────────────────────────────────────────────────────────────────
+// This cell re-runs on `method` and `baseHz` change. It (1) reads the ACTIVE widget's
+// scale LIVE via getScale()/isTempered() (widget-internal edits don't tick Observable's
+// reactive graph — the documented live-read rationale, lines ~283–296), (2) re-binds the
+// strip's onChange to a render closure that captures the CURRENT baseHz, then (3) calls
+// setSource — which itself fires onChange, painting the shared circle + transformed
+// table immediately. The additive onChange/Mutable approach (Pitfall 6 / Q1
+// recommendation), no kernel or widget change. Whether a widget-INTERNAL param edit (a
+// CPS chip) also live-updates the shared preview is the documented Open-Q1 risk the
+// human-verify task confirms; if it does not, the active widget needs an additive
+// onScaleChange(cb) hook bound here. Text via textContent only.
+{
+  // Resolve the active widget's scale + tempered flag (live read). Null → fall back to
+  // the parsed seed/currentScale so the shared preview always has something to show.
+  function activeWidgetScale() {
+    let scale = null;
+    let tempered = false;
+    if (method === "cps") scale = cpsWidget.getScale();
+    else if (method === "harmonic-segment") scale = harmonicWidget.getScale();
+    else if (method === "ji-set") scale = jiSetWidget.getScale();
+    else if (method === "ed") { scale = edWidget.getScale(); tempered = edWidget.isTempered(); }
+    else if (method === "rank2") { scale = rank2Widget.getScale(); tempered = rank2Widget.isTempered(); }
+    else if (method === "welltemp") { scale = welltempWidget.getScale(); tempered = welltempWidget.isTempered(); }
+    else if (method === "fokker") { scale = fokkerWidget.getScale(); tempered = fokkerWidget.isTempered(); }
+    else if (method === "sonicweave") { scale = sonicweaveWidget.getScale(); tempered = sonicweaveWidget.isTempered(); }
+    else if (method === "meru") { scale = meruWidget.getScale(); tempered = meruWidget.isTempered(); }
+    else if (method === "cs") { scale = csWidget.getScale(); tempered = csWidget.isTempered(); }
+    if (!scale) scale = currentScale; // parsed seed/demo fallback (may still be null on parse error)
+    return { scale, tempered };
+  }
+
+  // Render the shared circle + transformed scaleTable from the strip's transformed
+  // output. Re-bound every run so it captures the current reactive baseHz. The circle's
+  // own empty-state covers unison-only / octave-only scales (Plan 02 D-17). The
+  // transformed table reuses scaleTable verbatim with the tempered flag carried through
+  // the strip (D-06 / SURF-06 — tempered stays cents-only, never laundered as JI).
+  function renderShared(tScale, tTempered) {
+    if (!tScale) {
+      const div = document.createElement("div");
+      div.setAttribute("role", "status");
+      div.setAttribute("aria-live", "polite");
+      div.className = "dashboard-helper";
+      div.textContent = "No scale yet. Pick a method to generate one.";
+      sharedPreviewHost.replaceChildren(div);
+      return;
+    }
+    sharedPreviewHost.replaceChildren(
+      circleOfPitches(tScale, synth, { baseHz, tempered: tTempered }),
+      scaleTable(tScale, baseHz, { tempered: tTempered }),
+    );
+  }
+
+  // Bind onChange ONCE per run (re-binding replaces the single stored callback — fine).
+  // It paints the shared host AND ticks the Mutable so the Send-to cell re-runs.
+  transformStrip.onChange((tScale, tTempered) => {
+    renderShared(tScale, tTempered);
+    transformedTick.value = transformedTick.value + 1;
+  });
+
+  // Feed the active widget's scale into the strip — setSource fires onChange, which
+  // renders the shared preview immediately (and on every strip control change after).
+  const active = activeWidgetScale();
+  if (active.scale) {
+    transformStrip.setSource(active.scale, active.tempered);
+  } else {
+    renderShared(null, false); // empty-state (parse error / nothing picked)
   }
 }
 ```
@@ -628,34 +827,55 @@ function showCapError() {
   sendStatus.replaceChildren(document.createTextNode(CAP_ERROR_COPY));
 }
 
+// Raw per-method serialization (the pre-transform fallback). Used ONLY when the
+// shared transform strip has no transformed scale yet (e.g. the seed/demo path with no
+// active widget). Each branch reads the widget LIVE at click time (widget-internal edits
+// don't tick Observable's reactive graph, so currentScaleText may be stale).
+function rawMethodScaleText() {
+  return method === "cps"
+    ? cpsScaleText()
+    : method === "harmonic-segment"
+      ? harmonicScaleText()
+      : method === "ji-set"
+        ? jiSetScaleText()
+        : method === "ed"
+          ? edScaleText() // D-03: tempered → cents-per-line (SURF-06).
+          : method === "rank2"
+            ? rank2ScaleText() // CONDITIONAL: ratios (pure) or cents (tempered).
+            : method === "welltemp"
+              ? welltempScaleText() // ALWAYS tempered → cents-per-line (SURF-06).
+              : method === "fokker"
+                ? fokkerScaleText() // EXACT JI → ratio-per-line.
+                : method === "sonicweave"
+                  ? sonicweaveScaleText() // CONDITIONAL: ratios (JI) or cents (tempered).
+                  : method === "meru"
+                    ? meruScaleText() // EXACT JI → ratio-per-line (convergents).
+                    : method === "cs"
+                      ? csScaleText() // CONDITIONAL: ratios (JI) or cents (tempered).
+                      : currentScaleText;
+}
+
 // Shared click behavior for both CTAs: write the store ONCE (the sole writer,
 // D-11) then deep-link-navigate with #s=; on > 8 KB RangeError surface the
 // cap-error copy and navigate hashless. `target` is the relative route from
 // /pages/generate ("../" = Dashboard, "./analysis" = Analysis).
 //
-// For the widget branches (CPS, harmonic) we re-read the widget's scale LIVE at
-// click time (the widget's internal edits don't tick Observable's reactive graph,
-// so currentScaleText may be stale) — this guarantees Send-to round-trips the
-// exact scale currently shown in the widget's table.
+// D-06 / SURF-06 — Send-to serializes the TRANSFORMED scale (the strip's
+// getTransformedScale()), NOT the raw generator output: the mode/reduce/dedupe/transpose
+// the user applied in the shared preview is what round-trips. Read LIVE at click time
+// (`transformedTick` ticks the reactive graph so the handlers re-close over the latest
+// strip output, but the click-time getTransformedScale() is the real guarantee). The
+// strip's getTempered() (propagated from the active widget's isTempered() through every
+// transform, D-18) gates the serialization: tempered → centsPerLine (never ratios —
+// no laundered temperament, T-08-13), exact JI → ratioPerLine. If the strip has no
+// transformed scale (seed/demo with no active widget), fall back to the raw per-method
+// serialization.
 function sendCurrentScaleTo(target) {
-  const scaleText =
-    method === "cps"
-      ? cpsScaleText()
-      : method === "harmonic-segment"
-        ? harmonicScaleText()
-        : method === "ji-set"
-          ? jiSetScaleText()
-          : method === "ed"
-            ? edScaleText() // D-03: tempered → cents-per-line (SURF-06).
-            : method === "rank2"
-              ? rank2ScaleText() // CONDITIONAL: ratios (pure) or cents (tempered).
-              : method === "welltemp"
-                ? welltempScaleText() // ALWAYS tempered → cents-per-line (SURF-06).
-                : method === "fokker"
-                  ? fokkerScaleText() // EXACT JI → ratio-per-line.
-                  : method === "sonicweave"
-                    ? sonicweaveScaleText() // CONDITIONAL: ratios (JI) or cents (tempered).
-                    : currentScaleText;
+  void transformedTick; // reactive dependency — re-close on every strip change.
+  const transformed = transformStrip.getTransformedScale();
+  const scaleText = transformed
+    ? (transformStrip.getTempered() ? centsPerLine(transformed) : ratioPerLine(transformed))
+    : rawMethodScaleText();
   writeSharedScale(scaleText, SEND_SOURCE); // each handler invokes this exactly once
   try {
     const hash = "#s=" + encodeScaleToHash(scaleText);
