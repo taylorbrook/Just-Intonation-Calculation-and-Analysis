@@ -127,6 +127,10 @@ None - no external service configuration required.
 - Both components mount ONCE in the page's shared preview host (Plan 03 wiring) and apply uniformly to every generator family's output. `scaleTransformStrip.onChange(cb)` is the hook Plan 03 binds to re-render the shared circle + transformed table + Send-to.
 - NOTE (carried from plan verification): click-to-audition Web Audio playback, hover highlight, and shared-preview reactivity are MANUAL-VERIFY (jsdom/happy-dom cannot assert Web Audio or Observable reactivity) — those checks live in Plan 03's human-verify task per 08-VALIDATION.md.
 
+## Self-Check: PASSED
+
+All 6 created source/test/CSS files + SUMMARY.md present on disk; all task commits (`bbcf6e1`, `1d873a0`, `83b9f40`, `7985f8b`) and the metadata commit (`081fd5b`) reachable in git log; working tree clean.
+
 ---
 *Phase: 08-preview-transforms-advanced-generators*
 *Completed: 2026-06-13*
