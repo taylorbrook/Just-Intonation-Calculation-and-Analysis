@@ -105,7 +105,11 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
   2. User can rotate the generated scale to any mode and apply reduce / dedupe / transpose before exporting, and the transformed scale is what "Send to…" serializes.
   3. User can generate a Wilson recurrence / metallic-ratio (Mt. Meru) scale and a constant-structure scale — recurrence convergents are exact rational, the metallic limit carries cents and is flagged tempered.
   4. The circle viz and transform strip apply uniformly to every generator family's output (JI and tempered alike), reinforcing the tempered label rather than masking it.
-**Plans**: TBD
+**Plans**: 4 plans (3 waves)
+  - [ ] 08-01-PLAN.md — meru.ts (Wilson recurrence convergents + metallic-limit cents) + constant-structure.ts (isConstantStructure helper) kernel primitives + INVENTORY rows [Wave 1, TDD]
+  - [ ] 08-02-PLAN.md — circle-of-pitches.ts (plain-SVG ring viz, SURF-05) + scale-transform-strip.ts (non-destructive rotate/reduce/dedupe/transpose overlay, SURF-04) [Wave 1]
+  - [ ] 08-03-PLAN.md — generate-meru.ts (golden default, tempered limit readout, cited presets) + generate-cs.ts (corrected csgs([3/2],3) default, ordinal field, CS-status readout) widgets [Wave 2]
+  - [ ] 08-04-PLAN.md — register both widgets in the Advanced optgroup + mount the shared circle + strip once (transformed scale → Send-to) + CSS imports + human-verify [Wave 3]
 **UI hint**: yes
 
 ### Phase 9: Scala Archive Browser
