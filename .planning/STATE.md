@@ -4,7 +4,7 @@ milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
 stopped_at: Phase 8 context gathered
-last_updated: "2026-06-13T22:12:10.566Z"
+last_updated: "2026-06-13T22:23:35.148Z"
 last_activity: 2026-06-13 -- Phase 08 execution started
 progress:
   total_phases: 5
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Phase 08 Wave 1 complete (08-01 kernel, 08-02 components). Starting Wave 2 (08-03 advanced generator widgets).
+**Current focus:** Phase 08 Waves 1-2 complete (08-01/02/03). Starting Wave 3 (08-04 page wiring — non-autonomous, has checkpoints).
 
 ## Current Position
 
