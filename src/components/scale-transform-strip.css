@@ -1,0 +1,109 @@
+/* scale-transform-strip.css — non-destructive transform overlay (SURF-04).
+ *
+ * Theme tokens only (05-UI-SPEC color contract — match, do not invent). Follows
+ * the mos-builder.css form house style: flex row, wraps on narrow widths, gap
+ * 16px, monospace number inputs. Per-page CSS loading: NOT auto-loaded; the
+ * consuming page (Plan 03) opts in via @import in styles.css.
+ */
+
+.scale-transform-strip {
+  margin-block: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scale-transform-strip h2 {
+  margin: 0 0 8px 0;
+}
+
+.scale-transform-strip .dashboard-helper {
+  margin: 0;
+}
+
+.scale-transform-strip__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.scale-transform-strip__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scale-transform-strip__field-label {
+  font-weight: 600;
+  color: var(--theme-foreground);
+  margin-right: 2px;
+}
+
+.scale-transform-strip__field select {
+  font-family: var(--sans-serif);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.scale-transform-strip__field input[type="number"] {
+  width: 64px;
+  font-family: var(--monospace);
+  padding: 4px 6px;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+.scale-transform-strip__field select:focus-visible,
+.scale-transform-strip__field input[type="number"]:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+.scale-transform-strip__slash {
+  font-family: var(--monospace);
+  color: var(--theme-foreground-alt);
+  user-select: none;
+}
+
+.scale-transform-strip__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--sans-serif);
+  font-size: 14px;
+}
+
+.scale-transform-strip__toggle input[type="checkbox"] {
+  width: auto;
+  min-width: auto;
+  margin: 0;
+}
+
+.scale-transform-strip__reset {
+  font-family: var(--sans-serif);
+  font-size: 14px;
+  padding: 4px 12px;
+  border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+  border-radius: 4px;
+  background: var(--theme-background-alt, var(--theme-background));
+  color: var(--theme-foreground);
+  cursor: pointer;
+}
+
+.scale-transform-strip__reset:hover {
+  background: color-mix(in oklab, var(--theme-foreground) 6%, var(--theme-background));
+}
+
+.scale-transform-strip__reset:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}

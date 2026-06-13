@@ -1,0 +1,77 @@
+/* circle-of-pitches.css — plain-SVG circle-of-pitches viz (SURF-05).
+ *
+ * Theme tokens only (05-UI-SPEC color contract — match, do not invent). Mirrors
+ * spiral-of-fifths.css / lattice.css house style: --theme-* tokens, monospace
+ * ratio labels, color-mix dots. Per-page CSS loading: this file is NOT
+ * auto-loaded; the consuming page (Plan 03) opts in via @import in styles.css.
+ */
+
+.circle-of-pitches-widget {
+  margin-block: 32px; /* 2xl spacing token between viz sections per UI-SPEC */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.circle-of-pitches-empty {
+  color: var(--theme-foreground-alt);
+  font-style: normal; /* per Phase 3 typography forbid italic — color discriminator */
+  margin: 0;
+}
+
+svg.viz.circle-of-pitches {
+  width: 100%;
+  height: auto;
+  max-width: 720px;
+  display: block;
+  background: var(--theme-background);
+}
+
+svg.viz.circle-of-pitches .circle-of-pitches__rim {
+  fill: none;
+  stroke: color-mix(in oklab, var(--theme-foreground-alt) 30%, transparent);
+  stroke-width: 1;
+}
+
+svg.viz.circle-of-pitches .circle-of-pitches__tick {
+  stroke: color-mix(in oklab, var(--theme-foreground-alt) 45%, transparent);
+  stroke-width: 1;
+}
+
+svg.viz.circle-of-pitches .circle-of-pitches__node {
+  cursor: pointer;
+}
+
+svg.viz.circle-of-pitches .circle-of-pitches__dot {
+  fill: color-mix(in oklab, var(--theme-blue) 70%, transparent);
+  stroke: var(--theme-blue);
+  stroke-width: 1;
+  transition: r 80ms ease, fill 80ms ease;
+}
+
+/* Tonic (1/1) emphasis — green accent so the scale's anchor reads at a glance. */
+svg.viz.circle-of-pitches .circle-of-pitches__node--tonic .circle-of-pitches__dot {
+  fill: color-mix(in oklab, var(--theme-green) 70%, transparent);
+  stroke: var(--theme-green);
+  stroke-width: 1.5;
+}
+
+/* Hover highlight (D-04) — class toggled in JS on mouseenter/mouseleave; the
+ * native :hover fallback keeps the affordance even without the JS class. */
+svg.viz.circle-of-pitches .circle-of-pitches__node--hover .circle-of-pitches__dot,
+svg.viz.circle-of-pitches .circle-of-pitches__node:hover .circle-of-pitches__dot {
+  fill: var(--theme-blue);
+  stroke-width: 2;
+}
+
+svg.viz.circle-of-pitches .circle-of-pitches__node:focus-visible {
+  outline: 2px solid var(--theme-foreground-focus);
+  outline-offset: 2px;
+}
+
+svg.viz.circle-of-pitches .circle-of-pitches__label {
+  font-family: var(--monospace);
+  font-size: 12px;
+  fill: var(--theme-foreground);
+  pointer-events: none;
+}
