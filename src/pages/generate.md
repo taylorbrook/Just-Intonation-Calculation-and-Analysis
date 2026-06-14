@@ -717,38 +717,43 @@ const transformedTick = Mutable(0);
 ```
 
 ```ts
+// Shared live-read of the active widget's scale + tempered flag (D-03/D-06). Defined at
+// top level so BOTH the shared-preview wiring (below) AND the Send-to handlers can call
+// it. Reading getScale()/isTempered() LIVE at call time is what reflects widget-INTERNAL
+// param edits (e.g. changing EDO divisions), which do NOT tick Observable's reactive
+// graph — the documented live-read rationale (lines ~283–296). Null scale → fall back to
+// the parsed seed/currentScale so consumers always have something to serialize/show.
+function activeWidgetScale() {
+  let scale = null;
+  let tempered = false;
+  if (method === "cps") scale = cpsWidget.getScale();
+  else if (method === "harmonic-segment") scale = harmonicWidget.getScale();
+  else if (method === "ji-set") scale = jiSetWidget.getScale();
+  else if (method === "ed") { scale = edWidget.getScale(); tempered = edWidget.isTempered(); }
+  else if (method === "rank2") { scale = rank2Widget.getScale(); tempered = rank2Widget.isTempered(); }
+  else if (method === "welltemp") { scale = welltempWidget.getScale(); tempered = welltempWidget.isTempered(); }
+  else if (method === "fokker") { scale = fokkerWidget.getScale(); tempered = fokkerWidget.isTempered(); }
+  else if (method === "sonicweave") { scale = sonicweaveWidget.getScale(); tempered = sonicweaveWidget.isTempered(); }
+  else if (method === "meru") { scale = meruWidget.getScale(); tempered = meruWidget.isTempered(); }
+  else if (method === "cs") { scale = csWidget.getScale(); tempered = csWidget.isTempered(); }
+  if (!scale) scale = currentScale; // parsed seed/demo fallback (may still be null on parse error)
+  return { scale, tempered };
+}
+```
+
+```ts
 // ─── Shared-preview reactive wiring (RESEARCH Open Q1 — the first cross-widget
 // consumer) ───────────────────────────────────────────────────────────────────
 // This cell re-runs on `method` and `baseHz` change. It (1) reads the ACTIVE widget's
-// scale LIVE via getScale()/isTempered() (widget-internal edits don't tick Observable's
-// reactive graph — the documented live-read rationale, lines ~283–296), (2) re-binds the
-// strip's onChange to a render closure that captures the CURRENT baseHz, then (3) calls
+// scale LIVE via the shared activeWidgetScale() helper above, (2) re-binds the strip's
+// onChange to a render closure that captures the CURRENT baseHz, then (3) calls
 // setSource — which itself fires onChange, painting the shared circle + transformed
 // table immediately. The additive onChange/Mutable approach (Pitfall 6 / Q1
-// recommendation), no kernel or widget change. Whether a widget-INTERNAL param edit (a
-// CPS chip) also live-updates the shared preview is the documented Open-Q1 risk the
-// human-verify task confirms; if it does not, the active widget needs an additive
-// onScaleChange(cb) hook bound here. Text via textContent only.
+// recommendation), no kernel or widget change. A widget-INTERNAL param edit does not
+// re-run this cell (the documented Open-Q1 limit — the shared circle refreshes on method
+// switch and on Send); Send-to itself re-syncs the strip from activeWidgetScale() at
+// click time so the serialized scale is never stale. Text via textContent only.
 {
-  // Resolve the active widget's scale + tempered flag (live read). Null → fall back to
-  // the parsed seed/currentScale so the shared preview always has something to show.
-  function activeWidgetScale() {
-    let scale = null;
-    let tempered = false;
-    if (method === "cps") scale = cpsWidget.getScale();
-    else if (method === "harmonic-segment") scale = harmonicWidget.getScale();
-    else if (method === "ji-set") scale = jiSetWidget.getScale();
-    else if (method === "ed") { scale = edWidget.getScale(); tempered = edWidget.isTempered(); }
-    else if (method === "rank2") { scale = rank2Widget.getScale(); tempered = rank2Widget.isTempered(); }
-    else if (method === "welltemp") { scale = welltempWidget.getScale(); tempered = welltempWidget.isTempered(); }
-    else if (method === "fokker") { scale = fokkerWidget.getScale(); tempered = fokkerWidget.isTempered(); }
-    else if (method === "sonicweave") { scale = sonicweaveWidget.getScale(); tempered = sonicweaveWidget.isTempered(); }
-    else if (method === "meru") { scale = meruWidget.getScale(); tempered = meruWidget.isTempered(); }
-    else if (method === "cs") { scale = csWidget.getScale(); tempered = csWidget.isTempered(); }
-    if (!scale) scale = currentScale; // parsed seed/demo fallback (may still be null on parse error)
-    return { scale, tempered };
-  }
-
   // Render the shared circle + transformed scaleTable from the strip's transformed
   // output. Re-bound every run so it captures the current reactive baseHz. The circle's
   // own empty-state covers unison-only / octave-only scales (Plan 02 D-17). The
@@ -872,6 +877,14 @@ function rawMethodScaleText() {
 // serialization.
 function sendCurrentScaleTo(target) {
   void transformedTick; // reactive dependency — re-close on every strip change.
+  // Re-sync the strip from the LIVE active widget before serializing. Widget-internal
+  // param edits (e.g. changing EDO divisions) do NOT tick Observable's reactive graph,
+  // so the strip can hold a stale source — sending the wrong/default scale (Open-Q1).
+  // setSource re-derives the transformed scale from the latest generator output while
+  // PRESERVING the user's transform state (mode/reduce/dedupe/transpose held in the strip
+  // closure), so the transform the user applied still round-trips.
+  const live = activeWidgetScale();
+  if (live.scale) transformStrip.setSource(live.scale, live.tempered);
   const transformed = transformStrip.getTransformedScale();
   const scaleText = transformed
     ? (transformStrip.getTempered() ? centsPerLine(transformed) : ratioPerLine(transformed))
