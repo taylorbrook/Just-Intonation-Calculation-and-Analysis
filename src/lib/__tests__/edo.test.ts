@@ -12,6 +12,7 @@
 import { describe, it, expect } from "vitest";
 import { Interval } from "../interval.js";
 import { Scale, jiSubsetOfEdo } from "../scale.js";
+import { parseScala } from "../scala.js";
 import { oddLimit } from "../monzo.js";
 import { bestEdosForScale, bestJiInEdo, oddLimitApproximation, type EdoErrorRow } from "../edo.js";
 
@@ -98,6 +99,31 @@ describe("bestEdosForScale", () => {
       expect(row.maxCentsError).toBeCloseTo(0, 1);
       expect(row.rmsCentsError).toBeCloseTo(0, 1);
       expect(row.tenneyWeightedError).toBeCloseTo(0, 1);
+    }
+  });
+
+  it("tempered (cents-based) scale does not throw 'Out of primes' — Max/RMS finite, Tenney NaN", () => {
+    // A 24-EDO scale sent as cents (Generate page's tempered Send-to) parses into lossy
+    // float-derived rationals with no JI provenance — tenneyHeight(iv.monzo) would throw
+    // "Out of primes". The fit table is still meaningful (Max/RMS are cents-only), so the
+    // Tenney column degrades to NaN instead of the whole computation throwing.
+    const edo24 = new Scale(
+      parseScala(Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n")),
+    );
+    let rows: EdoErrorRow[] = [];
+    expect(() => {
+      rows = bestEdosForScale(edo24, { min: 5, max: 31 }, "max");
+    }).not.toThrow();
+    // 24-EDO fits a 24-EDO scale perfectly — Max/RMS error 0 there, finite everywhere.
+    const at24 = rows.find((r) => r.edoSteps === 24);
+    expect(at24).toBeDefined();
+    expect(at24!.maxCentsError).toBeCloseTo(0, 1);
+    expect(at24!.rmsCentsError).toBeCloseTo(0, 1);
+    for (const row of rows) {
+      expect(Number.isFinite(row.maxCentsError)).toBe(true);
+      expect(Number.isFinite(row.rmsCentsError)).toBe(true);
+      // Tenney weighting is N/A for a tempered scale.
+      expect(Number.isNaN(row.tenneyWeightedError)).toBe(true);
     }
   });
 });

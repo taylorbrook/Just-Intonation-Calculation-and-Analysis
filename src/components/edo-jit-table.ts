@@ -78,7 +78,8 @@ export function edoJitTable(
     {
       key: "tenneyWeightedError",
       label: "Tenney err",
-      format: (row, p) => row.tenneyWeightedError.toFixed(p),
+      // NaN ⇒ tempered (cents-based) scale: no JI complexity to weight by. Render "—".
+      format: (row, p) => (Number.isNaN(row.tenneyWeightedError) ? "—" : row.tenneyWeightedError.toFixed(p)),
     },
   ];
 
@@ -132,10 +133,16 @@ export function edoJitTable(
 
   // ─── Render helpers ──────────────────────────────────────────────────────
   function renderTbody(): void {
-    // Sort a copy so the source array stays stable.
+    // Sort a copy so the source array stays stable. NaN (tempered scale's Tenney column)
+    // always sinks to the bottom regardless of direction, so it never poisons the comparator.
     const sorted = [...rows].sort((a, b) => {
       const av = a[sortKey];
       const bv = b[sortKey];
+      const aNaN = Number.isNaN(av);
+      const bNaN = Number.isNaN(bv);
+      if (aNaN && bNaN) return 0;
+      if (aNaN) return 1;
+      if (bNaN) return -1;
       return (av - bv) * sortDir;
     });
     tbody.replaceChildren();

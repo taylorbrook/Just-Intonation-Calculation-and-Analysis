@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { edoJitTable } from "../edo-jit-table.js";
 import { Scale } from "../../lib/scale.js";
 import { Interval } from "../../lib/interval.js";
+import { parseScala } from "../../lib/scala.js";
 import { makeStubSynth } from "./test-utils.js";
 
 const seedScale = (): Scale =>
@@ -120,5 +121,26 @@ describe("edoJitTable factory", () => {
     firstRow.click();
     const call = synth.playArpeggio.mock.calls[0]!;
     expect(call[1]).toBe(0.2);
+  });
+
+  it("tempered (cents-based) scale renders without throwing — Tenney cells show '—'", () => {
+    // A 24-EDO scale sent as cents (Generate tempered Send-to): lossy float-derived
+    // fractions → tenneyHeight(iv.monzo) would throw "Out of primes". The table must still
+    // render (Max/RMS are meaningful); only the Tenney column degrades to "—".
+    const edo24 = new Scale(
+      parseScala(Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n")),
+    );
+    let el: HTMLElement | null = null;
+    expect(() => {
+      el = edoJitTable(edo24, makeStubSynth(), { range: { min: 5, max: 12 } });
+    }).not.toThrow();
+    const bodyRows = el!.querySelectorAll("tbody tr");
+    expect(bodyRows.length).toBe(8);
+    // Every Tenney cell (4th column) reads "—"; Max/RMS cells stay numeric.
+    for (const tr of bodyRows) {
+      const cells = tr.querySelectorAll("td");
+      expect(cells[3]?.textContent).toBe("—");
+      expect(cells[1]?.textContent).not.toBe("—");
+    }
   });
 });

@@ -41,7 +41,10 @@ export interface EdoErrorRow {
   maxCentsError: number;
   /** sqrt(mean(centsError^2)) across the scale's intervals */
   rmsCentsError: number;
-  /** Σ |centsError_i| / max(1, tenneyHeight(monzo_i)) — high-complexity intervals contribute less. */
+  /**
+   * Σ |centsError_i| / max(1, tenneyHeight(monzo_i)) — high-complexity intervals contribute less.
+   * NaN when the scale is tempered (cents-based, no JI factorization); the UI renders NaN as "—".
+   */
   tenneyWeightedError: number;
 }
 
@@ -96,7 +99,21 @@ export function bestEdosForScale(
   // is zero (rounding gap zero, weight finite — clamp at 1) and excluding it would muddy the
   // RMS denominator.
   const idealCentsList: number[] = scale.intervals.map((iv) => iv.cents);
-  const weightList: number[] = scale.intervals.map((iv) => Math.max(1, tenneyHeight(iv.monzo)));
+  // Tenney weighting needs each interval's monzo (prime factorization). A tempered scale
+  // (e.g. an EDO sent as cents via the Generate page) is stored as lossy float-derived
+  // rational approximations with no JI provenance (scala.ts), so factorizing throws
+  // "Out of primes". Max/RMS cents-error are cents-only and stay exact, so degrade
+  // gracefully: flag the scale tempered and emit NaN for the Tenney column (rendered as
+  // "—") instead of throwing the whole table. Mirrors the lattice/diamond guard (b27027e).
+  let tempered = false;
+  const weightList: number[] = scale.intervals.map((iv) => {
+    try {
+      return Math.max(1, tenneyHeight(iv.monzo));
+    } catch {
+      tempered = true;
+      return 1;
+    }
+  });
 
   const rows: EdoErrorRow[] = [];
   for (let N = range.min; N <= range.max; N++) {
@@ -119,7 +136,8 @@ export function bestEdosForScale(
       edoSteps: N,
       maxCentsError: maxAbs,
       rmsCentsError: rms,
-      tenneyWeightedError: tenneyWeighted,
+      // NaN signals "not applicable" for a tempered scale (no JI complexity to weight by).
+      tenneyWeightedError: tempered ? NaN : tenneyWeighted,
     });
   }
   return rows;
