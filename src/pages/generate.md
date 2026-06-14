@@ -18,6 +18,7 @@ import { generateFokker } from "../components/generate-fokker.js";
 import { generateSonicweave } from "../components/generate-sonicweave.js";
 import { generateMeru } from "../components/generate-meru.js";
 import { generateCs } from "../components/generate-cs.js";
+import { generateArchive } from "../components/generate-archive.js";
 import { circleOfPitches } from "../components/circle-of-pitches.js";
 import { scaleTransformStrip } from "../components/scale-transform-strip.js";
 import { encodeScaleToHash } from "../lib/url.js";
@@ -102,6 +103,15 @@ const METHOD_FAMILIES = [
   {
     label: "SonicWeave",
     options: [{ id: "sonicweave", text: "Free-text SonicWeave", placeholder: false }],
+  },
+  {
+    // Scala archive (LIB-01 / D-C2) — a top-level optgroup because the archive is a
+    // LOAD SOURCE, not a generation method. Selecting it mounts the browse/search
+    // widget (09-02); a chosen scale routes through the SAME transform strip + Send-to
+    // as every generator (LIB-02 / LIB-03), with tempered entries serialized
+    // cents-per-line (SURF-06).
+    label: "Scala archive",
+    options: [{ id: "archive", text: "Browse named scales (.scl archive)", placeholder: false }],
   },
 ];
 ```
@@ -308,6 +318,26 @@ const csWidget = generateCs(synth, { baseHz });
 ```
 
 ```ts
+// Scala-archive browser widget (LIB-01 / LIB-02, Plan 09-03 / D-C1). Instantiated
+// ONCE so its closure-local search term + selection survive mount/unmount into
+// paramsHost across picker swaps (the generateCs Pattern-2 precedent). It renders
+// its own search list + tempered-aware scaleTable + ⏵⏵ Play internally and exposes
+// getScale() AND isTempered() — CONDITIONAL: a tempered archive entry (e.g. a
+// Werckmeister well-temperament) → cents-of-record; an exact-JI entry → ratios.
+//
+// D-C1 lazy load: the `loadEntries` thunk calls FileAttachment(...).json() so the
+// 195-entry index is fetched only when the widget first needs it (page boot stays
+// light). The data loader writes /data/scala-archive.json (root: "src"); the
+// FileAttachment path is resolved relative to THIS page (src/pages/generate.md),
+// hence "../data/scala-archive.json". The Send-to cell branches on isTempered() so
+// tempered entries serialize cents-per-line, never laundered as ratios (SURF-06).
+const archiveWidget = generateArchive(synth, {
+  baseHz,
+  loadEntries: () => FileAttachment("../data/scala-archive.json").json(),
+});
+```
+
+```ts
 // ─── Compute the current scale from the picker + param ───────────────────────
 // Serialize the CPS widget's current Scale ratio-per-line (exact JI — D-06). Read
 // LIVE from the widget so the latest chip/preset edits round-trip (the widget's
@@ -427,6 +457,16 @@ function csScaleText() {
   if (!scale) return seedText;
   return csWidget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
 }
+// Scala archive (LIB-03 / D-C3) — CONDITIONAL on the entry's build-time tempered flag
+// (09-01 D-A4, surfaced via archiveWidget.isTempered()): a tempered archive scale (cents
+// of record) → cents-per-line; an exact-JI entry → ratio-per-line. The SURF-06 branch so
+// a temperament is never laundered as exact JI on Send-to. Mirrors the rank-2 / sonicweave
+// / cs conditional precedent; reuses the shared centsPerLine / ratioPerLine helpers.
+function archiveScaleText() {
+  const scale = archiveWidget.getScale();
+  if (!scale) return seedText;
+  return archiveWidget.isTempered() ? centsPerLine(scale) : ratioPerLine(scale);
+}
 const currentScaleText =
   method === "harmonic-segment"
     ? harmonicScaleText()
@@ -448,7 +488,9 @@ const currentScaleText =
                     ? meruScaleText()
                     : method === "cs"
                       ? csScaleText()
-                      : seedText;
+                      : method === "archive"
+                        ? archiveScaleText()
+                        : seedText;
 ```
 
 ```ts
@@ -535,6 +577,13 @@ try {
     // so the shared previewHost shows only a pointer caption. The persistent `csWidget`
     // element preserves its closure-local state across picker swaps.
     paramsHost.replaceChildren(csWidget);
+  } else if (method === "archive") {
+    // Mount the Scala-archive browser (LIB-01 / LIB-02). It owns its search box +
+    // capped result list AND renders its own tempered-aware scaleTable + ⏵⏵ Play on
+    // selection, so the shared previewHost shows only a pointer caption. The persistent
+    // `archiveWidget` element preserves its closure-local search term + selection across
+    // picker swaps (and its lazy-loaded index is fetched once on first mount).
+    paramsHost.replaceChildren(archiveWidget);
   } else if (method === "") {
     const caption = document.createElement("p");
     caption.className = "dashboard-helper";
@@ -650,6 +699,15 @@ try {
     caption.textContent =
       "The constant-structure table, the ✓ CS-status readout, and ⏵⏵ Play are shown above with the generator/ordinal controls. Send-to serializes the scale ratio-per-line.";
     previewHost.replaceChildren(caption);
+  } else if (method === "archive") {
+    // The archive browser renders its own search list + tempered-aware scaleTable +
+    // ⏵⏵ Play (mounted into paramsHost above), so the shared previewHost shows only a
+    // pointer caption — no duplicate table. Text via textContent only (D-B4 / T-09-10).
+    const caption = document.createElement("p");
+    caption.className = "dashboard-helper";
+    caption.textContent =
+      "The archive browser, its table, and ⏵⏵ Play are shown above. Send-to serializes ratios for exact-JI scales and cents-per-line for tempered ones.";
+    previewHost.replaceChildren(caption);
   } else if (currentScaleError) {
     const div = document.createElement("div");
     div.setAttribute("role", "status");
@@ -736,6 +794,7 @@ function activeWidgetScale() {
   else if (method === "sonicweave") { scale = sonicweaveWidget.getScale(); tempered = sonicweaveWidget.isTempered(); }
   else if (method === "meru") { scale = meruWidget.getScale(); tempered = meruWidget.isTempered(); }
   else if (method === "cs") { scale = csWidget.getScale(); tempered = csWidget.isTempered(); }
+  else if (method === "archive") { scale = archiveWidget.getScale(); tempered = archiveWidget.isTempered(); }
   if (!scale) scale = currentScale; // parsed seed/demo fallback (may still be null on parse error)
   return { scale, tempered };
 }
@@ -878,7 +937,9 @@ function rawMethodScaleText() {
                     ? meruScaleText() // EXACT JI → ratio-per-line (convergents).
                     : method === "cs"
                       ? csScaleText() // CONDITIONAL: ratios (JI) or cents (tempered).
-                      : currentScaleText;
+                      : method === "archive"
+                        ? archiveScaleText() // CONDITIONAL: ratios (JI) or cents (tempered) — SURF-06.
+                        : currentScaleText;
 }
 
 // Shared click behavior for both CTAs: write the store ONCE (the sole writer,
