@@ -4,13 +4,13 @@ milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
 stopped_at: "Phase 8 COMPLETE. 08-04 Task 3 human-verify approved by user. Verify cycle surfaced + fixed three tempered-scale issues (b27027e lattice/diamond, c837d1b shared-preview reactivity, 62720d8 transform re-sync, 0842cf6 EDO-fit table). SURF-04/05 + GEN-10 marked complete. Next: plan Phase 9 (Scala Archive Browser — LIB-01/02/03)."
-last_updated: "2026-06-14T15:06:22.247Z"
-last_activity: 2026-06-14 -- Phase 9 planning complete
+last_updated: "2026-06-14T19:33:36.031Z"
+last_activity: 2026-06-14
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 23
-  completed_plans: 20
+  completed_plans: 21
   percent: 80
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Phase 08 Waves 1-2 complete (08-01/02/03). Starting Wave 3 (08-04 page wiring — non-autonomous, has checkpoints).
+**Current focus:** Phase 09 — scala-archive-browser
 
 ## Current Position
 
-Phase: 08 (preview-transforms-advanced-generators) — COMPLETE (4/4, human-verify approved 2026-06-14)
-Plan: 4 of 4 — done
+Phase: 09 (scala-archive-browser) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-14 -- Phase 9 planning complete
+Last activity: 2026-06-14
 
-Progress: v1.1 — 4 of 5 phases complete [████████░░] 80%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -74,6 +74,7 @@ Progress: v1.1 — 4 of 5 phases complete [████████░░] 80%
 | Phase 06-exact-rational-ji-harmonic-generators P03 | 4min | 2 tasks | 3 files |
 | Phase 06-exact-rational-ji-harmonic-generators P06 | 5min | 2 tasks | 5 files |
 | Phase 06-exact-rational-ji-harmonic-generators P07 | 7min | 3 tasks | 8 files |
+| Phase 09-scala-archive-browser P01 | 12min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -142,6 +143,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 06]: edScale is TEMPERED — cents is source of truth via centsToRatio (SURF-06), no exact ratio of record; the exact equave is still passed as the Scale period
 - [Phase 06]: Honored D-08 via migration — replaced the Phase-5 harmonic-segment reference (segmentSizeInput/buildHarmonicSegmentText) with the full generateHarmonic widget under the same picker id; first paint (placeholder → demo seed) unchanged byte-for-byte, widget opens on harmonic 8..16 (D-09) when selected
 - [Phase 06]: generateHarmonic shares lo/hi/reduce closure state across harmonic+subharmonic; ADO has no reduce toggle (one equave); harmonicScaleText() drops a leading 1/1 to match parseScala auto-prepend (generateCps Send-to precedent)
+- [Phase ?]: [Phase 09 / D-A4]: archive tempered flag computed AT BUILD TIME from the .-cents-marker (identical to parseScl's D-19 rule); tempered entries serialize degrees as cents, exact as n/d, locking SURF-06 provenance through the index (76 tempered / 119 exact of 195). First Framework *.json.ts data loader in the repo; all logic in unit-tested src/lib/scala-archive.ts, loader is a thin node:fs shell (D-A5).
 
 ### Pending Todos
 
@@ -224,6 +226,6 @@ Notes:
 
 ## Session Continuity
 
-Last session: 2026-06-14 — Phase 8 verified and closed
+Last session: 2026-06-14T19:33:25.463Z
 Stopped at: Phase 8 COMPLETE. 08-04 Task 3 human-verify approved by user. Verify cycle surfaced + fixed three tempered-scale issues (b27027e lattice/diamond, c837d1b shared-preview reactivity, 62720d8 transform re-sync, 0842cf6 EDO-fit table). SURF-04/05 + GEN-10 marked complete. Next: plan Phase 9 (Scala Archive Browser — LIB-01/02/03).
-Resume file: none — clean phase boundary
+Resume file: None
