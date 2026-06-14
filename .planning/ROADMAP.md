@@ -109,7 +109,7 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
   - [x] 08-01-PLAN.md — meru.ts (Wilson recurrence convergents + metallic-limit cents) + constant-structure.ts (isConstantStructure helper) kernel primitives + INVENTORY rows [Wave 1, TDD]
   - [x] 08-02-PLAN.md — circle-of-pitches.ts (plain-SVG ring viz, SURF-05) + scale-transform-strip.ts (non-destructive rotate/reduce/dedupe/transpose overlay, SURF-04) [Wave 1]
   - [x] 08-03-PLAN.md — generate-meru.ts (golden default, tempered limit readout, cited presets) + generate-cs.ts (corrected csgs([3/2],3) default, ordinal field, CS-status readout) widgets [Wave 2]
-  - [ ] 08-04-PLAN.md — register both widgets in the Advanced optgroup + mount the shared circle + strip once (transformed scale → Send-to) + CSS imports + human-verify [Wave 3]
+  - [x] 08-04-PLAN.md — register both widgets in the Advanced optgroup + mount the shared circle + strip once (transformed scale → Send-to) + CSS imports + human-verify [Wave 3]
 **UI hint**: yes
 
 ### Phase 9: Scala Archive Browser
@@ -137,7 +137,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 5. Generate Surface & Live Integration Foundation | v1.1 | 3/3 | Complete   | 2026-06-09 |
 | 6. Exact-Rational JI & Harmonic Generators | v1.1 | 7/7 | Complete   | 2026-06-10 |
 | 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 6/6 | Complete   | 2026-06-12 |
-| 8. Preview, Transforms & Advanced Generators | v1.1 | 3/4 | In Progress|  |
+| 8. Preview, Transforms & Advanced Generators | v1.1 | 4/4 | Complete   | 2026-06-14 |
 | 9. Scala Archive Browser                   | v1.1 | 0/TBD | Not started | - |
 </content>
 </invoke>

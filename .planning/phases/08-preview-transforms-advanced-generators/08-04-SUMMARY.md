@@ -55,7 +55,7 @@ completed: 2026-06-13
 | ---- | ---- | ------ |
 | 1: Register generateMeru + generateCs in Advanced optgroup + CSS imports | auto | **DONE** — committed `981b08d` |
 | 2: Mount shared circle + transform strip fed by active widget (reactive wiring) | auto | **DONE** — committed `7b3b2e3` |
-| 3: Human-verify the Manual-Only behaviors | checkpoint:human-verify (gate=blocking) | **PENDING-HUMAN-VERIFY** — not attempted (subagent cannot drive `npm run dev` / interact with the user) |
+| 3: Human-verify the Manual-Only behaviors | checkpoint:human-verify (gate=blocking) | **APPROVED 2026-06-14** — user walked the 5-step script; verify cycle surfaced + fixed three tempered-scale issues (b27027e, c837d1b/62720d8, 0842cf6) then approved |
 
 ## Performance
 
@@ -140,5 +140,6 @@ No new threat surface beyond the plan's `<threat_model>`. The transformed-scale 
 
 ---
 *Phase: 08-preview-transforms-advanced-generators*
-*Tasks 1–2 complete; Task 3 pending human-verify*
-*Completed (auto tasks): 2026-06-13*
+*Tasks 1–3 complete; Task 3 human-verify APPROVED 2026-06-14*
+*Phase 8 closed. Verify-cycle tempered-scale fixes: b27027e (lattice/diamond), c837d1b + 62720d8 (shared-preview reactivity / transform re-sync), 0842cf6 (EDO-fit table).*
+*Completed: 2026-06-14*

@@ -16,8 +16,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [ ] **SURF-01**: User can open a dedicated Generate page (`/pages/generate`) from the site nav
 - [ ] **SURF-02**: User can choose a generation method from a family-grouped picker; the parameter panel swaps to that method's inputs
 - [ ] **SURF-03**: User sees a live preview table and can audition (play) the current generated scale as parameters change
-- [ ] **SURF-04**: User can rotate the generated scale to any mode and apply reduce / dedupe / transpose before exporting
-- [ ] **SURF-05**: User can view a circle-of-pitches visualization of the generated scale
+- [x] **SURF-04**: User can rotate the generated scale to any mode and apply reduce / dedupe / transpose before exporting
+- [x] **SURF-05**: User can view a circle-of-pitches visualization of the generated scale
 - [x] **SURF-06**: Tempered scales (EDO, rank-2, well-temperament) are visibly distinguished from exact-JI scales — cents-primary with a "tempered" label; no float-derived ratios presented as exact JI
 
 ### GEN — Scale Generators
@@ -31,7 +31,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [x] **GEN-07**: User can generate a well-temperament scale (per-fifth comma tempering)
 - [x] **GEN-08**: User can generate a Fokker periodicity-block scale — delivers parked TEMP-08
 - [x] **GEN-09**: User can enter a free-text SonicWeave expression and compile it to a scale — delivers parked TEMP-07
-- [ ] **GEN-10**: User can generate Wilson recurrence / metallic-ratio (Mt. Meru) and constant-structure scales
+- [x] **GEN-10**: User can generate Wilson recurrence / metallic-ratio (Mt. Meru) and constant-structure scales
 
 ### SYNC — Live Shared-State Integration
 
@@ -87,8 +87,8 @@ Which phases cover which requirements. Populated during roadmap creation (v1.1 p
 | SURF-01 | Phase 5 | Pending |
 | SURF-02 | Phase 5 | Pending |
 | SURF-03 | Phase 5 | Pending |
-| SURF-04 | Phase 8 | Pending |
-| SURF-05 | Phase 8 | Pending |
+| SURF-04 | Phase 8 | Complete |
+| SURF-05 | Phase 8 | Complete |
 | SURF-06 | Phase 6 | Complete |
 | GEN-01 | Phase 6 | Complete |
 | GEN-02 | Phase 6 | Complete |
@@ -99,7 +99,7 @@ Which phases cover which requirements. Populated during roadmap creation (v1.1 p
 | GEN-07 | Phase 7 | Complete |
 | GEN-08 | Phase 7 | Complete |
 | GEN-09 | Phase 7 | Complete |
-| GEN-10 | Phase 8 | Pending |
+| GEN-10 | Phase 8 | Complete |
 | SYNC-01 | Phase 5 | Pending |
 | SYNC-02 | Phase 5 | Pending |
 | SYNC-03 | Phase 5 | Pending |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
-stopped_at: Phase 8 context gathered
-last_updated: "2026-06-13T22:23:35.148Z"
-last_activity: 2026-06-13 -- Phase 08 execution started
+stopped_at: Phase 8 complete (human-verify approved 2026-06-14)
+last_updated: "2026-06-14T14:45:00.000Z"
+last_activity: 2026-06-14 -- Phase 08 complete; verify-cycle tempered-scale guards committed
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 20
-  completed_plans: 16
-  percent: 60
+  completed_plans: 20
+  percent: 80
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 ## Current Position
 
-Phase: 08 (preview-transforms-advanced-generators) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 08
-Last activity: 2026-06-13 -- Phase 08 execution started
+Phase: 08 (preview-transforms-advanced-generators) — COMPLETE (4/4, human-verify approved 2026-06-14)
+Plan: 4 of 4 — done
+Status: Phase 08 complete; ready to plan Phase 09 (Scala Archive Browser)
+Last activity: 2026-06-14 -- Phase 08 verified + closed; tempered-scale guards committed
 
-Progress: [██████████] 100%
+Progress: v1.1 — 4 of 5 phases complete [████████░░] 80%
 
 ## Performance Metrics
 
@@ -81,6 +81,8 @@ Progress: [██████████] 100%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+- [Phase 08 verify]: Tempered scales (sent as cents) carry no JI provenance — prime-factorizing them throws "Out of primes". Established guard pattern: JI-only consumers probe `iv.monzo` and degrade. Lattice + tonality diamond render a friendly "tempered → no JI lattice/diamond" empty-state (b27027e); the EDO-fit table stays useful (Max/RMS are cents-only) and degrades just the Tenney column to "—" (0842cf6). Any future JI-factorizing consumer must adopt this guard.
 
 - Roadmap: 4-phase structure follows research-recommended dependency order (bootstrap → kernel-MVP with composition anchor → viz + mobile → analysis); temperament browser deferred to v2
 - [Phase ?]: Honored D-17: @observablehq/framework exact-pinned to 1.13.4 (no caret); transitive deps locked via package-lock.json
@@ -222,7 +224,6 @@ Notes:
 
 ## Session Continuity
 
-Last session: 2026-06-13T05:19:44.130Z
-Stopped at: Phase 8 context gathered
-Resume file:
-.planning/phases/08-preview-transforms-advanced-generators/08-CONTEXT.md
+Last session: 2026-06-14 — Phase 8 verified and closed
+Stopped at: Phase 8 COMPLETE. 08-04 Task 3 human-verify approved by user. Verify cycle surfaced + fixed three tempered-scale issues (b27027e lattice/diamond, c837d1b shared-preview reactivity, 62720d8 transform re-sync, 0842cf6 EDO-fit table). SURF-04/05 + GEN-10 marked complete. Next: plan Phase 9 (Scala Archive Browser — LIB-01/02/03).
+Resume file: none — clean phase boundary
