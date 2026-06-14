@@ -87,6 +87,10 @@ export function generateArchive(
   let entries: ArchiveEntry[] = [];
   let currentScale: Scale | null = null;
   let currentTempered = false;
+  // WR-05: the filename of the currently-selected entry (null before any
+  // selection). `filename` is the unique per-entry key, so it survives a
+  // list re-render and lets renderList re-apply the highlight to the new row.
+  let selectedFilename: string | null = null;
 
   const root = document.createElement("section") as GenerateArchiveElement;
   root.className = "generate-archive";
@@ -174,7 +178,12 @@ export function generateArchive(
     btn.type = "button";
     btn.className = "generate-archive__row-btn";
     btn.setAttribute("role", "option");
-    btn.setAttribute("aria-selected", "false");
+    // WR-05: reflect the live selection on (re-)render. If this row's entry is
+    // the currently-selected one, re-apply the aria-selected + --selected
+    // affordance so the highlight tracks `currentScale` across search re-renders.
+    const isSelected = selectedFilename !== null && entry.filename === selectedFilename;
+    btn.setAttribute("aria-selected", isSelected ? "true" : "false");
+    if (isSelected) btn.classList.add("generate-archive__row-btn--selected");
 
     // name → fallback to filename when the description line is empty.
     const nameSpan = document.createElement("span");
@@ -209,6 +218,18 @@ export function generateArchive(
   function renderList(term: string): void {
     const matches = searchArchive(entries, term, DEFAULT_SEARCH_CAP);
     const total = fullMatchCount(term);
+
+    // WR-05: reconcile the persisted selection BEFORE building rows (makeRow
+    // reads `selectedFilename` to decide the highlight). If the current search
+    // term excludes the selected entry from the filter, the loaded table + ⏵⏵
+    // Play would dangle for a scale the list no longer offers — clear the
+    // selection AND the preview so affordance and state stay in agreement. A
+    // selection that still matches the term but is merely pushed past the cap
+    // keeps its preview (it remains a valid result, just not visibly listed).
+    if (selectedFilename !== null && !entryMatchesTerm(selectedFilename, term)) {
+      clearSelection();
+    }
+
     list.replaceChildren(...matches.map((entry) => makeRow(entry)));
     caption.textContent = `Showing ${String(matches.length)} of ${String(total)}`;
     if (total === 0) {
@@ -217,6 +238,35 @@ export function generateArchive(
     } else {
       status.textContent = "";
     }
+  }
+
+  /**
+   * WR-05: does the entry with this filename still satisfy the search term?
+   * Uses the SAME case-insensitive name+filename predicate as searchArchive /
+   * fullMatchCount, so the reconcile agrees with what the list shows.
+   */
+  function entryMatchesTerm(filename: string, term: string): boolean {
+    const needle = term.trim().toLowerCase();
+    const entry = entries.find((e) => e.filename === filename);
+    if (entry === undefined) return false; // entry gone (e.g. reload) → drop it.
+    if (needle === "") return true;
+    return `${entry.name}\n${entry.filename}`.toLowerCase().includes(needle);
+  }
+
+  /**
+   * WR-05: drop the current selection and reset the preview to the empty state,
+   * so a search that filters out the selected scale leaves no stale table / ⏵⏵
+   * Play and getScale()/isTempered() no longer report a now-invisible scale.
+   */
+  function clearSelection(): void {
+    selectedFilename = null;
+    currentScale = null;
+    currentTempered = false;
+    const empty = document.createElement("p");
+    empty.className = "generate-archive__empty-preview";
+    empty.textContent = "Pick a scale to load it.";
+    tableHost.replaceChildren(empty);
+    playHost.replaceChildren();
   }
 
   /**
@@ -241,6 +291,7 @@ export function generateArchive(
 
     currentScale = scale;
     currentTempered = entry.tempered;
+    selectedFilename = entry.filename; // WR-05: remember the live selection key.
     status.textContent = "";
 
     // Mark the selected row for affordance; clear the others (aria-selected).
