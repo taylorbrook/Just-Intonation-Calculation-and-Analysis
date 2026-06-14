@@ -40,16 +40,20 @@ export interface ArchiveEntry {
 export const DEFAULT_SEARCH_CAP = 50;
 
 /**
- * D-A4 / SURF-06: tempered iff ANY non-comment, non-header pitch line contains
- * a `.` (the cents marker, D-19). Mirrors scala.ts line discipline:
- *   - `!`-prefixed lines are comments (anywhere) → excluded
- *   - the first two non-comment lines are the description + pitch-count header
- *     → excluded
- *   - the remaining non-comment lines are pitches → scanned for `.`
+ * D-A4 / SURF-06: tempered iff ANY pitch line's FIRST whitespace-bounded token
+ * contains a `.` (the cents marker, D-19). The line discipline AND the cents
+ * test are byte-for-byte identical to `parseScl`/`parsePitchToken` in scala.ts
+ * so the build-time flag can never disagree with the runtime parser:
+ *   - `!`-prefixed lines are comments (anywhere) → excluded (WR-02)
+ *   - the first two NON-COMMENT lines are the description + pitch-count header,
+ *     then pitch lines are the remaining non-comment lines with blanks/`!`
+ *     filtered — matching `parseScl`'s `slice(2).filter(...)` exactly (WR-02)
+ *   - only the FIRST whitespace-bounded token of each pitch line is scanned for
+ *     `.`, so a Scala-legal trailing dotted note (`9/8  M2 (cf. v1.5)`, an F09
+ *     form parseScl supports) is NOT mis-flagged as tempered (WR-01)
  *
  * An all-ratio scale (F01) → false; any cents pitch (F02 all-cents, F03 mixed)
- * → true. The `.` test is intentionally identical to `parsePitchToken`'s cents
- * detection so the build-time flag can never disagree with the runtime parser.
+ * → true.
  */
 export function isTemperedScl(sclText: string): boolean {
   // Normalize CRLF/CR → LF and strip a leading BOM, matching scala.ts.
@@ -59,11 +63,23 @@ export function isTemperedScl(sclText: string): boolean {
     if (raw.startsWith("!")) continue;
     nonComment.push(raw);
   }
-  // Skip the description + pitch-count header (the first two non-comment lines).
-  const pitchLines = nonComment.slice(2).map((l) => l.trim());
+  // Mirror parseScl's pitch-line extraction EXACTLY (scala.ts:113-116): after
+  // the description + count header, trim, then drop blanks and any embedded
+  // comment lines. This keeps the header offset aligned with the runtime parser
+  // even when blank lines appear among the leading non-comment lines (WR-02).
+  const pitchLines = nonComment
+    .slice(2)
+    .map((l) => l.trim())
+    .filter((l) => l !== "" && !l.startsWith("!"));
   for (const line of pitchLines) {
-    if (line === "" || line.startsWith("!")) continue;
-    if (line.includes(".")) return true;
+    // Monzo bra-ket lines (`[...>`) are exact by construction — never tempered.
+    if (line.startsWith("[")) continue;
+    // Take only the first whitespace-bounded token, matching parsePitchToken
+    // (scala.ts:255-260). Trailing F09 text (e.g. `9/8  M2 (cf. v1.5)`) is
+    // ignored, so an exact-JI line is never laundered as cents (WR-01).
+    const firstWs = line.search(/\s/);
+    const tok = firstWs === -1 ? line : line.slice(0, firstWs);
+    if (tok.includes(".")) return true;
   }
   return false;
 }
