@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { lattice } from "../lattice.js";
 import { Scale } from "../../lib/scale.js";
 import { Interval } from "../../lib/interval.js";
+import { parseScala } from "../../lib/scala.js";
 import { makeStubSynth } from "./test-utils.js";
 
 const seedScale = (): Scale =>
@@ -44,5 +45,21 @@ describe("lattice factory", () => {
     const octaveOnly = new Scale([new Interval("2/1")]);
     const el = lattice(octaveOnly, makeStubSynth());
     expect(el.textContent).toContain("This scale only spans the octave");
+  });
+
+  it("tempered (cents-based) scale shows the no-JI-lattice note instead of throwing", () => {
+    // An EDO sent as cents: lossy float-derived fractions with no prime factorization
+    // (would throw "Out of primes" without the guard).
+    const edo24 = new Scale(
+      parseScala(
+        Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n"),
+      ),
+    );
+    let el: HTMLElement | null = null;
+    expect(() => {
+      el = lattice(edo24, makeStubSynth());
+    }).not.toThrow();
+    expect(el!.querySelector("svg.lattice")).toBeNull();
+    expect(el!.textContent).toContain("tempered");
   });
 });

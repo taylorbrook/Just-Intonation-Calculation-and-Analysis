@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { tonalityDiamond, renderDiamondSVG } from "../tonality-diamond.js";
 import { Scale } from "../../lib/scale.js";
 import { Interval } from "../../lib/interval.js";
+import { parseScala } from "../../lib/scala.js";
 import { makeStubSynth } from "./test-utils.js";
 
 const seedScale = (): Scale =>
@@ -26,6 +27,21 @@ describe("tonalityDiamond factory", () => {
   it("renders SVG with class 'viz diamond'", () => {
     const el = tonalityDiamond(seedScale(), makeStubSynth());
     expect(el.querySelector("svg.viz.diamond")).not.toBeNull();
+  });
+
+  it("tempered (cents-based) scale shows the no-JI-diamond note instead of throwing", () => {
+    // An EDO sent as cents: no JI factorization → would throw "Out of primes".
+    const edo24 = new Scale(
+      parseScala(
+        Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n"),
+      ),
+    );
+    let el: HTMLElement | null = null;
+    expect(() => {
+      el = tonalityDiamond(edo24, makeStubSynth());
+    }).not.toThrow();
+    expect(el!.querySelector("svg.viz.diamond")).toBeNull();
+    expect(el!.textContent).toContain("tempered");
   });
 
   it("renders a tooltip-bearing <title> on at least one cell", () => {

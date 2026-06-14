@@ -153,6 +153,22 @@ export function lattice(scale: Scale, synth: SynthHandle, opts: LatticeOpts = {}
   helper.textContent = "Click a node to audition. Scroll or pinch to zoom; drag to pan.";
   root.appendChild(helper);
 
+  // Tempered / non-rational empty-state. A scale sent as cents (e.g. an EDO) is stored as
+  // lossy float-derived rational approximations (scala.ts — no source provenance), so its
+  // prime factorization explodes ("Out of primes"). A JI prime lattice is meaningless for
+  // a tempered scale — show a note instead of throwing; the scale still renders in the
+  // keyboard view below. Probing iv.monzo here also keeps deriveLatticeBasis below safe.
+  try {
+    scale.intervals.forEach((iv) => void iv.monzo);
+  } catch {
+    const empty = document.createElement("p");
+    empty.className = "lattice-empty";
+    empty.textContent =
+      "This scale is tempered (cents-based), so it has no just-intonation lattice.";
+    root.appendChild(empty);
+    return root;
+  }
+
   // Pitfall #11 — octave-only scale empty-state (UI-SPEC line 122 — exact copy).
   const basis = opts.basis ?? deriveLatticeBasis(scale);
   if (basis.length === 0) {

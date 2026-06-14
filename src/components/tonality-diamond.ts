@@ -103,6 +103,20 @@ export function tonalityDiamond(
   helper.textContent = "Click a cell to audition. Hover for ratio details.";
   root.appendChild(helper);
 
+  // Tempered / non-rational empty-state. A cents-based scale (e.g. an EDO) has no JI
+  // factorization — deriveDiamondOddLimit → oddLimit(iv.monzo) would throw "Out of
+  // primes". Show a note instead of throwing; the keyboard view still renders the scale.
+  try {
+    scale.intervals.forEach((iv) => void iv.monzo);
+  } catch {
+    const empty = document.createElement("p");
+    empty.className = "dashboard-helper";
+    empty.textContent =
+      "This scale is tempered (cents-based), so it has no just-intonation tonality diamond.";
+    root.appendChild(empty);
+    return root;
+  }
+
   const limit = opts.oddLimit ?? deriveDiamondOddLimit(scale);
   const cells: DiamondCell[] = enumerateDiamond(limit, scale);
 
