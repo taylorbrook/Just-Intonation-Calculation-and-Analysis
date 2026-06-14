@@ -120,7 +120,10 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
   1. User can browse and search named scales from the bundled Scala archive within the Generate surface.
   2. User can load a selected archive scale into the preview and audition it.
   3. User can send a loaded archive scale to the Dashboard / Analysis exactly like any generated scale (same store + `#s=` path).
-**Plans**: TBD
+**Plans**: 3 plans (3 waves)
+- [ ] 09-01-PLAN.md — Vendor the curated Scala archive + build-time JSON index (tempered-flag detection, search/filter) [LIB-01]
+- [ ] 09-02-PLAN.md — Archive-browser widget: debounced search + capped list + select→preview→audition (getScale/isTempered) [LIB-01, LIB-02]
+- [ ] 09-03-PLAN.md — Wire the archive method into the Generate surface; Send-to via the existing store + #s= path [LIB-01, LIB-02, LIB-03]
 **UI hint**: yes
 
 ## Progress
@@ -138,6 +141,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 6. Exact-Rational JI & Harmonic Generators | v1.1 | 7/7 | Complete   | 2026-06-10 |
 | 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 6/6 | Complete   | 2026-06-12 |
 | 8. Preview, Transforms & Advanced Generators | v1.1 | 4/4 | Complete   | 2026-06-14 |
-| 9. Scala Archive Browser                   | v1.1 | 0/TBD | Not started | - |
+| 9. Scala Archive Browser                   | v1.1 | 0/3 | Not started | - |
 </content>
 </invoke>
