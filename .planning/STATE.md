@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
-status: executing
-stopped_at: "Phase 9 Plan 03 COMPLETE. Archive method wired into the Generate surface (34b8322); human-verify APPROVED (all 6 steps). Build/tsc/659-tests green. LIB-01/02/03 satisfied; parked TEMP-09 closed. This is the final plan (3/3) of Phase 9 — orchestrator owns phase-level completion/verification."
-last_updated: "2026-06-14T19:51:29.000Z"
+status: milestone_complete
+stopped_at: Milestone complete (Phase 09 was final phase)
+last_updated: 2026-06-14T20:02:09.107Z
 last_activity: 2026-06-14
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 23
   completed_plans: 23
-  percent: 83
+  percent: 80
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Phase 09 — scala-archive-browser
+**Current focus:** Milestone complete
 
 ## Current Position
 
-Phase: 09 (scala-archive-browser) — EXECUTING
-Plan: 3 of 3 — COMPLETE (awaiting orchestrator phase-level verification/completion)
-Status: All Phase-9 plans executed; LIB-01/02/03 satisfied
+Phase: 09
+Plan: Not started
+Status: Milestone complete
 Last activity: 2026-06-14
 
 Progress: [██████████] 100%
@@ -36,7 +36,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 24
+- Total plans completed: 27
 - Average duration: —
 - Total execution time: —
 
@@ -48,6 +48,7 @@ Progress: [██████████] 100%
 | 02 | 7 | - | - |
 | 03 | 7 | - | - |
 | 07 | 6 | - | - |
+| 09 | 3 | - | - |
 
 **Recent Trend:**
 
