@@ -19,7 +19,7 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 **Pages:** `/` (composition dashboard) · `/pages/syntonic-comma` (theory page) · `/pages/analysis` (EDO + MOS + scale-compare + URL share)
 **Open after v1.0:** one deferred Safari RDM smoke-test re-walk to sign the `mobile-audit.md` Post-CR-02 footer (unit-level regression test already passes; documentation-trail item only). See STATE.md → Deferred Items.
 
-**v1.1 progress:** Phase 7 complete (2026-06-12) — rank-2 / well-temperament / Fokker / free-text SonicWeave generators ship over a single `sonicweave.ts` kernel adapter (GEN-06..09, delivering parked TEMP-01/07/08); 567 tests passing. Remaining: Phase 8 (preview, transforms & advanced generators), Phase 9 (Scala archive browser).
+**v1.1 progress:** Feature-complete — Phase 7 (SonicWeave adapter: rank-2 / well-temperament / Fokker / free-text over `sonicweave.ts`, GEN-06..09, parked TEMP-01/07/08), Phase 8 (preview, transforms & advanced generators), and Phase 9 (Scala archive browser, 2026-06-14) all complete; 659 tests passing. Phase 9 vendors a curated 195-file Huygens-Fokker `.scl` snapshot (offline build via the repo's first `*.json.ts` data loader → searchable JSON index with build-time tempered-provenance flags), a Pattern-2 archive-browser widget (debounced search + capped list + audition), and wiring into the Generate surface that routes loaded scales through the same transform strip + Send-to as every generator — delivering parked TEMP-09 (LIB-01/02/03). Milestone ready for `/gsd-complete-milestone`.
 
 ## Current Milestone: v1.1 Scale Generation & Library
 
@@ -130,4 +130,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-12 — Phase 7 complete (SonicWeave adapter: rank-2, well-temperament, Fokker, free-text — GEN-06..09 validated). v1.0 MVP archive at `milestones/v1.0-ROADMAP.md` and `milestones/v1.0-REQUIREMENTS.md`.*
+*Last updated: 2026-06-14 — Phase 9 complete (Scala archive browser: vendored 195-file Huygens-Fokker snapshot + build-time index + browser widget wired into the Generate surface — LIB-01/02/03, parked TEMP-09 delivered). v1.1 Scale Generation & Library is feature-complete (Phases 7–9). v1.0 MVP archive at `milestones/v1.0-ROADMAP.md` and `milestones/v1.0-REQUIREMENTS.md`.*
