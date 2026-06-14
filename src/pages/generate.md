@@ -708,12 +708,12 @@ display(transformStrip);
 ```
 
 ```ts
-// Mutable reactive bridge (the audioActive precedent, lines 35–38). The strip's
-// onChange ticks this so any reactive consumer (the Send-to cell) re-runs with the
-// latest transformed scale. Holds a monotonically-incrementing token, not the scale
-// itself — the scale is always re-read LIVE from transformStrip.getTransformedScale()
-// at use time (the live-read discipline used throughout this page).
-const transformedTick = Mutable(0);
+// Holds the current paramsHost re-sync listener so the shared-preview wiring cell can
+// detach the prior one before attaching a fresh (current-method) handler — preventing a
+// stale-method handler from re-feeding the wrong widget after a picker swap. Plain object
+// (NOT a Mutable — Mutable.value is only writable in its declaring cell): shared by
+// reference across cells and mutated in place.
+const sharedResyncRef = { current: null as (() => void) | null };
 ```
 
 ```ts
@@ -776,10 +776,9 @@ function activeWidgetScale() {
   }
 
   // Bind onChange ONCE per run (re-binding replaces the single stored callback — fine).
-  // It paints the shared host AND ticks the Mutable so the Send-to cell re-runs.
+  // It paints the shared host on every strip change (setSource + each transform control).
   transformStrip.onChange((tScale, tTempered) => {
     renderShared(tScale, tTempered);
-    transformedTick.value = transformedTick.value + 1;
   });
 
   // Feed the active widget's scale into the strip — setSource fires onChange, which
@@ -790,6 +789,28 @@ function activeWidgetScale() {
   } else {
     renderShared(null, false); // empty-state (parse error / nothing picked)
   }
+
+  // ─── Live shared-preview reactivity (Open-Q1 resolution) ──────────────────
+  // Widget-INTERNAL param edits (e.g. EDO divisions) bubble `input`/`change` events to
+  // paramsHost but do NOT tick Observable's reactive graph, so this cell won't re-run and
+  // the strip would otherwise hold a stale source (the bug: preview shows 12-EDO after
+  // typing 24). A delegated listener on paramsHost re-feeds the strip from the LIVE active
+  // widget on every such edit, so the shared circle + transformed table follow the widget
+  // in real time AND Send-to (which reads the strip) serializes the current scale. The
+  // listener is re-created per run, bound to THIS run's method via activeWidgetScale; the
+  // prior one is detached first so a stale-method handler never re-feeds the wrong widget.
+  const priorResync = sharedResyncRef.current;
+  if (priorResync) {
+    paramsHost.removeEventListener("input", priorResync);
+    paramsHost.removeEventListener("change", priorResync);
+  }
+  const resync = () => {
+    const live = activeWidgetScale();
+    if (live.scale) transformStrip.setSource(live.scale, live.tempered);
+  };
+  sharedResyncRef.current = resync;
+  paramsHost.addEventListener("input", resync);
+  paramsHost.addEventListener("change", resync);
 }
 ```
 
@@ -867,16 +888,15 @@ function rawMethodScaleText() {
 //
 // D-06 / SURF-06 — Send-to serializes the TRANSFORMED scale (the strip's
 // getTransformedScale()), NOT the raw generator output: the mode/reduce/dedupe/transpose
-// the user applied in the shared preview is what round-trips. Read LIVE at click time
-// (`transformedTick` ticks the reactive graph so the handlers re-close over the latest
-// strip output, but the click-time getTransformedScale() is the real guarantee). The
+// the user applied in the shared preview is what round-trips. The handler re-syncs the
+// strip from the LIVE active widget at click time (below), so the click-time
+// getTransformedScale() always reflects the current generator output. The
 // strip's getTempered() (propagated from the active widget's isTempered() through every
 // transform, D-18) gates the serialization: tempered → centsPerLine (never ratios —
 // no laundered temperament, T-08-13), exact JI → ratioPerLine. If the strip has no
 // transformed scale (seed/demo with no active widget), fall back to the raw per-method
 // serialization.
 function sendCurrentScaleTo(target) {
-  void transformedTick; // reactive dependency — re-close on every strip change.
   // Re-sync the strip from the LIVE active widget before serializing. Widget-internal
   // param edits (e.g. changing EDO divisions) do NOT tick Observable's reactive graph,
   // so the strip can hold a stale source — sending the wrong/default scale (Open-Q1).
