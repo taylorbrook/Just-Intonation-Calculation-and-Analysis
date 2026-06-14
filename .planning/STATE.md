@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
-stopped_at: Phase 8 complete (human-verify approved 2026-06-14)
-last_updated: "2026-06-14T14:45:00.000Z"
-last_activity: 2026-06-14 -- Phase 08 complete; verify-cycle tempered-scale guards committed
+stopped_at: "Phase 8 COMPLETE. 08-04 Task 3 human-verify approved by user. Verify cycle surfaced + fixed three tempered-scale issues (b27027e lattice/diamond, c837d1b shared-preview reactivity, 62720d8 transform re-sync, 0842cf6 EDO-fit table). SURF-04/05 + GEN-10 marked complete. Next: plan Phase 9 (Scala Archive Browser — LIB-01/02/03)."
+last_updated: "2026-06-14T15:06:22.247Z"
+last_activity: 2026-06-14 -- Phase 9 planning complete
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 20
+  total_plans: 23
   completed_plans: 20
   percent: 80
 ---
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 
 Phase: 08 (preview-transforms-advanced-generators) — COMPLETE (4/4, human-verify approved 2026-06-14)
 Plan: 4 of 4 — done
-Status: Phase 08 complete; ready to plan Phase 09 (Scala Archive Browser)
-Last activity: 2026-06-14 -- Phase 08 verified + closed; tempered-scale guards committed
+Status: Ready to execute
+Last activity: 2026-06-14 -- Phase 9 planning complete
 
 Progress: v1.1 — 4 of 5 phases complete [████████░░] 80%
 
