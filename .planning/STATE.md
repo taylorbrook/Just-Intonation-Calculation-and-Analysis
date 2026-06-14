@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
 status: executing
-stopped_at: "Phase 8 COMPLETE. 08-04 Task 3 human-verify approved by user. Verify cycle surfaced + fixed three tempered-scale issues (b27027e lattice/diamond, c837d1b shared-preview reactivity, 62720d8 transform re-sync, 0842cf6 EDO-fit table). SURF-04/05 + GEN-10 marked complete. Next: plan Phase 9 (Scala Archive Browser — LIB-01/02/03)."
-last_updated: "2026-06-14T19:40:52.458Z"
+stopped_at: "Phase 9 Plan 03 COMPLETE. Archive method wired into the Generate surface (34b8322); human-verify APPROVED (all 6 steps). Build/tsc/659-tests green. LIB-01/02/03 satisfied; parked TEMP-09 closed. This is the final plan (3/3) of Phase 9 — orchestrator owns phase-level completion/verification."
+last_updated: "2026-06-14T19:51:29.000Z"
 last_activity: 2026-06-14
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 23
-  completed_plans: 22
-  percent: 80
+  completed_plans: 23
+  percent: 83
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
 ## Current Position
 
 Phase: 09 (scala-archive-browser) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
+Plan: 3 of 3 — COMPLETE (awaiting orchestrator phase-level verification/completion)
+Status: All Phase-9 plans executed; LIB-01/02/03 satisfied
 Last activity: 2026-06-14
 
-Progress: [██████████] 96%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Progress: [██████████] 96%
 | Phase 06-exact-rational-ji-harmonic-generators P07 | 7min | 3 tasks | 8 files |
 | Phase 09-scala-archive-browser P01 | 12min | 2 tasks | 5 files |
 | Phase 09 P02 | 4min | 2 tasks | 3 files |
+| Phase 09 P03 | 7min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Progress: [██████████] 96%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+- [Phase 09-03]: Archive method wired into the Generate surface via ~8 purely-additive insertion points (cs-branch model). Send-to is "free" — activeWidgetScale() archive branch feeds the existing transform strip + sendCurrentScaleTo unchanged; writeSharedScale still has exactly ONE call site (LIB-03 reuse). archiveScaleText() branches on isTempered() (centsPerLine vs ratioPerLine) for SURF-06 correctness (T-09-07). Rule-3 fix: FileAttachment path is page-relative "../data/scala-archive.json" (loader emits to /data under root:"src").
 
 - [Phase 08 verify]: Tempered scales (sent as cents) carry no JI provenance — prime-factorizing them throws "Out of primes". Established guard pattern: JI-only consumers probe `iv.monzo` and degrade. Lattice + tonality diamond render a friendly "tempered → no JI lattice/diamond" empty-state (b27027e); the EDO-fit table stays useful (Max/RMS are cents-only) and degrades just the Tenney column to "—" (0842cf6). Any future JI-factorizing consumer must adopt this guard.
 

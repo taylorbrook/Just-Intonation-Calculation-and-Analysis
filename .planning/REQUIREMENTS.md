@@ -44,7 +44,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 - [x] **LIB-01**: User can browse and search named scales from the bundled Scala archive within the Generate surface — delivers parked TEMP-09
 - [x] **LIB-02**: User can load a selected archive scale into the preview and audition it
-- [ ] **LIB-03**: User can send a loaded archive scale to the Dashboard / Analysis like any generated scale
+- [x] **LIB-03**: User can send a loaded archive scale to the Dashboard / Analysis like any generated scale
 
 ## v2 Requirements
 
@@ -106,7 +106,7 @@ Which phases cover which requirements. Populated during roadmap creation (v1.1 p
 | SYNC-04 | Phase 5 | Pending |
 | LIB-01 | Phase 9 | Complete |
 | LIB-02 | Phase 9 | Complete |
-| LIB-03 | Phase 9 | Pending |
+| LIB-03 | Phase 9 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 23 total
