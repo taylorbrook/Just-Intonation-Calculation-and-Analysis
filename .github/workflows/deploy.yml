@@ -42,25 +42,22 @@ jobs:
       - name: Install dependencies (deterministic)
         run: npm ci
 
-      - name: Type-check (D-10 gate 1)
-        run: npm run lint:types
-
-      - name: Unit tests (D-10 gate 2)
-        run: npm run test
-
-      - name: Lint (D-10 gate 3)
-        run: npm run lint
-
-      - name: Format check (D-10 gate 4)
-        run: npm run format:check
+      - name: Verify patch-package applied cleanly (#20)
+        # npm ci runs patch-package via the postinstall hook, but patch-package
+        # exits 0 even when a patch fails to apply (it only warns). Re-run with
+        # --error-on-fail so CI hard-fails if patches/*.patch no longer apply
+        # cleanly against the installed dependency (e.g. a floated transitive bump).
+        run: npx patch-package --error-on-fail
 
       - name: Phase 1 deny-list check (D-21)
         # Defense-in-depth: ensure forbidden packages haven't slipped into package.json.
         run: |
           node -e "const p=require('./package.json'); ['temperaments','mathjs'].forEach(k=>{if((p.dependencies||{})[k]||(p.devDependencies||{})[k]){console.error('FORBIDDEN dep present:',k); process.exit(1)}})"
 
-      - name: Build static site
-        run: npm run build
+      - name: Run CI gates (D-10)
+        # Single source of truth for the local + CI gate sequence: `npm run ci`
+        # runs lint:types → test → lint → format:check → build (D-02 order).
+        run: npm run ci
 
       - name: Configure Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
