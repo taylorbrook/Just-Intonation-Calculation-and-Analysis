@@ -38,7 +38,7 @@
  * (the synth is passed in; ⏵⏵ Play comes from playScale).
  */
 import type { ArchiveEntry } from "../lib/scala-archive.js";
-import { searchArchive, DEFAULT_SEARCH_CAP } from "../lib/scala-archive.js";
+import { searchArchive, countArchiveMatches, DEFAULT_SEARCH_CAP } from "../lib/scala-archive.js";
 import { parseScala } from "../lib/scala.js";
 import { Scale } from "../lib/scale.js";
 import { scaleTable } from "./scale-table.js";
@@ -153,20 +153,14 @@ export function generateArchive(
   tableHost.appendChild(emptyPreview);
 
   /**
-   * Full (uncapped) match count for the "showing X of Y" caption. searchArchive
-   * itself caps at DEFAULT_SEARCH_CAP, so Y (total matches BEFORE the cap) is
-   * computed here with the SAME case-insensitive name+filename predicate, so the
-   * user can tell when results are truncated (D-B2).
+   * Full (uncapped) match count for the "showing X of Y" caption (Y). searchArchive
+   * itself caps at DEFAULT_SEARCH_CAP, so Y (total matches BEFORE the cap) tells the
+   * user when results are truncated (D-B2). IN-01: delegate to
+   * `countArchiveMatches` so the cap (searchArchive) and the total derive from one
+   * predicate in scala-archive.ts — the caption can never drift from the list.
    */
   function fullMatchCount(term: string): number {
-    const needle = term.trim().toLowerCase();
-    if (needle === "") return entries.length;
-    let count = 0;
-    for (const entry of entries) {
-      const haystack = `${entry.name}\n${entry.filename}`.toLowerCase();
-      if (haystack.includes(needle)) count++;
-    }
-    return count;
+    return countArchiveMatches(entries, term);
   }
 
   /** Build one selectable list row for an archive entry (all via textContent). */

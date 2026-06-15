@@ -140,6 +140,20 @@ export function buildArchiveIndex(files: { filename: string; text: string }[]): 
 }
 
 /**
+ * IN-01: the SINGLE source of truth for "does this entry match this search
+ * needle?". Both `searchArchive` (capped filter) and `countArchiveMatches`
+ * (uncapped count for the "showing X of Y" caption) derive from this one
+ * predicate, so the rendered list and the total can never silently drift if the
+ * haystack ever gains a field. `needle` is expected pre-normalized (trimmed +
+ * lowercased) by the caller; an empty needle is treated as "matches everything"
+ * by the callers, not here.
+ */
+function entryMatchesNeedle(entry: ArchiveEntry, needle: string): boolean {
+  const haystack = `${entry.name}\n${entry.filename}`.toLowerCase();
+  return haystack.includes(needle);
+}
+
+/**
  * Case-insensitive substring filter over `name` + `filename`, capped at `cap`.
  * An empty / blank term returns the first `cap` entries. Result order is stable
  * (input order); result length never exceeds `cap`. The debounced-search
@@ -151,8 +165,24 @@ export function searchArchive(entries: ArchiveEntry[], term: string, cap: number
   const out: ArchiveEntry[] = [];
   for (const entry of entries) {
     if (out.length >= cap) break;
-    const haystack = `${entry.name}\n${entry.filename}`.toLowerCase();
-    if (haystack.includes(needle)) out.push(entry);
+    if (entryMatchesNeedle(entry, needle)) out.push(entry);
   }
   return out;
+}
+
+/**
+ * IN-01: uncapped count of entries matching `term`, using the SAME predicate as
+ * `searchArchive` (via `entryMatchesNeedle`). The widget's "showing X of Y"
+ * caption uses this for Y (the total before the cap) so X-vs-Y truncation is
+ * visible and the caption can never lie about the match total. An empty / blank
+ * term counts everything (mirrors `searchArchive`'s empty-needle short-circuit).
+ */
+export function countArchiveMatches(entries: ArchiveEntry[], term: string): number {
+  const needle = term.trim().toLowerCase();
+  if (needle === "") return entries.length;
+  let count = 0;
+  for (const entry of entries) {
+    if (entryMatchesNeedle(entry, needle)) count++;
+  }
+  return count;
 }
