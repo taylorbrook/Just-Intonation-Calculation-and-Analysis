@@ -39,8 +39,8 @@ Full v1.0 requirements (42, all complete): [milestones/v1.0-REQUIREMENTS.md](mil
 - [x] **Phase 5: Generate Surface & Live Integration Foundation** - The `/pages/generate` tab, the additive `scale-store`, and the empty-store boot-equivalence gate (completed 2026-06-09)
 - [x] **Phase 6: Exact-Rational JI & Harmonic Generators** - CPS, harmonic/subharmonic/ADO/isoharmonic, diamond/odd/prime/Farey sets, EDO/ED-n (completed 2026-06-10)
 - [x] **Phase 7: SonicWeave Adapter — Tempered, Lattice & Free-Text** - Rank-2, well-temperament, Fokker blocks, and a free-text SonicWeave escape hatch (completed 2026-06-12)
-- [ ] **Phase 8: Preview, Transforms & Advanced Generators** - Circle-of-pitches viz, rotate/reduce/dedupe/transpose strip, tempered distinction, Wilson/metallic + constant-structure
-- [ ] **Phase 9: Scala Archive Browser** - Browse / search / load named scales from the bundled Scala archive into the Generate surface
+- [x] **Phase 8: Preview, Transforms & Advanced Generators** - Circle-of-pitches viz, rotate/reduce/dedupe/transpose strip, tempered distinction, Wilson/metallic + constant-structure (completed 2026-06-14)
+- [x] **Phase 9: Scala Archive Browser** - Browse / search / load named scales from the bundled Scala archive into the Generate surface (completed 2026-06-14)
 
 ## Phase Details
 
@@ -141,6 +141,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9. Phases 6 and 7 are m
 | 6. Exact-Rational JI & Harmonic Generators | v1.1 | 7/7 | Complete   | 2026-06-10 |
 | 7. SonicWeave Adapter — Tempered, Lattice & Free-Text | v1.1 | 6/6 | Complete   | 2026-06-12 |
 | 8. Preview, Transforms & Advanced Generators | v1.1 | 4/4 | Complete   | 2026-06-14 |
-| 9. Scala Archive Browser                   | v1.1 | 3/3 | In Progress|  |
+| 9. Scala Archive Browser                   | v1.1 | 3/3 | Complete   | 2026-06-14 |
 </content>
 </invoke>
