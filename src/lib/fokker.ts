@@ -4,15 +4,30 @@
  * of notes in the periodicity block they define is the absolute value of the
  * determinant of their monzo matrix: |det M|.
  *
- * Square-matrix construction (the (3,5,7,…) subspace):
+ * Reduced-subspace construction (drop-zero-columns / rank gate):
  *   The octave (prime 2) is the implicit EQUAVE of the block, not a unison vector,
- *   so we DROP the prime-2 exponent (monzo index 0) from every comma and take the
- *   determinant over the remaining (3,5,7,…) exponents. For an n-prime limit this
- *   needs exactly n−1 commas, yielding a square (n−1)×(n−1) matrix.
+ *   so we DROP the prime-2 exponent (monzo index 0) from every comma. We then DROP
+ *   every all-zero prime column from the remaining (3,5,7,…) matrix — a prime whose
+ *   exponent is zero in every comma is simply unused by the subgroup and contributes
+ *   no axis. The block is well-defined iff the comma count equals the number of
+ *   SURVIVING (live) prime columns, yielding a square matrix whose |det| is the
+ *   cardinality. This replaces the old "need exactly width−1 commas" rule, which
+ *   wrongly rejected valid subgroup blocks where a prime is unused.
  *
  *   VERIFIED this phase: toMonzo("81/80")=[-4,4,-1], toMonzo("128/125")=[7,0,-3].
- *   Dropping the prime-2 column leaves [[4,-1],[0,-3]]; |det| = |4·(-3) − (-1)·0|
- *   = 12 — the classic 12-note 5-limit block.
+ *   Dropping the prime-2 column leaves [[4,-1],[0,-3]] over (3,5); both columns are
+ *   live; |det| = |4·(-3) − (-1)·0| = 12 — the classic 12-note 5-limit block.
+ *
+ *   2.3.7-SUBGROUP example: toMonzo("64/63")=[6,-2,0,-1], toMonzo("2401/2187")=
+ *   [0,-7,0,4]. Dropping prime-2 gives rows over (3,5,7): [[-2,0,-1],[-7,0,4]]. The
+ *   prime-5 column is all-zero → dropped, leaving the square {3,7} matrix
+ *   [[-2,-1],[-7,4]]; |det| = |(-2)·4 − (-1)·(-7)| = |-8 − 7| = 15. This 2-comma
+ *   block over 2 live primes is now correctly ACCEPTED (it was wrongly rejected by
+ *   the width−1 gate, which demanded 3 commas for full monzo width 4).
+ *
+ *   COUNTER-example (the gate does NOT over-reach): 81/80 + 225/224 reduce to
+ *   [[4,-1,0],[2,2,-1]] over (3,5,7); primes 5 AND 7 are both live → NO droppable
+ *   column → 2 commas span 3 live primes → genuinely under-determined → RangeError.
  *
  * Exactness (project BigInt discipline): the monzos are mapped to `bigint[][]` and
  * the determinant is computed with `xen-dev-utils.integerDet` (exact BigInt), then
@@ -22,9 +37,10 @@
  * Defense-in-depth (T-07-05), all checked BEFORE the determinant — mirrors the
  * cps.ts "caps FIRST → RangeError" structure (Phase-6 D-14 precedent):
  *   - `commaStrings.length` must be in [1, MAX_COMMAS] (8).
- *   - the (3,5,7,…) matrix must be SQUARE: `commaStrings.length === width − 1`
- *     where `width` is the longest monzo (Pitfall 6 — a non-square matrix makes
- *     |det| meaningless / throws downstream).
+ *   - the REDUCED (drop-prime-2, drop-zero-columns) matrix must be SQUARE:
+ *     `commaStrings.length === reducedWidth` where `reducedWidth` is the number of
+ *     surviving (live) prime columns (Pitfall 6 — a non-square matrix makes |det|
+ *     meaningless / throws downstream).
  *   - the resulting cardinality must be in [1, MAX_CARDINALITY] (1000) — the
  *     edScale MAX_DIVISIONS precedent — so a pathological comma set can't drive a
  *     gigantic downstream enumeration.
@@ -44,6 +60,55 @@ const MAX_COMMAS = 8;
  * unreasonably large downstream periodicity-block enumeration.
  */
 const MAX_CARDINALITY = 1000;
+
+/** The prime axes, indexed by monzo position (index 0 = prime 2, the equave). */
+const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
+
+/**
+ * The reduced (3,5,7,…)-subspace matrix of a comma set, with all-zero prime columns
+ * dropped — the shared foundation of the drop-zero-column/rank gate. Used by BOTH
+ * `fokkerCardinality` (here) and `commaToParallelotopeSource` (generate-fokker.ts)
+ * so the two derive the surviving prime columns IDENTICALLY (no drift).
+ *
+ * Construction: build full monzos via `toMonzo`, right-pad to a common `width`, drop
+ * the prime-2 column (index 0), then drop every prime column that is zero in EVERY
+ * comma. The result is a `bigint[][]` matrix with one column per surviving prime.
+ *
+ * @param commaStrings - unison-vector ratio strings (e.g. "64/63").
+ * @returns `reduced` — the bigint matrix over surviving primes (rows = commas,
+ *   columns = live primes); and `survivingMonzoIndices` — the ORIGINAL monzo column
+ *   positions of those live primes (positions in PRIMES where PRIMES[0]=2,
+ *   PRIMES[1]=3, …), NOT the post-drop column positions. The caller recovers the
+ *   basis primes via `survivingMonzoIndices.map((idx) => PRIMES[idx])`.
+ */
+export function reducedSubspaceMatrix(commaStrings: string[]): {
+  reduced: bigint[][];
+  survivingMonzoIndices: number[];
+} {
+  const monzos = commaStrings.map((s) => toMonzo(s));
+  const width = Math.max(...monzos.map((m) => m.length));
+
+  // Pad every monzo to `width` and coerce to bigint rows over ALL primes.
+  const full: bigint[][] = monzos.map((m) => {
+    const row = m.slice(0, width);
+    while (row.length < width) row.push(0);
+    return row.map((x) => BigInt(x));
+  });
+
+  // Surviving = every prime column (index ≥ 1, i.e. drop prime-2) that is non-zero
+  // in at least one comma. The index is the ORIGINAL monzo position (so PRIMES[idx]
+  // recovers the prime directly).
+  const survivingMonzoIndices: number[] = [];
+  for (let col = 1; col < width; col++) {
+    if (full.some((row) => row[col] !== 0n)) survivingMonzoIndices.push(col);
+  }
+
+  const reduced: bigint[][] = full.map((row) =>
+    survivingMonzoIndices.map((col) => row[col]!),
+  );
+
+  return { reduced, survivingMonzoIndices };
+}
 
 /**
  * GEN-08 / D-12: the cardinality |det M| of the periodicity block defined by the
@@ -66,28 +131,24 @@ export function fokkerCardinality(commaStrings: string[]): number {
     );
   }
 
-  // Build the full monzos (Number exponents) and right-pad to a common width.
-  const monzos = commaStrings.map((s) => toMonzo(s));
-  const width = Math.max(...monzos.map((m) => m.length));
-
-  // Square-matrix requirement: drop the prime-2 exponent (the implicit equave),
-  // leaving a (width − 1)-wide subspace. The matrix is square iff the comma count
-  // equals (width − 1) (Pitfall 6).
-  const subWidth = width - 1;
-  if (commaStrings.length !== subWidth) {
+  // Drop-zero-column / rank gate (replaces the old width−1 squareness rule). Build
+  // the reduced (3,5,7,…) matrix with all-zero prime columns dropped, then require
+  // the comma count to equal the number of surviving (live) prime columns so the
+  // reduced matrix is square (Pitfall 6). This ACCEPTS valid subgroup blocks where a
+  // prime is unused (e.g. 64/63 + 2401/2187 over {3,7} → 15) while still REJECTING
+  // genuinely under-determined sets (e.g. 81/80 + 225/224, rank-2 over 3 live primes).
+  const { reduced, survivingMonzoIndices } = reducedSubspaceMatrix(commaStrings);
+  const reducedWidth = survivingMonzoIndices.length;
+  if (commaStrings.length !== reducedWidth) {
+    const livePrimes = survivingMonzoIndices.map((idx) => PRIMES[idx]).join(", ");
     throw new RangeError(
-      `fokkerCardinality: need exactly ${String(subWidth)} commas for the ${String(subWidth)}-dimensional (3,5,…) subspace (got ${String(commaStrings.length)}) — the comma matrix must be square (Pitfall 6).`,
+      `fokkerCardinality: need exactly ${String(reducedWidth)} commas for the ${String(reducedWidth)}-dimensional live-prime subspace [${livePrimes}] (got ${String(commaStrings.length)}) — the reduced comma matrix must be square (Pitfall 6).`,
     );
   }
 
-  // Drop the prime-2 column (index 0), right-pad to subWidth, map to bigint[][].
-  const square: bigint[][] = monzos.map((m) => {
-    const row = m.slice(1, width);
-    while (row.length < subWidth) row.push(0);
-    return row.map((x) => BigInt(x));
-  });
-
-  const card = Math.abs(Number(integerDet(square)));
+  // |det| over the reduced square matrix — exact BigInt (integerDet), coerced to
+  // Number only for the final Math.abs readout (R-01: no float laundering).
+  const card = Math.abs(Number(integerDet(reduced)));
 
   // Defense-in-depth cardinality cap (T-07-05; edScale MAX_DIVISIONS precedent).
   if (card < 1 || card > MAX_CARDINALITY) {

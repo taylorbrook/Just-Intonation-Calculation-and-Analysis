@@ -44,11 +44,11 @@
  */
 import type { Scale } from "../lib/scale.js";
 import { scaleFromSonicWeave } from "../lib/sonicweave.js";
-import { fokkerCardinality } from "../lib/fokker.js";
+import { fokkerCardinality, reducedSubspaceMatrix } from "../lib/fokker.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
-import { toMonzo, hnf } from "xen-dev-utils";
+import { hnf } from "xen-dev-utils";
 
 export interface GenerateFokkerOpts {
   /** Reference frequency for Hz projection inside scaleTable / playScale. Default 440 (D-08). */
@@ -114,33 +114,31 @@ function parseRatio(raw: string): string | null {
 
 /**
  * The comma→basis bridge (A3 path (a)): map a comma set to a `parallelotope(...)`
- * source that enumerates exactly |det| exact-rational notes. The non-2 prime axes
- * become the basis; the HNF diagonal of the (3,5,…)-subspace comma matrix gives
- * the per-axis extents. Throws RangeError (via fokkerCardinality) on a non-square
+ * source that enumerates exactly |det| exact-rational notes. The SURVIVING (live)
+ * non-2 prime axes become the basis; the HNF diagonal of the reduced subspace comma
+ * matrix gives the per-axis extents. Consumes the SAME `reducedSubspaceMatrix`
+ * helper as `fokkerCardinality`, so the two derive the surviving prime columns
+ * identically (no drift). Throws RangeError (via fokkerCardinality) on a degenerate
  * comma set — the caller catches it and shows the readout message.
  *
  * VERIFIED: ["81/80","128/125"] → `parallelotope([3,5], [3,2], [0,0])` → 12 exact
- * notes (the classic 5-limit 12-tone block).
+ * notes (the classic 5-limit 12-tone block); ["64/63","2401/2187"] (a 2.3.7
+ * subgroup; prime-5 column droppable) → `parallelotope([3,7], …)` → 15 exact notes.
  */
 function commaToParallelotopeSource(commaStrings: string[]): string {
-  // fokkerCardinality enforces square + caps; calling it first guarantees the
-  // matrix below is square (subWidth === commaStrings.length).
+  // fokkerCardinality enforces the drop-zero-column/rank gate + caps; calling it
+  // first guarantees the reduced matrix below is square (reducedWidth === length).
   fokkerCardinality(commaStrings);
 
-  const monzos = commaStrings.map((s) => toMonzo(s));
-  const width = Math.max(...monzos.map((m) => m.length));
-  const subWidth = width - 1; // drop prime-2 (the implicit equave).
+  // Reduced square matrix + surviving prime columns from the SHARED helper. The
+  // surviving indices are ORIGINAL monzo positions, so PRIMES[idx] recovers the
+  // basis prime directly (e.g. [1,3] → [3,7] for the 64/63+2401/2187 subgroup).
+  const { reduced, survivingMonzoIndices } = reducedSubspaceMatrix(commaStrings);
+  const basis = survivingMonzoIndices.map((idx) => PRIMES[idx]!);
 
-  // (3,5,…)-subspace matrix → bigint[][], then HNF (upper-triangular). Its diagonal
-  // |hᵢᵢ| multiplies to |det| = the cardinality.
-  const sub: bigint[][] = monzos.map((m) => {
-    const row = m.slice(1, width);
-    while (row.length < subWidth) row.push(0);
-    return row.map((x) => BigInt(x));
-  });
-  const H = hnf(sub);
-
-  const basis = PRIMES.slice(1, subWidth + 1); // [3, 5, …]
+  // HNF (upper-triangular) of the reduced square matrix; its diagonal |hᵢᵢ|
+  // multiplies to |det| = the cardinality. One up-extent per surviving prime.
+  const H = hnf(reduced);
   const ups = H.map((row, i) => Math.abs(Number(row[i])) - 1);
   const downs = basis.map(() => 0);
 

@@ -90,7 +90,47 @@ describe("generateFokker factory", () => {
     expect(el.querySelector(".scale-table__badge")).toBeNull();
   });
 
-  it("a non-square comma set leaves the widget non-crashing: readout/status message present, prior rows survive", () => {
+  it("comma mode 64/63 + 2401/2187 (2.3.7 subgroup) enumerates 15 exact-rational notes on the [3,7] basis → readout 15, 16 rows (15 block notes + 1/1 unison)", () => {
+    // Component-layer proof of the Task-1 commaToParallelotopeSource rewrite: the
+    // subgroup case must build a [3,7]-basis parallelotope of 15 notes (+ the
+    // kernel-convention 1/1 unison = 16 rows), mirroring the "12 → 13 rows" idiom.
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+    const modeSelect = el.querySelector('select[name="fokker-mode"]') as HTMLSelectElement;
+    modeSelect.value = "comma";
+    modeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // Remove the two default commas (81/80, 128/125).
+    let firstRemove = el.querySelector(
+      ".generate-fokker__chip .generate-fokker__chip-remove",
+    ) as HTMLButtonElement;
+    firstRemove.click();
+    firstRemove = el.querySelector(
+      ".generate-fokker__chip .generate-fokker__chip-remove",
+    ) as HTMLButtonElement;
+    firstRemove.click();
+
+    // Add the two subgroup commas via the chip-input path.
+    const commaInput = el.querySelector('input[name="fokker-comma-input"]') as HTMLInputElement;
+    const commaAdd = el.querySelector('button[name="fokker-comma-add"]') as HTMLButtonElement;
+    for (const comma of ["64/63", "2401/2187"]) {
+      commaInput.value = comma;
+      commaAdd.click();
+    }
+
+    // Live readout shows |det| = 15.
+    const readout = el.querySelector(".generate-fokker__readout");
+    expect(readout?.textContent ?? "").toContain("15");
+
+    // The block renders 16 exact-rational rows (15 block notes + 1/1 unison).
+    const rows = el.querySelectorAll("tbody tr");
+    expect(rows.length).toBe(16);
+    const headers = Array.from(el.querySelectorAll("thead th")).map((th) => th.textContent ?? "");
+    expect(headers).toContain("Ratio");
+    expect(el.querySelector(".scale-table__badge")).toBeNull();
+  });
+
+  it("a degenerate (under-determined) comma set leaves the widget non-crashing: readout/status message present, prior rows survive", () => {
     const el = generateFokker(makeStubSynth());
     document.body.appendChild(el);
     const modeSelect = el.querySelector('select[name="fokker-mode"]') as HTMLSelectElement;
@@ -101,14 +141,26 @@ describe("generateFokker factory", () => {
     const rowsBefore = el.querySelectorAll("tbody tr").length;
     expect(rowsBefore).toBe(13);
 
-    // Remove one comma → a single comma over the (3,5) subspace is non-square.
-    const firstRemove = el.querySelector(
+    // Replace the two defaults with 81/80 + 225/224 → rank-2 over 3 LIVE primes
+    // (3,5,7 all non-zero, NO droppable column) → genuinely under-determined →
+    // RangeError. (Note: the drop-zero-column gate now ACCEPTS a lone 128/125 as a
+    // valid {5}-subgroup block, so we use this still-rejected set instead.)
+    let firstRemove = el.querySelector(
       ".generate-fokker__chip .generate-fokker__chip-remove",
     ) as HTMLButtonElement;
-    expect(firstRemove).not.toBeNull();
     firstRemove.click();
+    firstRemove = el.querySelector(
+      ".generate-fokker__chip .generate-fokker__chip-remove",
+    ) as HTMLButtonElement;
+    firstRemove.click();
+    const commaInput = el.querySelector('input[name="fokker-comma-input"]') as HTMLInputElement;
+    const commaAdd = el.querySelector('button[name="fokker-comma-add"]') as HTMLButtonElement;
+    for (const comma of ["81/80", "225/224"]) {
+      commaInput.value = comma;
+      commaAdd.click();
+    }
 
-    // No crash; the readout shows a clear non-square message (no "12" cardinality)
+    // No crash; the readout shows a clear degenerate-set message (no "12" cardinality)
     // OR the status region carries the message. The prior preview is preserved.
     const readout = el.querySelector(".generate-fokker__readout");
     const status = el.querySelector(".generate-fokker__status");
@@ -116,8 +168,12 @@ describe("generateFokker factory", () => {
     const statusText = status?.textContent ?? "";
     // Some message surfaced about the degenerate set.
     expect((readoutText + statusText).length).toBeGreaterThan(0);
-    // Prior preview survives (table not cleared).
-    expect(el.querySelectorAll("tbody tr").length).toBe(rowsBefore);
+    // Prior preview survives (table not cleared) — the degenerate set returns null
+    // from composeSource, so the last valid render is preserved (a non-empty table).
+    // (rowsBefore is the pre-edit default; intermediate valid sub-sets may have
+    // re-rendered it, so we assert the table is simply not cleared, not == 13.)
+    expect(rowsBefore).toBe(13);
+    expect(el.querySelectorAll("tbody tr").length).toBeGreaterThan(0);
   });
 
   it("exposes getScale() returning the current exact-rational Scale (13 intervals by default: 12 block notes + 1/1)", () => {
