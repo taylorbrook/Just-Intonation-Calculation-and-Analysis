@@ -478,6 +478,80 @@ describe("writeScl per-interval provenance branch (260615-jtm)", () => {
 });
 
 // ---------------------------------------------------------------------------
+// writeScl cents provenance round-trip (260615-jtm finding #1) — the pinning
+// test: a cents-derived scale exports as cents (never laundered ratios), and
+// re-parses back through the cents path; ratio/mixed regression guards.
+// ---------------------------------------------------------------------------
+
+describe("writeScl cents provenance (finding #1)", () => {
+  // Helper: split a writeScl output into PITCH lines only — drop `!` comments,
+  // the description line, and the bare-integer pitch-count line. Mirrors the
+  // existing writeScl test's pitch-line filter.
+  function pitchLines(out: string, description: string): string[] {
+    return out
+      .split("\n")
+      .map((l) => l.replace(/\r$/, ""))
+      .filter(
+        (l) =>
+          !l.startsWith("!") &&
+          !/^\s*\d+\s*$/.test(l) && // bare pitch-count line
+          l.trim() !== "" &&
+          l.trim() !== description.trim(),
+      );
+  }
+
+  it("(1) a cents scale exports as dotted 6-dp cents, NOT laundered ratios", () => {
+    const parsed = parseScl(readFixture("F02-cents-only.scl"));
+    const out = writeScl(new Scale(parsed.intervals), parsed.description);
+    const lines = pitchLines(out, parsed.description);
+    expect(lines.length).toBe(12); // 12-TET, unison stripped
+    // EVERY pitch line is a dotted 6-decimal cents value ...
+    for (const line of lines) {
+      expect(line.trim()).toMatch(/^-?\d*\.\d{6}$/);
+    }
+    // ... and NOT a laundered high-limit ratio (e.g. "415363.../329308...").
+    expect(out).not.toMatch(/\d{4,}\/\d{4,}/);
+  });
+
+  it("(2) round-trip re-detects cents: parseScl(writeScl(centsScale)) stays cents-source", () => {
+    const original = parseScl(readFixture("F02-cents-only.scl"));
+    // Float caveat: cents path is float→Fraction→float, so cents are close (not
+    // bit-exact) across the round-trip — assert ~2-3 dp tolerance.
+    const reparsed = parseScl(writeScl(new Scale(original.intervals), original.description));
+    expect(reparsed.intervals).toHaveLength(original.intervals.length);
+    for (let i = 1; i < reparsed.intervals.length; i++) {
+      // Re-parsed non-unison degrees came back through the CENTS path.
+      expect(reparsed.intervals[i]!.source).toBe("cents");
+      expect(reparsed.intervals[i]!.cents).toBeCloseTo(original.intervals[i]!.cents, 3);
+    }
+  });
+
+  it("(3) regression — a ratio scale stays ratios (no dotted cents leak)", () => {
+    const scale = new Scale([
+      new Interval("1/1"),
+      new Interval("9/8"),
+      new Interval("5/4"),
+      new Interval("3/2"),
+      new Interval("2/1"),
+    ]);
+    const out = writeScl(scale, "all ratios");
+    expect(out).toContain("9/8");
+    expect(out).toContain("3/2");
+    expect(out).not.toMatch(/\d+\.\d{6}/); // no dotted cents
+  });
+
+  it("(4) mixed scale emits BOTH: dotted cents AND n/d ratios in the same file", () => {
+    const parsed = parseScl(readFixture("F03-mixed-ratio-cents.scl"));
+    const out = writeScl(new Scale(parsed.intervals), parsed.description);
+    expect(out).toMatch(/\d+\.\d{6}/); // at least one cents line (408.0, 700.0, 1100.0)
+    expect(out).toMatch(/\d+\/\d+/); // at least one ratio line (9/8, 4/3, 5/3, 2/1)
+    // Sanity: the 9/8 ratio degree survives as a ratio, 408¢ as cents.
+    expect(out).toContain("9/8");
+    expect(out).toMatch(/408\.\d{6}/);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Round-trip golden invariant (IO-05)
 // ---------------------------------------------------------------------------
 
