@@ -9,7 +9,15 @@
  * as input to a kernel function (Pitfall #1). Equality and arithmetic always go
  * through the BigInt Fraction.
  *
- * Immutable per D-24: mul, div, inv, octaveReduce all return new Interval instances.
+ * Provenance (260615-jtm): a readonly `source: "ratio" | "cents"` flag records
+ * whether an interval came from an exact ratio/monzo or from a tempered cents
+ * value. It is metadata only — never affects cents/fraction/equality/arithmetic
+ * — consumed solely by writeScl to serialize cents-of-record instead of
+ * laundering tempered pitches into fake ratios.
+ *
+ * Immutable per D-24: source is set once at construction; mul, div, inv,
+ * octaveReduce all return new Interval instances (defaulting source to "ratio",
+ * since a transposed/reduced pitch is no longer the same pitch).
  */
 
 import { Fraction } from "fraction.js";
@@ -23,18 +31,41 @@ export type FractionInput =
   | { n: bigint; d: bigint }
   | { n: number; d: number };
 
+/**
+ * Ratio-vs-cents provenance (260615-jtm finding #1). Tracks whether an Interval
+ * was constructed from an EXACT source (a ratio/monzo — `"ratio"`) or derived
+ * from a tempered CENTS value (`"cents"`, a float→Fraction approximation).
+ *
+ * This is metadata ONLY: it never affects `.cents`, `.fraction`, `.equals`, or
+ * arithmetic. Its single consumer is serialization — `writeScl` emits cents-of-
+ * record for `"cents"`-source degrees instead of laundering them into bogus
+ * high-limit JI ratios.
+ *
+ * Set ONCE at construction (D-24 immutability). Default is `"ratio"` so every
+ * exact-construction call site stays correct without change.
+ */
+export type IntervalSource = "ratio" | "cents";
+
 export class Interval {
   readonly fraction: Fraction;
+  /**
+   * Provenance of this interval (260615-jtm). `"ratio"` = exact (ratio/monzo),
+   * `"cents"` = derived from a tempered cents value (float-approximate Fraction).
+   * Immutable per D-24; metadata only — does not affect math or equality.
+   */
+  readonly source: IntervalSource;
   #monzo: number[] | undefined;
   #cents: number | undefined;
 
-  constructor(input: FractionInput) {
+  constructor(input: FractionInput, source: IntervalSource = "ratio") {
     // fraction.js accepts string | number | bigint | {n,d} | Fraction in its constructor.
     // Our FractionInput is structurally compatible with fraction.js' own FractionInput.
     this.fraction = input instanceof Fraction ? input : new Fraction(input);
+    this.source = source;
   }
 
   static fromMonzo(monzo: number[]): Interval {
+    // A monzo is exact by construction → always "ratio" (the constructor default).
     const { numerator, denominator } = monzoToBigNumeratorDenominator(monzo);
     return new Interval(new Fraction(numerator, denominator));
   }
