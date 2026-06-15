@@ -1,7 +1,8 @@
 ---
 phase: 06-exact-rational-ji-harmonic-generators
 verified: 2026-06-10T10:20:00Z
-status: human_needed
+status: verified
+human_verified: 2026-06-14
 score: 5/5
 overrides_applied: 0
 human_verification:
@@ -23,7 +24,7 @@ human_verification:
 
 **Phase Goal:** The JI core the user cares about most ships as transparent, BigInt-exact kernel primitives, each surfaced as a method widget in the picker — plus the first tempered family (EDO/ED-n), which establishes the "tempered, not laundered JI" representation.
 **Verified:** 2026-06-10T10:20:00Z
-**Status:** human_needed
+**Status:** verified (human verification completed 2026-06-14 — see `06-HUMAN-UAT.md`, 4/4 passed)
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -136,6 +137,8 @@ No probe scripts declared for this phase. Step 7c: SKIPPED (no `scripts/*/tests/
 No `TBD`, `FIXME`, or `XXX` debt markers found in any phase-6 file.
 
 ### Human Verification Required
+
+> **RESOLVED 2026-06-14 — all 4 items passed.** Human UAT run on the live Generate surface (`observable preview`); see `06-HUMAN-UAT.md` (status: complete, 4/4 passed, 0 issues). Each numbered item below was confirmed in-browser: per-method render + audition (1), EDO tempered badge + no-Ratio-column (2), Send-to round-trip ratios-for-JI / cents-for-EDO (3), and D-08 default-landing anti-regression (4).
 
 #### 1. Full method audition in-browser
 
