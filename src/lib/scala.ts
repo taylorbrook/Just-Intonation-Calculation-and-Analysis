@@ -16,11 +16,14 @@
  * R-01: All Interval constructions go through Interval (which uses fraction.js BigInt).
  * Cents-source pitches are LOSSY — the parser converts cents to a ratio via centsToValue,
  * acknowledging that the resulting Fraction is a float-derived approximation
- * (Pitfall #1). The display layer should treat cents-source intervals as
- * cents-of-record; the kernel does not currently track source provenance, so
- * writeScl re-emits every interval as a ratio. Round-trip equivalence holds by
- * Fraction-equality (the cents-derived Fraction round-trips through itself), not
- * by file-byte identity.
+ * (Pitfall #1). Provenance IS tracked per-interval (260615-jtm): parsePitchToken
+ * tags the dotted-cents path as `source: "cents"` and the ratio/monzo paths as
+ * `"ratio"`. writeScl serializes per provenance — cents-of-record (toFixed(6))
+ * for cents-source degrees, exact n/d for ratio-source degrees — so a tempered/
+ * EDO scale exports as cents instead of being laundered into invented high-limit
+ * ratios. A cents-source scale therefore round-trips through the CENTS path on
+ * re-parse (close-by-tolerance, not byte-exact); a ratio-source scale round-trips
+ * by exact Fraction-equality.
  *
  * Trust boundary: parseScl/parseScala are the first line of defense against
  * untrusted .scl input (file uploads in Plan 06; live textarea in Plan 07).
@@ -135,12 +138,13 @@ export function parseScl(file: string): ParsedScl {
  * Serialize a Scale to .scl format. Does NOT emit the unison line (D-13).
  * Last interval is treated as the period (D-14).
  *
- * Cents-source caveat: the kernel does not track ratio-vs-cents provenance,
- * so this serializer always emits ratios via Fraction.toFraction(). Round-trip
- * equivalence holds by Fraction-equality, not file-byte identity. The cents-
- * derived Fraction (e.g. from F02-cents-only) round-trips through itself
- * because parsePitchToken's cents path stores a deterministic float-derived
- * Fraction.
+ * Provenance-aware (260615-jtm): each degree is serialized by `formatPitch`,
+ * which branches on `iv.source` — cents-source degrees emit cents-of-record
+ * (toFixed(6), a dotted decimal that re-parses via the cents path), ratio-source
+ * degrees emit exact n/d. The leading-1/1 strip (D-13) and the period line
+ * (D-14, last interval) each honor THEIR OWN provenance. An all-ratio scale is
+ * byte-compatible with the prior unconditional-ratio behavior (golden round-trips
+ * unchanged); a cents/EDO scale is no longer laundered into invented ratios.
  */
 export function writeScl(scale: Scale, description?: string): string {
   // Strip leading 1/1 if present per D-13 — the parser auto-prepends, the
@@ -156,7 +160,7 @@ export function writeScl(scale: Scale, description?: string): string {
   lines.push(` ${String(intervals.length)}`);
   lines.push(`!`);
   for (const iv of intervals) {
-    lines.push(` ${formatRatio(iv)}`);
+    lines.push(` ${formatPitch(iv)}`);
   }
   return lines.join("\n") + "\n";
 }
@@ -186,6 +190,31 @@ function sanitizeDescription(d: string | undefined): string {
  */
 function formatRatio(iv: Interval): string {
   return `${String(iv.fraction.n)}/${String(iv.fraction.d)}`;
+}
+
+/**
+ * Provenance-aware pitch serializer (260615-jtm finding #1). Branches PER-INTERVAL
+ * on `iv.source` — mirroring serializeDegrees in scala-archive.ts, but with a
+ * per-interval flag instead of a scale-wide `tempered` boolean (strictly better:
+ * a mixed scale emits cents for its cents degrees and ratios for its ratio degrees
+ * in the same file):
+ *   - "cents" → `iv.cents.toFixed(6)` — a dotted decimal, so the receiver's D-19
+ *     cents-detection (token contains `.`) fires on re-parse. This is the fix:
+ *     a tempered/EDO pitch exports as cents-of-record, NOT as a laundered
+ *     high-limit JI ratio invented from a float-derived Fraction.
+ *   - "ratio" (default) → `formatRatio(iv)` — exact n/d, byte-compatible with the
+ *     prior unconditional behavior (golden round-trips unchanged).
+ *
+ * Precision caveat: the cents path is float→Fraction→float — parse stores
+ * centsToValue(cents); writeScl re-derives iv.cents = 1200*log2(Number(fraction)).
+ * This is deterministic for a given input but not bit-exact to the typed string;
+ * toFixed(6) of the recomputed cents is well within audible tolerance and the
+ * dotted form round-trips back through the cents path. This mirrors scala-
+ * archive's cents-of-record discipline (it uses toFixed(4); we use the
+ * user-specified toFixed(6)).
+ */
+function formatPitch(iv: Interval): string {
+  return iv.source === "cents" ? iv.cents.toFixed(6) : formatRatio(iv);
 }
 
 /**
@@ -283,8 +312,22 @@ function parsePitchToken(line: string): Interval {
     // a float-derived approximation (LOSSY by definition — see Pitfall #1).
     // Round-trip equivalence holds because the same float→Fraction conversion
     // is deterministic for the same cents input.
+    //
+    // 260615-jtm: tag the interval as cents-source so writeScl re-emits it as
+    // cents-of-record (toFixed(6)) instead of laundering it into a fake exact
+    // ratio. The interval STILL stores the float-derived Fraction, so `.cents`
+    // recomputes correctly and `.equals`/dedupe keep working unchanged — only
+    // SERIALIZATION branches on provenance.
+    //
+    // SCOPE BOUNDARY (260615-jtm): ONLY this parse-time path sets "cents"
+    // provenance. Generator paths are intentionally out of scope and stay
+    // "ratio": jiSubsetOfEdo (scale.ts) produces approximated EXACT ratios via
+    // approximatePrimeLimit, so "ratio" is correct for it. Derived Scale ops
+    // (rotate/reduce/dedupe/transpose) lose provenance by design — a transposed
+    // cents pitch is no longer the same pitch. Threading provenance through
+    // arithmetic or generators is a documented follow-up, NOT this fix.
     const ratioFloat = centsToValue(cents);
-    return new Interval(ratioFloat);
+    return new Interval(ratioFloat, "cents");
   }
 
   // Ratio (or bare integer per F06).

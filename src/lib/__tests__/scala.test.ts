@@ -11,6 +11,9 @@ import { fileURLToPath } from "node:url";
 import { parseScala, parseScl, writeScl, scalaToCsv } from "../scala.js";
 import { Scale } from "../scale.js";
 import { Interval } from "../interval.js";
+// R-01 NOTE: only the helper, NEVER xen-dev-utils' Fraction. Used to build
+// cents-source intervals in the 260615-jtm provenance tests (mirrors scala.ts).
+import { centsToValue } from "xen-dev-utils";
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
 const goldenDir = join(fixturesDir, "golden");
@@ -392,6 +395,159 @@ describe("writeScl (serializer, D-13)", () => {
     const out = writeScl(scale, "!leading-bang");
     expect(() => parseScl(out)).not.toThrow();
     expect(parseScl(out).description).toBe("!leading-bang");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Provenance plumbing (260615-jtm Task 2): parsePitchToken tags the cents path,
+// writeScl branches per-interval. Round-trip pinning lives in the Task-3 block.
+// ---------------------------------------------------------------------------
+
+describe("parsePitchToken provenance tagging (260615-jtm)", () => {
+  it("tags the dotted-cents path as source \"cents\"", () => {
+    const { intervals } = parseScl(readFixture("F02-cents-only.scl"));
+    // Every non-unison degree in a cents-only file is cents-source.
+    for (const iv of intervals.slice(1)) {
+      expect(iv.source).toBe("cents");
+    }
+  });
+
+  it("leaves the ratio path as source \"ratio\"", () => {
+    const { intervals } = parseScl(readFixture("F01-simple-7limit.scl"));
+    for (const iv of intervals) {
+      expect(iv.source).toBe("ratio");
+    }
+  });
+
+  it("leaves the monzo path as source \"ratio\" (exact by construction)", () => {
+    const { intervals } = parseScl(readFixture("F08-bohlen-pierce.scl"));
+    for (const iv of intervals) {
+      expect(iv.source).toBe("ratio");
+    }
+  });
+
+  it("a mixed file tags per-interval: cents degrees \"cents\", ratio degrees \"ratio\"", () => {
+    const { intervals } = parseScl(readFixture("F03-mixed-ratio-cents.scl"));
+    // F03 order: 1/1, 9/8(ratio), 408.0(cents), 4/3(ratio), 700.0(cents), 5/3(ratio), 1100.0(cents), 2/1(ratio)
+    expect(intervals[1]!.source).toBe("ratio"); // 9/8
+    expect(intervals[2]!.source).toBe("cents"); // 408.0
+    expect(intervals[3]!.source).toBe("ratio"); // 4/3
+    expect(intervals[4]!.source).toBe("cents"); // 700.0
+    expect(intervals[6]!.source).toBe("cents"); // 1100.0
+    expect(intervals[7]!.source).toBe("ratio"); // 2/1 (period)
+  });
+});
+
+describe("writeScl per-interval provenance branch (260615-jtm)", () => {
+  it("emits a cents-source degree as dotted toFixed(6) cents, not a laundered ratio", () => {
+    const cents = new Interval(centsToValue(408), "cents");
+    const scale = new Scale([new Interval("1/1"), cents]);
+    const out = writeScl(scale, "one cents degree");
+    // The 408¢ degree must serialize as a dotted 6-decimal cents line ...
+    expect(out).toMatch(/408\.\d{6}/);
+    // ... and NOT as a fake high-limit ratio.
+    expect(out).not.toMatch(/\d{4,}\/\d{4,}/);
+  });
+
+  it("emits a ratio-source degree as n/d (period line honors its own provenance)", () => {
+    const scale = new Scale([
+      new Interval("1/1"),
+      new Interval(centsToValue(408), "cents"),
+      new Interval("2/1"),
+    ]);
+    const out = writeScl(scale);
+    expect(out).toMatch(/408\.\d{6}/); // cents degree
+    expect(out).toContain("2/1"); // ratio period stays a ratio
+  });
+
+  it("is byte-identical to formatRatio output for an all-ratio scale (no regression)", () => {
+    const scale = new Scale([
+      new Interval("1/1"),
+      new Interval("9/8"),
+      new Interval("5/4"),
+      new Interval("3/2"),
+      new Interval("2/1"),
+    ]);
+    const out = writeScl(scale, "all ratios");
+    expect(out).toContain("9/8");
+    expect(out).toContain("3/2");
+    expect(out).toContain("2/1");
+    // No dotted-cents line leaked into a pure-ratio export.
+    expect(out).not.toMatch(/\d+\.\d{6}/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// writeScl cents provenance round-trip (260615-jtm finding #1) — the pinning
+// test: a cents-derived scale exports as cents (never laundered ratios), and
+// re-parses back through the cents path; ratio/mixed regression guards.
+// ---------------------------------------------------------------------------
+
+describe("writeScl cents provenance (finding #1)", () => {
+  // Helper: split a writeScl output into PITCH lines only — drop `!` comments,
+  // the description line, and the bare-integer pitch-count line. Mirrors the
+  // existing writeScl test's pitch-line filter.
+  function pitchLines(out: string, description: string): string[] {
+    return out
+      .split("\n")
+      .map((l) => l.replace(/\r$/, ""))
+      .filter(
+        (l) =>
+          !l.startsWith("!") &&
+          !/^\s*\d+\s*$/.test(l) && // bare pitch-count line
+          l.trim() !== "" &&
+          l.trim() !== description.trim(),
+      );
+  }
+
+  it("(1) a cents scale exports as dotted 6-dp cents, NOT laundered ratios", () => {
+    const parsed = parseScl(readFixture("F02-cents-only.scl"));
+    const out = writeScl(new Scale(parsed.intervals), parsed.description);
+    const lines = pitchLines(out, parsed.description);
+    expect(lines.length).toBe(12); // 12-TET, unison stripped
+    // EVERY pitch line is a dotted 6-decimal cents value ...
+    for (const line of lines) {
+      expect(line.trim()).toMatch(/^-?\d*\.\d{6}$/);
+    }
+    // ... and NOT a laundered high-limit ratio (e.g. "415363.../329308...").
+    expect(out).not.toMatch(/\d{4,}\/\d{4,}/);
+  });
+
+  it("(2) round-trip re-detects cents: parseScl(writeScl(centsScale)) stays cents-source", () => {
+    const original = parseScl(readFixture("F02-cents-only.scl"));
+    // Float caveat: cents path is float→Fraction→float, so cents are close (not
+    // bit-exact) across the round-trip — assert ~2-3 dp tolerance.
+    const reparsed = parseScl(writeScl(new Scale(original.intervals), original.description));
+    expect(reparsed.intervals).toHaveLength(original.intervals.length);
+    for (let i = 1; i < reparsed.intervals.length; i++) {
+      // Re-parsed non-unison degrees came back through the CENTS path.
+      expect(reparsed.intervals[i]!.source).toBe("cents");
+      expect(reparsed.intervals[i]!.cents).toBeCloseTo(original.intervals[i]!.cents, 3);
+    }
+  });
+
+  it("(3) regression — a ratio scale stays ratios (no dotted cents leak)", () => {
+    const scale = new Scale([
+      new Interval("1/1"),
+      new Interval("9/8"),
+      new Interval("5/4"),
+      new Interval("3/2"),
+      new Interval("2/1"),
+    ]);
+    const out = writeScl(scale, "all ratios");
+    expect(out).toContain("9/8");
+    expect(out).toContain("3/2");
+    expect(out).not.toMatch(/\d+\.\d{6}/); // no dotted cents
+  });
+
+  it("(4) mixed scale emits BOTH: dotted cents AND n/d ratios in the same file", () => {
+    const parsed = parseScl(readFixture("F03-mixed-ratio-cents.scl"));
+    const out = writeScl(new Scale(parsed.intervals), parsed.description);
+    expect(out).toMatch(/\d+\.\d{6}/); // at least one cents line (408.0, 700.0, 1100.0)
+    expect(out).toMatch(/\d+\/\d+/); // at least one ratio line (9/8, 4/3, 5/3, 2/1)
+    // Sanity: the 9/8 ratio degree survives as a ratio, 408¢ as cents.
+    expect(out).toContain("9/8");
+    expect(out).toMatch(/408\.\d{6}/);
   });
 });
 

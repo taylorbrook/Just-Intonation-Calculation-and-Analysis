@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Interval } from "../interval.js";
+import { Interval, type IntervalSource } from "../interval.js";
 
 describe("Interval", () => {
   it("constructs from a string ratio without throwing and stores BigInt n/d", () => {
@@ -112,5 +112,54 @@ describe("Interval", () => {
   it("octave-reduces sub-unison ratios into [1, 2): 1/2 -> 1/1, 3/5 -> 6/5", () => {
     expect(new Interval("1/2").octaveReduce().equals(new Interval("1/1"))).toBe(true);
     expect(new Interval("3/5").octaveReduce().equals(new Interval("6/5"))).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Provenance flag (260615-jtm finding #1) — ratio-vs-cents source tracking.
+// Immutable per D-24; set once at construction; metadata only (no math impact).
+// ---------------------------------------------------------------------------
+
+describe("Interval.source provenance (260615-jtm)", () => {
+  it("defaults to \"ratio\" for bare construction (backward-compatible)", () => {
+    expect(new Interval("5/4").source).toBe("ratio");
+  });
+
+  it("defaults to \"ratio\" for numeric construction", () => {
+    expect(new Interval(1.25).source).toBe("ratio");
+  });
+
+  it("accepts an explicit \"cents\" source tag", () => {
+    expect(new Interval(1.25, "cents").source).toBe("cents");
+  });
+
+  it("accepts an explicit \"ratio\" source tag", () => {
+    expect(new Interval("5/4", "ratio").source).toBe("ratio");
+  });
+
+  it("fromMonzo is exact by construction → source is \"ratio\"", () => {
+    expect(Interval.fromMonzo([-2, 0, 1]).source).toBe("ratio");
+  });
+
+  it("source is readonly metadata — does not affect cents/fraction/equality", () => {
+    const ratio = new Interval(1.25);
+    const cents = new Interval(1.25, "cents");
+    // Same Fraction → same cents → equal, regardless of provenance.
+    expect(cents.cents).toBeCloseTo(ratio.cents, 10);
+    expect(cents.fraction.equals(ratio.fraction)).toBe(true);
+    expect(cents.equals(ratio)).toBe(true);
+  });
+
+  it("does NOT propagate source through arithmetic (transposed pitch defaults to \"ratio\")", () => {
+    const cents = new Interval(1.25, "cents");
+    expect(cents.mul(new Interval("2/1")).source).toBe("ratio");
+    expect(cents.div(new Interval("2/1")).source).toBe("ratio");
+    expect(cents.inv().source).toBe("ratio");
+    expect(cents.octaveReduce().source).toBe("ratio");
+  });
+
+  it("IntervalSource type alias is exported and assignable", () => {
+    const s: IntervalSource = "cents";
+    expect(new Interval("3/2", s).source).toBe("cents");
   });
 });
