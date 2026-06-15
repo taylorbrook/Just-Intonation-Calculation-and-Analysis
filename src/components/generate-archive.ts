@@ -305,6 +305,17 @@ export function generateArchive(
   }
 
   // ─── Debounced search wiring (D-B2) ────────────────────────────────────────
+  // IN-02: `debounceTimer` is cleared on each keystroke but has NO explicit
+  // teardown — by design. The widget exposes no dispose path (it follows the
+  // Pattern-2 DOM-factory contract of `generateCs`, which likewise has none),
+  // and Observable Framework PERSISTS the element across picker swaps (it is
+  // detached, not destroyed), so a fresh selection re-attaches the same live
+  // element rather than leaking. A single trailing setTimeout can at worst fire
+  // one `renderList` against the detached element after the final keystroke:
+  // `renderList` only mutates this element's own closure-local DOM (list /
+  // caption / status), so it is benign — no global state, no AudioContext, no
+  // cross-element reference. If the widget ever gains a dispose() path, add
+  // `clearTimeout(debounceTimer)` there.
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   searchInput.addEventListener("input", () => {
     if (debounceTimer !== null) clearTimeout(debounceTimer);
