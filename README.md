@@ -21,7 +21,7 @@ Produces a static site in `dist/`.
 
 ## Live site
 
-Deployed to GitHub Pages: <https://taylorbrook.github.io/tuning-systems/> (URL wired up in Phase 1 Plan 04 — placeholder until then).
+Deployed to GitHub Pages: <https://taylorbrook.github.io/Just-Intonation-Calculation-and-Analysis/>
 
 ## Project background
 
