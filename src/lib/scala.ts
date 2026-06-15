@@ -41,6 +41,13 @@ import { centsToValue } from "xen-dev-utils";
 const MAX_INPUT_BYTES = 1_000_000;
 const MAX_MONZO_LENGTH = 32;
 const MAX_MONZO_MAGNITUDE = 1024;
+// 260615-ipz sanity bound on cents magnitude. A cents value beyond this fails
+// fast here with a clear message, instead of being handed to centsToValue where
+// an enormous/near-Infinity ratio later blows up deep in the kernel as a
+// confusing "Infinity cannot be converted to BigInt" throw. Inclusive cap —
+// reject only when ABS is strictly greater (1,000,000 ¢ ≈ 833 octaves is already
+// far past any musically meaningful interval).
+const MAX_ABS_CENTS = 1_000_000;
 
 /**
  * CR-03: the trust-boundary cap is documented in bytes, but the previous guard
@@ -265,6 +272,13 @@ function parsePitchToken(line: string): Interval {
     if (!Number.isFinite(cents)) {
       throw new Error(`parsePitchToken: invalid cents value "${tok}"`);
     }
+    // 260615-ipz: reject out-of-range cents BEFORE centsToValue, so a near-Infinity
+    // ratio never reaches the kernel (sign-symmetric bound, inclusive at the cap).
+    if (Math.abs(cents) > MAX_ABS_CENTS) {
+      throw new Error(
+        `parsePitchToken: cents out of range "${tok}" (max magnitude ${String(MAX_ABS_CENTS)})`,
+      );
+    }
     // R-01 boundary: centsToValue returns Number; the resulting Fraction is
     // a float-derived approximation (LOSSY by definition — see Pitfall #1).
     // Round-trip equivalence holds because the same float→Fraction conversion
@@ -286,5 +300,15 @@ function parsePitchToken(line: string): Interval {
   }
   // Bare integer → "N/1" (F06).
   const ratioStr = tok.includes("/") ? tok : `${tok}/1`;
+  // 260615-ipz: reject non-positive ratios (0, 0/1, 5/0, 0/5) BEFORE constructing
+  // the Interval. This stops a 0 Hz note reaching the kernel and prevents N/0 from
+  // hitting fraction.js, which would otherwise throw the opaque "Division by Zero".
+  // The `^\d+(\/\d+)?$` regex above guarantees numeric parts, so Number() is safe.
+  const [numStr, denStr = "1"] = ratioStr.split("/");
+  if (Number(numStr) <= 0 || Number(denStr) <= 0) {
+    throw new Error(
+      `parsePitchToken: ratio "${tok}" must be positive (numerator and denominator > 0)`,
+    );
+  }
   return new Interval(ratioStr);
 }

@@ -104,6 +104,58 @@ describe("parseScala (body parser, D-12)", () => {
 });
 
 // ---------------------------------------------------------------------------
+// degenerate ratio + cents rejection (260615-ipz input-validation hardening)
+// ---------------------------------------------------------------------------
+
+describe("degenerate ratio + cents rejection (260615-ipz)", () => {
+  // Non-positive ratios must be rejected at the parse boundary so a 0 Hz note
+  // (or an opaque fraction.js "Division by Zero" for N/0) never reaches the
+  // kernel. The guard runs BEFORE `new Interval`.
+  it("rejects the bare zero ratio '0' as non-positive", () => {
+    expect(() => parseScala("0")).toThrowError(/positive/i);
+  });
+
+  it("rejects '0/1' as non-positive", () => {
+    expect(() => parseScala("0/1")).toThrowError(/positive/i);
+  });
+
+  it("rejects '5/0' as non-positive (NOT a raw 'Division by Zero')", () => {
+    expect(() => parseScala("5/0")).toThrowError(/positive/i);
+    expect(() => parseScala("5/0")).not.toThrowError(/division by zero/i);
+  });
+
+  it("rejects '0/5' as non-positive", () => {
+    expect(() => parseScala("0/5")).toThrowError(/positive/i);
+  });
+
+  // |cents| > 1_000_000 fails fast with a clear message instead of blowing up
+  // later as a confusing Infinity -> BigInt throw deep in the kernel.
+  it("rejects a cents token whose magnitude exceeds 1,000,000 ('2000000.0')", () => {
+    expect(() => parseScala("2000000.0")).toThrowError(/cents out of range/i);
+  });
+
+  it("rejects a large NEGATIVE cents token symmetrically ('-2000000.0')", () => {
+    expect(() => parseScala("-2000000.0")).toThrowError(/cents out of range/i);
+  });
+
+  // The bound is inclusive at the cap — reject only when ABS is strictly greater.
+  it("accepts a cents token AT the 1,000,000 boundary ('1000000.0')", () => {
+    expect(() => parseScala("1000000.0")).not.toThrow();
+  });
+
+  // REGRESSION: ordinary in-range cents and ratios still parse unchanged.
+  it("still parses an ordinary cents token '408.0'", () => {
+    const out = parseScala("408.0");
+    expect(out[1]!.cents).toBeCloseTo(408.0, 2);
+  });
+
+  it("still parses an ordinary ratio '9/8' and a bare integer '2'", () => {
+    expect(parseScala("9/8")[1]!.fraction.toFraction()).toBe("9/8");
+    expect(parseScala("2")[1]!.fraction.toFraction()).toBe("2");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // parseScl (full file parser) — drive all 16 F-fixtures
 // ---------------------------------------------------------------------------
 

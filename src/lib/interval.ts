@@ -84,6 +84,17 @@ export class Interval {
       );
     }
     let f = this.fraction;
+    // Guard the TRUE infinite-loop surface (260615-ipz): a non-positive fraction
+    // (<= 0). `f.compare(one) < 0` stays true forever for a negative/zero `f`
+    // because `f.mul(pf)` cannot push it up to 1/1. The test is sign/zero based
+    // (`.s < 0n || .n === 0n`) — NOT `compare(one) <= 0`, which would over-reject
+    // valid sub-unison ratios (1/2, 3/5) that the tonality diamond depends on
+    // reducing (e.g. 3/5 -> 6/5). `one` is reused above only for the period guard.
+    if (f.s < 0n || f.n === 0n) {
+      throw new RangeError(
+        `Interval.octaveReduce: cannot reduce a non-positive ratio (got ${f.toFraction()})`,
+      );
+    }
     const pf = p.fraction;
     // Reduce f into [1, p) by dividing/multiplying by p as needed.
     while (f.compare(one) < 0) f = f.mul(pf);

@@ -91,4 +91,26 @@ describe("Interval", () => {
   it("octaveReduce throws RangeError when period < 1/1", () => {
     expect(() => new Interval("9/4").octaveReduce(new Interval("1/2"))).toThrowError(RangeError);
   });
+
+  // 260615-ipz: the REAL infinite-loop surface is a NON-POSITIVE fraction (<= 0).
+  // `f.compare(one) < 0` would stay true forever because `f.mul(pf)` keeps a
+  // negative/zero value negative/zero. Guard sign/zero, NOT compare-to-one (the
+  // latter would over-reject valid sub-unison ratios the diamond depends on).
+  it("octaveReduce throws RangeError for the zero ratio 0/1 (non-positive guard)", () => {
+    expect(() => new Interval("0/1").octaveReduce()).toThrowError(RangeError);
+    expect(() => new Interval("0/1").octaveReduce()).toThrowError(/positive/i);
+  });
+
+  it("octaveReduce throws RangeError for a negative ratio -3/2 (non-positive guard)", () => {
+    expect(() => new Interval("-3/2").octaveReduce()).toThrowError(RangeError);
+    expect(() => new Interval("-3/2").octaveReduce()).toThrowError(/positive/i);
+  });
+
+  // REGRESSION: the non-positive guard must NOT over-reject valid (0, 1) ratios —
+  // the tonality diamond reduces i/j where i<j (e.g. 3/5 -> 6/5) and depends on
+  // sub-unison reduction terminating correctly.
+  it("octave-reduces sub-unison ratios into [1, 2): 1/2 -> 1/1, 3/5 -> 6/5", () => {
+    expect(new Interval("1/2").octaveReduce().equals(new Interval("1/1"))).toBe(true);
+    expect(new Interval("3/5").octaveReduce().equals(new Interval("6/5"))).toBe(true);
+  });
 });
