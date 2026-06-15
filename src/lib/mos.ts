@@ -62,10 +62,13 @@
  *
  * Degenerate inputs (D-29):
  *   - period == 1/1            -> RangeError
- *   - generator equals period  -> all stacks reduce to 1/1; dedupe collapses to
- *                                 a single 1/1 entry; we then return Scale([period])
- *                                 (single-pitch — just the period). Caller renders
- *                                 as a status-region message; no exception.
+ *   - generator octave-reduces to 1/1  -> all stacks reduce to 1/1; dedupe
+ *                                 collapses to a single 1/1 entry; we then return
+ *                                 Scale([period]) (single-pitch — just the period).
+ *                                 This catches generator === period AND the cases
+ *                                 equals(period) misses (e.g. gen 4/1 under 2/1,
+ *                                 which reduces to 1/1) — 260615-ipz. Caller
+ *                                 renders as a status-region message; no exception.
  *   - size < 1                 -> RangeError("MOS size must be >= 1")
  *   - size > 1024              -> RangeError("MOS size too large (max 1024)")
  *
@@ -150,11 +153,17 @@ export function buildMos(generator: Interval, period: Interval, size: number): S
     throw new RangeError("MOS size too large (max 1024)");
   }
 
-  // Edge case: generator == period (single-pitch — D-29). The single-pitch
-  // early-return is REQUIRED — otherwise every stack reduces to 1/1 and the
-  // algorithm would emit the period only after dedupe-and-append, but the
+  // Edge case: generator octave-reduces to 1/1 (single-pitch — D-29). The
+  // single-pitch early-return is REQUIRED — otherwise every stack reduces to 1/1
+  // and the algorithm would emit the period only after dedupe-and-append, but the
   // status semantics differ ("just the period" vs "1/1 deduped to period").
-  if (generator.equals(period)) {
+  // 260615-ipz: test "reduces to 1/1 under the period" (not just equals(period)),
+  // so generators like 2/1 or 4/1 under period 2/1 — which equals(period) MISSES
+  // for 4/1 — also collapse to the single-pitch contract. octaveReduce is safe
+  // here (period > 1/1 already validated; a non-positive generator would throw,
+  // which is acceptable fail-closed behavior).
+  const reducedGen = generator.octaveReduce(period);
+  if (reducedGen.equals(ONE)) {
     return new Scale([period], period);
   }
 

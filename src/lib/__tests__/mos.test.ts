@@ -80,6 +80,31 @@ describe("buildMos", () => {
     const last = s.intervals[s.intervals.length - 1];
     expect(last ? last.equals(new Interval("2/1")) : false).toBe(true);
   });
+
+  // 260615-ipz: a generator that OCTAVE-REDUCES to 1/1 under the period is just as
+  // degenerate as generator === period. The old equals(period) test MISSES gen=4/1
+  // under period 2/1 (4/1 reduces to 1/1). Both must hit the single-pitch path.
+  it("generator that equals the period (2/1, 2/1) -> single-pitch scale (just the period)", () => {
+    const s = buildMos(new Interval("2/1"), new Interval("2/1"), 7);
+    expect(s.intervals.length).toBe(1);
+    expect(s.intervals[0]?.equals(new Interval("2/1"))).toBe(true);
+    expect(s.period.equals(new Interval("2/1"))).toBe(true);
+  });
+
+  it("generator that octave-reduces to 1/1 (4/1 under 2/1) -> single-pitch scale (the equals-miss case)", () => {
+    const s = buildMos(new Interval("4/1"), new Interval("2/1"), 7);
+    expect(s.intervals.length).toBe(1);
+    expect(s.intervals[0]?.equals(new Interval("2/1"))).toBe(true);
+    expect(s.period.equals(new Interval("2/1"))).toBe(true);
+  });
+
+  // REGRESSION: the ordinary Pythagorean Ionian (3/2 under 2/1) is unchanged.
+  it("REGRESSION: gen=3/2, period=2/1, size=7 still builds the 8-entry Pythagorean Ionian", () => {
+    const s = buildMos(new Interval("3/2"), new Interval("2/1"), 7);
+    expect(s.intervals.length).toBe(8);
+    expect(s.intervals[0]?.equals(new Interval("1/1"))).toBe(true);
+    expect(s.intervals[7]?.equals(new Interval("2/1"))).toBe(true);
+  });
 });
 
 describe("nearestMosSize", () => {

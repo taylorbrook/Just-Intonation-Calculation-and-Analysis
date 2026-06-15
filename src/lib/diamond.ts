@@ -61,11 +61,21 @@ export interface DiamondCell {
  *
  * Defense-in-depth: oddLimit is bounded to [1, 1023] to prevent runaway
  * enumeration. The dashboard UI offers presets {7, 9, 11, 13, 15, 21, 31}.
+ *
+ * oddLimit MUST be odd (260615-ipz). An even oddLimit is ambiguous — rather than
+ * silently flooring 8 -> 7 (which would mask user error, since the odd limit IS
+ * the diamond's defining parameter), it is rejected with a clear RangeError.
  */
 export function enumerateDiamond(oddLimit: number, scale: Scale): DiamondCell[] {
   if (!Number.isInteger(oddLimit) || oddLimit < 1 || oddLimit > 1023) {
     throw new RangeError(
       `enumerateDiamond: oddLimit must be integer in [1, 1023] (got ${String(oddLimit)})`,
+    );
+  }
+  // 260615-ipz: reject even oddLimit (reject, don't floor — clearer for the user).
+  if (oddLimit % 2 === 0) {
+    throw new RangeError(
+      `enumerateDiamond: oddLimit must be odd (got ${String(oddLimit)}); even limits are ambiguous — use the next lower odd value`,
     );
   }
 

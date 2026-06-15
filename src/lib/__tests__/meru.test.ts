@@ -97,6 +97,29 @@ describe("meruScale — defense-in-depth caps (Pitfall 5 / D-11)", () => {
     const huge = 10n ** 60n;
     expect(() => meruScale(1n, 1n, huge, huge, 6)).toThrow(RangeError);
   });
+
+  // 260615-ipz: negative coefficients a/b can drive a recurrence term non-positive
+  // (NaN/Infinity/0 Hz risk). Non-negative is the safe musical domain —
+  // Fibonacci/metallic recurrences use positive weights.
+  it("rejects a negative coefficient a with RangeError", () => {
+    expect(() => meruScale(-1n, 1n, 1n, 1n, 5)).toThrow(RangeError);
+    expect(() => meruScale(-1n, 1n, 1n, 1n, 5)).toThrowError(/positive|non-negative/i);
+  });
+
+  it("rejects a negative coefficient b with RangeError", () => {
+    expect(() => meruScale(1n, -5n, 1n, 1n, 5)).toThrow(RangeError);
+  });
+
+  // REGRESSION: Fibonacci (1,1,1,1) still produces the expected convergents.
+  it("REGRESSION: Fibonacci meruScale(1,1,1,1,6) still returns 6 exact convergents", () => {
+    const scale = meruScale(1n, 1n, 1n, 1n, 6);
+    const expected = ["1/1", "2/1", "3/2", "5/3", "8/5", "13/8"];
+    expect(scale.intervals.length).toBe(expected.length);
+    expected.forEach((s, i) => {
+      const iv = scale.intervals[i];
+      expect(iv ? iv.equals(new Interval(s)) : false).toBe(true);
+    });
+  });
 });
 
 describe("meruScale — metallic limit is NEVER a scale degree (SURF-06 / D-09 Pitfall 4)", () => {

@@ -88,6 +88,14 @@ export function meruScale(a: bigint, b: bigint, x0: bigint, x1: bigint, terms: n
       `meruScale: seeds x0, x1 must be positive (got ${String(x0)}, ${String(x1)})`,
     );
   }
+  // 260615-ipz: a negative coefficient a/b can drive a recurrence term non-positive
+  // (then the ratio is non-positive / undefined). Non-negative is the safe musical
+  // domain — Fibonacci/metallic recurrences use positive weights. Fail closed.
+  if (a < 0n || b < 0n) {
+    throw new RangeError(
+      `meruScale: coefficients a, b must be non-negative (got ${String(a)}, ${String(b)})`,
+    );
+  }
 
   // Build the integer recurrence. `terms` convergents need `terms + 1` members.
   const seq: bigint[] = [x0, x1];
@@ -102,6 +110,13 @@ export function meruScale(a: bigint, b: bigint, x0: bigint, x1: bigint, terms: n
     const prev1 = seq[i - 1]!;
     const prev2 = seq[i - 2]!;
     const next = a * prev1 + b * prev2;
+    // 260615-ipz defense-in-depth: even with non-negative a/b and positive seeds,
+    // reject any non-positive term before it becomes a non-positive ratio.
+    if (next <= 0n) {
+      throw new RangeError(
+        `meruScale: recurrence produced a non-positive term ${String(next)} at step ${String(i)} (degenerate seeds/coefficients)`,
+      );
+    }
     // Magnitude cap DURING the loop (T-08-01 / D-11) — fail closed, never truncate.
     if (next > MAX_MERU_MAGNITUDE) {
       throw new RangeError(

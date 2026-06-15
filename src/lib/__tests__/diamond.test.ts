@@ -55,4 +55,19 @@ describe("enumerateDiamond", () => {
     expect(c35?.numerator).toBe(6);
     expect(c35?.denominator).toBe(5);
   });
+
+  // 260615-ipz: an even oddLimit is ambiguous — reject it (clearer than silently
+  // flooring 8 -> 7, which would mask user error since the odd-limit IS the
+  // diamond's defining parameter).
+  it("rejects an even oddLimit (8) with a clear error", () => {
+    const scale = new Scale([new Interval("9/8"), new Interval("2/1")]);
+    expect(() => enumerateDiamond(8, scale)).toThrowError(RangeError);
+    expect(() => enumerateDiamond(8, scale)).toThrowError(/odd/i);
+  });
+
+  // REGRESSION: odd oddLimit 7 still yields its 16 cells unchanged.
+  it("REGRESSION: oddLimit 7 still yields 16 cells", () => {
+    const scale = new Scale([new Interval("9/8"), new Interval("2/1")]);
+    expect(enumerateDiamond(7, scale)).toHaveLength(16);
+  });
 });

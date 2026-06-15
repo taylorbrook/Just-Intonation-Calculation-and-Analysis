@@ -79,4 +79,22 @@ describe("cps — Combination Product Set", () => {
     expect(tooMany.length).toBe(13);
     expect(() => cps(tooMany, 2)).toThrow(RangeError);
   });
+
+  // 260615-ipz: a non-positive factor would multiply into a non-positive product
+  // and then hit octaveReduce's new non-positive guard; cps must fail closed at
+  // its OWN boundary with a domain-specific message before enumeration.
+  it("rejects a factor set containing the zero ratio 0/1 with RangeError", () => {
+    expect(() => cps([new Interval("1/1"), new Interval("0/1")], 2)).toThrow(RangeError);
+    expect(() => cps([new Interval("1/1"), new Interval("0/1")], 2)).toThrowError(/positive/i);
+  });
+
+  it("rejects a factor set containing a negative ratio -5/1 with RangeError", () => {
+    expect(() => cps([new Interval("3/1"), new Interval("-5/1")], 2)).toThrow(RangeError);
+    expect(() => cps([new Interval("3/1"), new Interval("-5/1")], 2)).toThrowError(/positive/i);
+  });
+
+  it("REGRESSION: the 1-3-5-7 hexany still builds (7 entries) with all-positive factors", () => {
+    const scale = cps(factors(1, 3, 5, 7), 2);
+    expect(scale.intervals.length).toBe(7);
+  });
 });
