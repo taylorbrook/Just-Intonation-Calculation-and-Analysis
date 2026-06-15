@@ -46,7 +46,9 @@ svg.viz.circle-of-pitches .circle-of-pitches__dot {
   fill: color-mix(in oklab, var(--theme-blue) 70%, transparent);
   stroke: var(--theme-blue);
   stroke-width: 1;
-  transition: r 80ms ease, fill 80ms ease;
+  transition:
+    r 80ms ease,
+    fill 80ms ease;
 }
 
 /* Tonic (1/1) emphasis — green accent so the scale's anchor reads at a glance. */

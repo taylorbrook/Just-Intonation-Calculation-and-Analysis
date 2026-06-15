@@ -54,9 +54,7 @@ describe("generateCps factory", () => {
     const texts = Array.from(chips).map((c) => c.textContent ?? "");
     expect(texts.some((t) => t.includes("9"))).toBe(true);
     // No innerHTML smuggling: chips must hold only literal text, no markup nodes.
-    const hasMarkup = Array.from(chips).some((c) =>
-      c.querySelector("img, script, svg") !== null,
-    );
+    const hasMarkup = Array.from(chips).some((c) => c.querySelector("img, script, svg") !== null);
     expect(hasMarkup).toBe(false);
   });
 

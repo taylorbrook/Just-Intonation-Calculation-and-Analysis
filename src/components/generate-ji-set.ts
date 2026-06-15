@@ -35,12 +35,7 @@
  * before the kernel's D-14 caps (T-06-16).
  */
 import type { Scale } from "../lib/scale.js";
-import {
-  diamondScale,
-  oddLimitSet,
-  primeLimitSet,
-  fareyScale,
-} from "../lib/generators.js";
+import { diamondScale, oddLimitSet, primeLimitSet, fareyScale } from "../lib/generators.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";

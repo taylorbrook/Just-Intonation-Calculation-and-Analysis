@@ -241,8 +241,8 @@ describe("scaleFromSonicWeave — well-temperament preset vectors (GEN-07 A1 sou
     // vallottiFifths, C-based) — the 12 non-unison degrees.
     const degreeCents = scale.intervals.slice(1).map((iv) => iv.cents);
     const expected = [
-      90.225, 196.09, 294.135, 392.18, 498.045, 588.27, 698.045, 792.18, 894.135,
-      996.09, 1090.225, 1200.0,
+      90.225, 196.09, 294.135, 392.18, 498.045, 588.27, 698.045, 792.18, 894.135, 996.09, 1090.225,
+      1200.0,
     ];
     expect(degreeCents.length).toBe(expected.length);
     expected.forEach((c, i) => {
@@ -269,8 +269,8 @@ describe("scaleFromSonicWeave — well-temperament preset vectors (GEN-07 A1 sou
     // werckFifths) — the 12 non-unison degrees.
     const degreeCents = scale.intervals.slice(1).map((iv) => iv.cents);
     const expected = [
-      90.225, 192.18, 294.135, 390.225, 498.045, 588.27, 696.09, 792.18, 888.27,
-      996.09, 1092.18, 1200.0,
+      90.225, 192.18, 294.135, 390.225, 498.045, 588.27, 696.09, 792.18, 888.27, 996.09, 1092.18,
+      1200.0,
     ];
     expect(degreeCents.length).toBe(expected.length);
     expected.forEach((c, i) => {

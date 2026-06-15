@@ -60,8 +60,8 @@ describe("generateEd factory", () => {
     const rows = el.querySelectorAll("tbody tr");
     expect(rows.length).toBe(13); // k = 0..12.
     // Tempered table is Degree | Cents | ¢-from-12tet — cents is column index 1.
-    const centsCells = Array.from(rows).map(
-      (r) => parseFloat((r.querySelectorAll("td")[1] as HTMLElement).textContent ?? "NaN"),
+    const centsCells = Array.from(rows).map((r) =>
+      parseFloat((r.querySelectorAll("td")[1] as HTMLElement).textContent ?? "NaN"),
     );
     expect(centsCells[0]).toBeCloseTo(0, 1);
     expect(centsCells[7]).toBeCloseTo(700, 1);

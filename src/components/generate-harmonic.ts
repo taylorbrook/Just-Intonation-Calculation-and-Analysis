@@ -38,12 +38,7 @@
  */
 import { Interval } from "../lib/interval.js";
 import type { Scale } from "../lib/scale.js";
-import {
-  harmonicSegment,
-  subharmonicSegment,
-  adoScale,
-  isoharmonic,
-} from "../lib/harmonic.js";
+import { harmonicSegment, subharmonicSegment, adoScale, isoharmonic } from "../lib/harmonic.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -282,21 +277,39 @@ export function generateHarmonic(
   function renderParams(): void {
     if (sub === "harmonic" || sub === "subharmonic") {
       paramsRegion.replaceChildren(
-        makeIntField("Lowest harmonic", "harmonic-lo", segLo, (n) => {
-          segLo = n;
-        }, { min: "1" }),
-        makeIntField("Highest harmonic", "harmonic-hi", segHi, (n) => {
-          segHi = n;
-        }, { min: "2" }),
+        makeIntField(
+          "Lowest harmonic",
+          "harmonic-lo",
+          segLo,
+          (n) => {
+            segLo = n;
+          },
+          { min: "1" },
+        ),
+        makeIntField(
+          "Highest harmonic",
+          "harmonic-hi",
+          segHi,
+          (n) => {
+            segHi = n;
+          },
+          { min: "2" },
+        ),
         makeReduceField("harmonic-reduce", segReduce, (c) => {
           segReduce = c;
         }),
       );
     } else if (sub === "ado") {
       paramsRegion.replaceChildren(
-        makeIntField("Divisions", "ado-divisions", adoDivisions, (n) => {
-          adoDivisions = n;
-        }, { min: "1" }),
+        makeIntField(
+          "Divisions",
+          "ado-divisions",
+          adoDivisions,
+          (n) => {
+            adoDivisions = n;
+          },
+          { min: "1" },
+        ),
         makeRatioField("Equave", "ado-equave-n", "ado-equave-d", adoEquaveN, adoEquaveD, (n, d) => {
           adoEquaveN = n;
           adoEquaveD = d;
@@ -305,15 +318,33 @@ export function generateHarmonic(
     } else {
       // isoharmonic
       paramsRegion.replaceChildren(
-        makeIntField("Start", "iso-start", isoStart, (n) => {
-          isoStart = n;
-        }, { min: "1" }),
-        makeIntField("Difference", "iso-diff", isoDiff, (n) => {
-          isoDiff = n;
-        }, { min: "1" }),
-        makeIntField("Count", "iso-count", isoCount, (n) => {
-          isoCount = n;
-        }, { min: "1" }),
+        makeIntField(
+          "Start",
+          "iso-start",
+          isoStart,
+          (n) => {
+            isoStart = n;
+          },
+          { min: "1" },
+        ),
+        makeIntField(
+          "Difference",
+          "iso-diff",
+          isoDiff,
+          (n) => {
+            isoDiff = n;
+          },
+          { min: "1" },
+        ),
+        makeIntField(
+          "Count",
+          "iso-count",
+          isoCount,
+          (n) => {
+            isoCount = n;
+          },
+          { min: "1" },
+        ),
         makeReduceField("iso-reduce", isoReduce, (c) => {
           isoReduce = c;
         }),

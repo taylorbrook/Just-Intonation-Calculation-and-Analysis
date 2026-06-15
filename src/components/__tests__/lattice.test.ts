@@ -51,9 +51,7 @@ describe("lattice factory", () => {
     // An EDO sent as cents: lossy float-derived fractions with no prime factorization
     // (would throw "Out of primes" without the guard).
     const edo24 = new Scale(
-      parseScala(
-        Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n"),
-      ),
+      parseScala(Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n")),
     );
     let el: HTMLElement | null = null;
     expect(() => {

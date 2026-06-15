@@ -30,7 +30,7 @@ interface StripElement extends HTMLElement {
 }
 
 function makeStrip(): StripElement {
-  return scaleTransformStrip() as StripElement;
+  return scaleTransformStrip();
 }
 
 describe("scaleTransformStrip — factory shape", () => {

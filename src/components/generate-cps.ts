@@ -73,10 +73,7 @@ function parsePositiveInt(raw: string): number | null {
   return n;
 }
 
-export function generateCps(
-  synth: SynthHandle,
-  opts: GenerateCpsOpts = {},
-): GenerateCpsElement {
+export function generateCps(synth: SynthHandle, opts: GenerateCpsOpts = {}): GenerateCpsElement {
   const baseHz = opts.baseHz ?? 440;
   const precision = opts.precision ?? 1;
 

@@ -67,8 +67,7 @@ const DEFAULT_PROGRAM = "cps([1,3,5,7], 2)";
  * is the most user-facing stable URL for the free-text widget (RESEARCH Sources
  * secondary).
  */
-const DOCS_URL =
-  "https://github.com/xenharmonic-devs/sonic-weave/blob/main/documentation/dsl.md";
+const DOCS_URL = "https://github.com/xenharmonic-devs/sonic-weave/blob/main/documentation/dsl.md";
 
 export function generateSonicweave(
   synth: SynthHandle,
@@ -155,7 +154,9 @@ export function generateSonicweave(
     }
     // Success: conditional tempered flag (D-13). Tempered programs render
     // cents-primary + badge; exact JI renders the 4-column Ratio table.
-    tableHost.replaceChildren(scaleTable(result.scale, baseHz, { precision, tempered: result.tempered }));
+    tableHost.replaceChildren(
+      scaleTable(result.scale, baseHz, { precision, tempered: result.tempered }),
+    );
     playHost.replaceChildren(playScale(result.scale, synth, { baseHz }));
     currentScale = result.scale;
     temperedFlag = result.tempered;

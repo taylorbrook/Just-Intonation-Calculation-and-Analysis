@@ -1,13 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Interval } from "../interval.js";
 import { oddLimit, primeLimitOfMonzo } from "../monzo.js";
-import {
-  diamondScale,
-  oddLimitSet,
-  primeLimitSet,
-  fareyScale,
-  edScale,
-} from "../generators.js";
+import { diamondScale, oddLimitSet, primeLimitSet, fareyScale, edScale } from "../generators.js";
 import type { Scale } from "../scale.js";
 
 /**

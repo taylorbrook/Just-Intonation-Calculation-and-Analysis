@@ -138,10 +138,7 @@ export function scaleTransformStrip(
   form.appendChild(modeCell);
 
   // ─── reduce / dedupe checkboxes ──────────────────────────────────────────
-  const makeToggle = (
-    name: "reduce" | "dedupe",
-    labelText: string,
-  ): HTMLInputElement => {
+  const makeToggle = (name: "reduce" | "dedupe", labelText: string): HTMLInputElement => {
     const wrap = document.createElement("label");
     wrap.className = "scale-transform-strip__toggle";
     const input = document.createElement("input");

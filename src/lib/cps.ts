@@ -57,11 +57,7 @@ const MAX_FACTORS = 12;
  *   outside `[1, factors.length]` (T-06-01 — the cap is the last line of defense
  *   against combinatorial DoS, enforced here in the kernel).
  */
-export function cps(
-  factors: Interval[],
-  k: number,
-  period: Interval = new Interval("2/1"),
-): Scale {
+export function cps(factors: Interval[], k: number, period: Interval = new Interval("2/1")): Scale {
   // Defense-in-depth caps FIRST (T-06-01) — before any enumeration.
   if (factors.length < 1 || factors.length > MAX_FACTORS) {
     throw new RangeError(

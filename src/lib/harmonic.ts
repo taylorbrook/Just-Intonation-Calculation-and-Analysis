@@ -163,9 +163,7 @@ export function adoScale(divisions: number, equave: Interval): Scale {
     );
   }
   if (equave.fraction.compare(new Interval("1/1").fraction) <= 0) {
-    throw new RangeError(
-      `adoScale: equave must be > 1/1 (got ${equave.fraction.toFraction()})`,
-    );
+    throw new RangeError(`adoScale: equave must be > 1/1 (got ${equave.fraction.toFraction()})`);
   }
 
   // Exact arithmetic division of [1, E]. With E = p/q, degree k =
@@ -199,12 +197,7 @@ export function adoScale(divisions: number, equave: Interval): Scale {
  * @param count - the number of chord members. Capped at MAX_ISO_COUNT.
  * @throws RangeError if `start < 1`, `diff < 1`, or `count` outside `[1, MAX_ISO_COUNT]`.
  */
-export function isoharmonic(
-  start: number,
-  diff: number,
-  count: number,
-  reduce = false,
-): Scale {
+export function isoharmonic(start: number, diff: number, count: number, reduce = false): Scale {
   if (!Number.isInteger(start) || start < 1) {
     throw new RangeError(`isoharmonic: start must be an integer >= 1 (got ${String(start)})`);
   }

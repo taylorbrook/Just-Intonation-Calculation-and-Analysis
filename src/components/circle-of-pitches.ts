@@ -148,10 +148,7 @@ export function circleOfPitches(
     const ratioText = iv.fraction.toFraction();
     const centsText = `${iv.cents.toFixed(1)}¢`;
     const labelText = tempered ? centsText : ratioText;
-    g.setAttribute(
-      "aria-label",
-      `Play degree ${String(i + 1)}: ${labelText}`,
-    );
+    g.setAttribute("aria-label", `Play degree ${String(i + 1)}: ${labelText}`);
 
     const dot = document.createElementNS(SVG_NS, "circle");
     dot.setAttribute("class", "circle-of-pitches__dot");
@@ -182,12 +179,8 @@ export function circleOfPitches(
     g.appendChild(title);
 
     // Hover highlight (D-04): toggle a CSS class so the marker pops on pointer.
-    g.addEventListener("mouseenter", () =>
-      g.classList.add("circle-of-pitches__node--hover"),
-    );
-    g.addEventListener("mouseleave", () =>
-      g.classList.remove("circle-of-pitches__node--hover"),
-    );
+    g.addEventListener("mouseenter", () => g.classList.add("circle-of-pitches__node--hover"));
+    g.addEventListener("mouseleave", () => g.classList.remove("circle-of-pitches__node--hover"));
 
     // Click → audition (keyboard.ts idiom). S-3 BigInt→Number audio boundary —
     // the tempered audio ratio is STILL the Number-coerced fraction; only the

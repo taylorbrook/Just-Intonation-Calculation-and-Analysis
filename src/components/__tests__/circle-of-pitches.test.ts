@@ -23,9 +23,7 @@ describe("circleOfPitches — marker count (Test 1)", () => {
     const scale = jiMajor();
     const el = circleOfPitches(scale, makeStubSynth());
     document.body.appendChild(el);
-    expect(el.querySelectorAll(".circle-of-pitches__node").length).toBe(
-      scale.intervals.length,
-    );
+    expect(el.querySelectorAll(".circle-of-pitches__node").length).toBe(scale.intervals.length);
   });
 
   it("returns a <section class='circle-of-pitches-widget'> root", () => {
@@ -69,7 +67,7 @@ describe("circleOfPitches — click audition (Test 3)", () => {
     expect(node).not.toBeNull();
     node!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(synth.playNote).toHaveBeenCalledTimes(1);
-    const [hz, dur] = synth.playNote.mock.calls[0]!;
+    const [hz, dur] = synth.playNote.mock.calls[0]! as [number, number];
     expect(hz).toBeGreaterThan(0);
     expect(dur).toBeGreaterThan(0);
   });
@@ -93,7 +91,7 @@ describe("circleOfPitches — click audition (Test 3)", () => {
     // Click the 3/2 degree (index 4 in temperedScale).
     const target = nodes[4]!;
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    const [hz] = synth.playNote.mock.calls[0]!;
+    const [hz] = synth.playNote.mock.calls[0]! as [number, number];
     expect(hz).toBeCloseTo(150, 6); // 100 * 3/2
   });
 });

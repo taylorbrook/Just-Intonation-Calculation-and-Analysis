@@ -80,8 +80,17 @@ interface Fraction {
  * 3 = A–E, 4 = E–B, 5 = B–F♯, … 10 = B♭–F (the 12th fifth F–C closes the circle).
  */
 type CommaVector = [
-  Fraction, Fraction, Fraction, Fraction, Fraction, Fraction,
-  Fraction, Fraction, Fraction, Fraction, Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
+  Fraction,
 ];
 
 const PURE: Fraction = { n: 0, d: 1 };

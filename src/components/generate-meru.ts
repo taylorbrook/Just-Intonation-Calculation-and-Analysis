@@ -97,10 +97,7 @@ function parsePositiveBigInt(raw: string): bigint | null {
   return n;
 }
 
-export function generateMeru(
-  synth: SynthHandle,
-  opts: GenerateMeruOpts = {},
-): GenerateMeruElement {
+export function generateMeru(synth: SynthHandle, opts: GenerateMeruOpts = {}): GenerateMeruElement {
   const baseHz = opts.baseHz ?? 440;
   const precision = opts.precision ?? 1;
 

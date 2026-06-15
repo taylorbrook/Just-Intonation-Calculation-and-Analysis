@@ -113,8 +113,7 @@ describe("generateJiSet factory", () => {
   it("the limit/order label updates per sub-method", () => {
     const el = generateJiSet(makeStubSynth());
     document.body.appendChild(el);
-    const label = () =>
-      el.querySelector(".generate-ji-set__field-label--limit")?.textContent ?? "";
+    const label = () => el.querySelector(".generate-ji-set__field-label--limit")?.textContent ?? "";
     expect(label().toLowerCase()).toContain("diamond");
     const sub = el.querySelector('select[name="ji-set-submethod"]') as HTMLSelectElement;
     sub.value = "farey";

@@ -79,7 +79,8 @@ export function edoJitTable(
       key: "tenneyWeightedError",
       label: "Tenney err",
       // NaN ⇒ tempered (cents-based) scale: no JI complexity to weight by. Render "—".
-      format: (row, p) => (Number.isNaN(row.tenneyWeightedError) ? "—" : row.tenneyWeightedError.toFixed(p)),
+      format: (row, p) =>
+        Number.isNaN(row.tenneyWeightedError) ? "—" : row.tenneyWeightedError.toFixed(p),
     },
   ];
 

@@ -62,14 +62,16 @@ describe("generateWelltemp factory", () => {
     document.body.appendChild(el);
     const rows = el.querySelectorAll("tbody tr");
     // Tempered table is Degree | Cents | ¢-from-12tet — cents is column index 1.
-    const centsCells = Array.from(rows).map(
-      (r) => parseFloat((r.querySelectorAll("td")[1] as HTMLElement).textContent ?? "NaN"),
+    const centsCells = Array.from(rows).map((r) =>
+      parseFloat((r.querySelectorAll("td")[1] as HTMLElement).textContent ?? "NaN"),
     );
     // Row 0 is the prepended unison (0¢); rows 1-12 are the published Vallotti
     // degrees (C-based, matches src/pages/well-temperament.md).
     expect(centsCells[0]).toBeCloseTo(0, 0);
     const degreeCents = centsCells.slice(1);
-    const expected = [90.2, 196.1, 294.1, 392.2, 498.0, 588.3, 698.0, 792.2, 894.1, 996.1, 1090.2, 1200.0];
+    const expected = [
+      90.2, 196.1, 294.1, 392.2, 498.0, 588.3, 698.0, 792.2, 894.1, 996.1, 1090.2, 1200.0,
+    ];
     expect(degreeCents.length).toBe(expected.length);
     expected.forEach((c, i) => {
       expect(degreeCents[i]).toBeCloseTo(c, 0);

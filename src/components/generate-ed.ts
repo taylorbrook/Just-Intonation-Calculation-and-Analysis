@@ -79,10 +79,7 @@ function parseIntOrNull(raw: string): number | null {
   return Number.isInteger(n) ? n : null;
 }
 
-export function generateEd(
-  synth: SynthHandle,
-  opts: GenerateEdOpts = {},
-): GenerateEdElement {
+export function generateEd(synth: SynthHandle, opts: GenerateEdOpts = {}): GenerateEdElement {
   const baseHz = opts.baseHz ?? 440;
   const precision = opts.precision ?? 1;
 
@@ -308,9 +305,15 @@ export function generateEd(
       // best-ji
       paramsRegion.replaceChildren(
         divisionsField,
-        makeIntField("Limit", "ed-bestji-limit", bestJiLimit, (n) => {
-          bestJiLimit = n;
-        }, { min: "1", max: "31" }),
+        makeIntField(
+          "Limit",
+          "ed-bestji-limit",
+          bestJiLimit,
+          (n) => {
+            bestJiLimit = n;
+          },
+          { min: "1", max: "31" },
+        ),
         makeKindField(),
       );
     }

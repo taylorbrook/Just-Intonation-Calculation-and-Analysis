@@ -83,10 +83,7 @@ function parseRatio(raw: string): string | null {
   return `${String(n)}/${String(d)}`;
 }
 
-export function generateCs(
-  synth: SynthHandle,
-  opts: GenerateCsOpts = {},
-): GenerateCsElement {
+export function generateCs(synth: SynthHandle, opts: GenerateCsOpts = {}): GenerateCsElement {
   const baseHz = opts.baseHz ?? 440;
   const precision = opts.precision ?? 1;
 

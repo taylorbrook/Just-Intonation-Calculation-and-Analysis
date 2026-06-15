@@ -236,7 +236,13 @@ export function generateRank2(
   form.appendChild(genCell);
 
   // ─── Up / down generator counts (D-04) ─────────────────────────────────────
-  function makeCountField(labelText: string, nameAttr: string, value: number, onInput: (n: number) => void, min: string): HTMLElement {
+  function makeCountField(
+    labelText: string,
+    nameAttr: string,
+    value: number,
+    onInput: (n: number) => void,
+    min: string,
+  ): HTMLElement {
     const cell = document.createElement("div");
     cell.className = "generate-rank2__field";
     const lbl = document.createElement("span");
@@ -260,14 +266,26 @@ export function generateRank2(
     return cell;
   }
   form.appendChild(
-    makeCountField("Up", "rank2-up", up, (n) => {
-      up = n;
-    }, "1"),
+    makeCountField(
+      "Up",
+      "rank2-up",
+      up,
+      (n) => {
+        up = n;
+      },
+      "1",
+    ),
   );
   form.appendChild(
-    makeCountField("Down", "rank2-down", down, (n) => {
-      down = n;
-    }, "0"),
+    makeCountField(
+      "Down",
+      "rank2-down",
+      down,
+      (n) => {
+        down = n;
+      },
+      "0",
+    ),
   );
 
   // ─── Status region (adapter / cap errors) ──────────────────────────────────

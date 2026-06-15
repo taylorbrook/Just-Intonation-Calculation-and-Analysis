@@ -33,16 +33,7 @@ function scaleOf(ratios: string[]): Scale {
 describe("isConstantStructure — CS-✓ (GEN-10, D-14)", () => {
   it("returns cs === true for the csgs([3/2],3) Pythagorean diatonic", () => {
     // The csgs([3/2], 3) result + the kernel's auto/explicit leading 1/1 (D-13).
-    const scale = scaleOf([
-      "1/1",
-      "9/8",
-      "81/64",
-      "729/512",
-      "3/2",
-      "27/16",
-      "243/128",
-      "2/1",
-    ]);
+    const scale = scaleOf(["1/1", "9/8", "81/64", "729/512", "3/2", "27/16", "243/128", "2/1"]);
     const result = isConstantStructure(scale);
     expect(result.cs).toBe(true);
     expect(result.ambiguousAt).toBeUndefined();

@@ -32,9 +32,7 @@ describe("tonalityDiamond factory", () => {
   it("tempered (cents-based) scale shows the no-JI-diamond note instead of throwing", () => {
     // An EDO sent as cents: no JI factorization → would throw "Out of primes".
     const edo24 = new Scale(
-      parseScala(
-        Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n"),
-      ),
+      parseScala(Array.from({ length: 24 }, (_, i) => ((i + 1) * 50).toFixed(4)).join("\n")),
     );
     let el: HTMLElement | null = null;
     expect(() => {

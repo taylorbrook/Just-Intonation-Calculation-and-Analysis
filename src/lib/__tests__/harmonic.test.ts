@@ -1,11 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Interval } from "../interval.js";
-import {
-  harmonicSegment,
-  subharmonicSegment,
-  adoScale,
-  isoharmonic,
-} from "../harmonic.js";
+import { harmonicSegment, subharmonicSegment, adoScale, isoharmonic } from "../harmonic.js";
 import type { Scale } from "../scale.js";
 
 /**
@@ -32,17 +27,7 @@ describe("harmonicSegment — literal overtone form (D-04)", () => {
   it("harmonicSegment(8, 16) yields exact h/8 ratios for h in 8..16", () => {
     const scale = harmonicSegment(8, 16);
     // 16/8 → 2/1, 10/8 → 5/4, 12/8 → 3/2, 14/8 → 7/4. Unreduced by default.
-    expectExact(scale, [
-      "1/1",
-      "9/8",
-      "5/4",
-      "11/8",
-      "3/2",
-      "13/8",
-      "7/4",
-      "15/8",
-      "2/1",
-    ]);
+    expectExact(scale, ["1/1", "9/8", "5/4", "11/8", "3/2", "13/8", "7/4", "15/8", "2/1"]);
     // The literal segment's top (16/8 = 2/1) is the period (D-14).
     const last = scale.intervals[scale.intervals.length - 1];
     expect(last?.equals(new Interval("2/1"))).toBe(true);
@@ -62,17 +47,7 @@ describe("subharmonicSegment — utonal mirror (reciprocal mode)", () => {
   it("subharmonicSegment(8, 16) yields the exact reciprocal-mode ratios", () => {
     const scale = subharmonicSegment(8, 16);
     // Ascending subharmonic segment: hi/h for h = hi..lo (16/16 … 16/8).
-    expectExact(scale, [
-      "1/1",
-      "16/15",
-      "8/7",
-      "16/13",
-      "4/3",
-      "16/11",
-      "8/5",
-      "16/9",
-      "2/1",
-    ]);
+    expectExact(scale, ["1/1", "16/15", "8/7", "16/13", "4/3", "16/11", "8/5", "16/9", "2/1"]);
     const last = scale.intervals[scale.intervals.length - 1];
     expect(last?.equals(new Interval("2/1"))).toBe(true);
   });
