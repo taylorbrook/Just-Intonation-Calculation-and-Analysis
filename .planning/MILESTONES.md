@@ -1,5 +1,26 @@
 # Milestones
 
+## v1.1 Scale Generation & Library (Shipped: 2026-06-14)
+
+**Phases completed:** 5 phases (5–9), 23 plans, 38 tasks
+**Timeline:** 2026-06-08 → 2026-06-14 (~7 days, 167 commits)
+**Code surface:** ~21,100 LOC TS/JS under `src/` (+~13,200 over v1.0); new `/pages/generate` producer page, ~20 generator widgets, a vendored 195-file Scala archive + first `*.json.ts` data loader
+**Test suite:** 659 tests green at v1.1 close (was 192 at v1.0); `tsc --noEmit` strict + ESLint 9 + Prettier + `npm run build` all clean
+**New npm deps:** 0 — sonic-weave's prelude covered the hard tempered/lattice methods as thin wrappers
+**Known deferred items at close:** 42 quick-task capture stubs (completed work mis-flagged `missing` by audit-open, same false-positive class as v1.0 — see STATE.md → Deferred Items). No requirement gaps; all 23 v1.1 requirements delivered and human-verified.
+
+### Key accomplishments
+
+1. **Generate surface + additive live integration (Phase 5).** New `/pages/generate` producer page — family-grouped method picker, params/preview host swap, reused `scaleTable`/`playScale` audition, and two "Send to Dashboard / Analysis" buttons that are the SOLE writers to a new pure `src/state/scale-store.ts` (localStorage + one-way `CustomEvent`, a twin of `theme-prefs.ts`). The Dashboard and Analysis pages opt in additively via `resolveInitialScaleText(hash, readSharedScale(), seed)` and live-update on `SCALE_CHANGED_EVENT` — gated by a RED→GREEN R1 boot-equivalence test proving the empty store boots byte-identically to v1.0. (SURF-01..03, SYNC-01..04)
+2. **Exact-rational JI & harmonic generators (Phase 6).** Pattern-2 widgets over hand-rolled BigInt kernels: `generateCps` (Hexany/Dekany/Eikosany + custom), `generateHarmonic` (harmonic/subharmonic/ADO/isoharmonic), `generateJiSet` (diamond/odd-limit/prime-limit/Farey), and `generateEd` (EDO/ED-n) — the first tempered family, establishing the cents-only table + "tempered" badge and cents-per-line Send-to so a temperament is never laundered as exact JI. (GEN-01..05, SURF-06)
+3. **SonicWeave adapter — tempered, lattice & free-text (Phase 7).** `scaleFromSonicWeave(src)` maps SonicWeave's currentScale to BigInt `Interval`s via an `isFractional()` discriminator (rational → exact `n/d` round-trip, tempered → cents-of-record) — the load-bearing DSL→kernel boundary. Over it: rank-2 regular temperament (5 tuning options), historical well-temperament, an exact Fokker periodicity block (basis↔comma toggle + live |det| readout), and a free-text SonicWeave escape hatch. Zero new deps — sonic-weave@0.14.1 vendored via patch-package. (GEN-06..09; delivers parked TEMP-01/07/08)
+4. **Preview, transforms & advanced generators (Phase 8).** Two new kernel primitives (`meruScale`/`metallicLimitCents` Wilson-recurrence/metallic convergents; `isConstantStructure` subtension-uniqueness check), the `generateMeru` + `generateCs` widgets, and the first cross-widget shared preview: a plain-SVG circle-of-pitches viz + a non-destructive rotate/reduce/dedupe/transpose strip that drives the table, the circle, and Send-to together (tempered staying cents-per-line). (GEN-10, SURF-04/05)
+5. **Scala archive browser (Phase 9).** Vendored a curated 195-file Huygens-Fokker `.scl` snapshot and built the repo's first Framework `*.json.ts` data loader → searchable JSON index with build-time tempered-provenance flags (76 tempered / 119 exact); `generateArchive` Pattern-2 widget (debounced capped search + "showing X of Y" caption + audition); wired into the Generate surface so a loaded scale routes through the same transform strip + Send-to as every generator. (LIB-01..03; delivers parked TEMP-09)
+
+**Throughline:** a uniform Pattern-2 widget contract — every generator and the archive is `(synth, opts?) => HTMLElement` exposing `getScale()` / `isTempered()` — so all ~20 methods drop into one picker, one transform strip, and one Send-to path; `writeSharedScale` kept exactly one call site across the whole milestone.
+
+---
+
 ## v1.0 MVP (Shipped: 2026-05-07)
 
 **Phases completed:** 4 phases, 25 plans, 47 tasks

@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Scale Generation & Library
-status: milestone_complete
-stopped_at: Milestone complete (Phase 09 was final phase)
-last_updated: 2026-06-15T03:33:34Z
-last_activity: 2026-06-14
+status: Awaiting next milestone
+stopped_at: "Milestone v1.1 (Scale Generation & Library) COMPLETE and archived. Phases 5–9 shipped; 23/23 requirements delivered and human-verified; 659 tests green. Phase-6 + Phase-9 human UAT closed during this milestone close. Archives at milestones/v1.1-{ROADMAP,REQUIREMENTS}.md. Next: /gsd-new-milestone."
+last_updated: "2026-06-15T04:15:15.139Z"
+last_activity: 2026-06-14 — Milestone v1.1 completed and archived
 progress:
   total_phases: 5
   completed_phases: 5
@@ -18,19 +18,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-08 — started milestone v1.1)
+See: .planning/PROJECT.md (updated 2026-06-14 — v1.1 Scale Generation & Library shipped)
 
 **Core value:** I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it expressed as ratios and cents-from-12tet, hear it, and export it to Scala `.scl`/`.kbm` — all from a self-hosted notebook where the calculator and the research prose live together.
-**Current focus:** Milestone complete
+**Current focus:** v1.1 shipped & archived — planning next milestone (`/gsd-new-milestone`)
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-06-14
-
-Progress: [██████████] 100%
+Phase: Milestone v1.1 complete (Phases 5–9)
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-14 — Milestone v1.1 completed and archived
 
 ## Performance Metrics
 
@@ -229,8 +227,24 @@ Notes:
 - The two Phase 3 items share a single root cause: a `{pending}` signature block in `mobile-audit.md` awaiting a Safari RDM re-walk of the new "Esc/Stop cancels arpeggio mid-flight" bullet. The unit-level regression test (`src/audio/__tests__/synth.test.ts:290`) already verifies the code path; per `03-VERIFICATION.md` the gap is "a documentation-trail nicety, not a code defect." 5/5 must-haves on Phase 3 are VERIFIED.
 - The two quick-task entries have completed `SUMMARY.md` files and are merged (commits e288037, 2c44907); the audit flags them as `missing` because the audit tool looks for a marker the SUMMARY files don't carry. No actual work outstanding.
 
+Items acknowledged and deferred at milestone close on 2026-06-14 (v1.1):
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| quick_task | 42 capture stubs flagged `missing` by audit-open (theory pages + interactive components + polish — e.g. tenney-height, well-temperament, spiral-of-fifths onStepClick, dark-mode toggle, the 260608-dyv scale-generation plan) | missing-marker (completed work — SUMMARY.md + commits present) | 2026-06-14 (v1.1 close) |
+
+Notes (v1.1):
+
+- All 42 quick-task entries are the SAME false-positive class documented at v1.0 close: each has a completed `SUMMARY.md` and a merged commit (e.g. c4da7a3, 4202b6a, 872f6e8, 27cb390, 1336f77, b3fa5f3), but the audit tool flags them `missing` because it looks for a completion marker the SUMMARY files don't carry. No actual work is outstanding.
+- Genuine forward-looking items (not blockers) live in `milestones/v1.1-REQUIREMENTS.md` Deferred section (TEMP-02/03/05/06/10, GENX-01/02) and remain v2 candidates.
+- The Phase-6 UAT + verification gaps that were open at the start of this close were RESOLVED before archiving (06-HUMAN-UAT 4/4 passed; 06-VERIFICATION → verified) — not deferred.
+
 ## Session Continuity
 
 Last session: 2026-06-14T19:40:23.498Z
 Stopped at: Phase 8 COMPLETE. 08-04 Task 3 human-verify approved by user. Verify cycle surfaced + fixed three tempered-scale issues (b27027e lattice/diamond, c837d1b shared-preview reactivity, 62720d8 transform re-sync, 0842cf6 EDO-fit table). SURF-04/05 + GEN-10 marked complete. Next: plan Phase 9 (Scala Archive Browser — LIB-01/02/03).
 Resume file: None
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone

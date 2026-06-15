@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A research notebook + JI calculator built as an Observable Framework site — Markdown prose on tuning-systems theory living side-by-side with reactive JavaScript cells that compute, visualize, and audition just-intonation intervals. v1.0 shipped a complete kernel + visualization + analysis stack anchored end-to-end by a composition dashboard, and a public `/analysis` page where users can build EDO/MOS scales, compare them, and share via URL hash.
+A research notebook + JI calculator built as an Observable Framework site — Markdown prose on tuning-systems theory living side-by-side with reactive JavaScript cells that compute, visualize, and audition just-intonation intervals. v1.0 shipped a complete kernel + visualization + analysis stack anchored end-to-end by a composition dashboard, and a public `/analysis` page where users can build EDO/MOS scales, compare them, and share via URL hash. v1.1 adds a dedicated Generate surface: produce JI / tempered / harmonic / lattice scales by ~20 methods (CPS, harmonic/ADO, diamond/odd-limit/Farey, EDO/ED-n, rank-2, well-temperament, Fokker, free-text SonicWeave, Wilson/metallic, constant-structure), browse a searchable Scala archive, audition any result, and push it live into the Dashboard and Analysis via a shared store + `#s=` deep-link.
 
 ## Core Value
 
@@ -12,14 +12,13 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 
 ## Current State
 
-**Shipped:** v1.0 MVP — 2026-05-07
-**Phases:** 4 (Bootstrap & Build → Math Kernel + Composition Anchor → Visualization + Mobile Audio Audit → Analysis & Sharing)
-**Code:** 47 TypeScript files, 5 Markdown pages, 14 CSS files (~7,900 LOC TS, ~9,600 LOC total), 192 tests passing
-**Stack:** Observable Framework 1.13.4 · TypeScript strict · Vitest · ESLint 9 flat · Prettier · `xen-dev-utils@0.13.1` · `sonic-weave@0.14.1` · `ji-lattice@0.3.2` · `sw-synth@0.4.0` · `fraction.js@5.3.4` (BigInt) · D3 7.9 · KaTeX 0.16 · GitHub Pages
-**Pages:** `/` (composition dashboard) · `/pages/syntonic-comma` (theory page) · `/pages/analysis` (EDO + MOS + scale-compare + URL share)
-**Open after v1.0:** one deferred Safari RDM smoke-test re-walk to sign the `mobile-audit.md` Post-CR-02 footer (unit-level regression test already passes; documentation-trail item only). See STATE.md → Deferred Items.
-
-**v1.1 progress:** Feature-complete — Phase 7 (SonicWeave adapter: rank-2 / well-temperament / Fokker / free-text over `sonicweave.ts`, GEN-06..09, parked TEMP-01/07/08), Phase 8 (preview, transforms & advanced generators), and Phase 9 (Scala archive browser, 2026-06-14) all complete; 659 tests passing. Phase 9 vendors a curated 195-file Huygens-Fokker `.scl` snapshot (offline build via the repo's first `*.json.ts` data loader → searchable JSON index with build-time tempered-provenance flags), a Pattern-2 archive-browser widget (debounced search + capped list + audition), and wiring into the Generate surface that routes loaded scales through the same transform strip + Send-to as every generator — delivering parked TEMP-09 (LIB-01/02/03). Milestone ready for `/gsd-complete-milestone`.
+**Shipped:** v1.1 Scale Generation & Library — 2026-06-14 (builds on v1.0 MVP — 2026-05-07)
+**Phases:** 9 total (v1.0: Phases 1–4 · v1.1: Phases 5–9)
+**v1.1 delivered:** the Generate surface (`/pages/generate`) — a family-grouped method picker with live preview + audition + a rotate/reduce/dedupe/transpose transform strip + circle-of-pitches viz + "Send to Dashboard / Analysis"; an additive `scale-store` (localStorage + one-way `CustomEvent`) that keeps the Dashboard/Analysis pages byte-identical when empty; ~20 generators across exact-JI / tempered / lattice / advanced families; and a searchable bundled Scala archive (195 curated Huygens-Fokker `.scl` via the repo's first `*.json.ts` data loader → JSON index with build-time tempered-provenance flags).
+**Code:** ~21,100 LOC TS/JS under `src/`; 659 tests passing; full `tsc --noEmit` strict + ESLint 9 flat + Prettier clean; `npm run build` green (140 links validated).
+**Stack:** Observable Framework 1.13.4 · TypeScript strict · Vitest · ESLint 9 flat · Prettier · `xen-dev-utils@0.13.1` · `sonic-weave@0.14.1` · `ji-lattice@0.3.2` · `sw-synth@0.4.0` · `fraction.js@5.3.4` (BigInt) · D3 7.9 · KaTeX 0.16 · GitHub Pages — **zero new npm deps added in v1.1** (sonic-weave's prelude covered the hard tempered/lattice methods as thin wrappers).
+**Pages:** `/` (composition dashboard) · `/pages/analysis` (EDO + MOS + scale-compare + URL share) · `/pages/generate` (NEW in v1.1 — generators + Scala archive) · plus theory pages.
+**Open after v1.1:** 42 captured idea-stubs deferred as backlog (theory pages, components, polish) — see STATE.md → Deferred Items. No requirement gaps; all 23 v1.1 requirements delivered and human-verified.
 
 ## Current Milestone: v1.1 Scale Generation & Library
 
@@ -52,9 +51,18 @@ I can design any JI scale (arbitrary ratios, no prime-limit ceiling), see it exp
 - [x] Lattice + tonality diamond visualizations for arbitrary prime sets — *Phase 3: D3 + ji-lattice 2D lattice with auto-derived prime basis + pan/zoom; configurable-odd-limit tonality diamond (CR-01 fix preserved each cell's original `(i, j)`).*
 - [x] Scala `.scl` and `.kbm` export — *Phase 2 (parseScala/parseScl/writeScl/scalaToCsv) + Phase 3 (parseKbm/writeKbm/kbmToFrequencies/defaultKbmFor with three named fields). sclIo widget round-trips both formats with auto-detection.*
 
+**v1.1 Scale Generation & Library** (Phases 5–9 — full set archived at `milestones/v1.1-REQUIREMENTS.md`):
+
+- ✓ Generate surface — `/pages/generate` with family-grouped picker, live preview, audition, transform strip — v1.1 (SURF-01..06)
+- ✓ Exact-JI & harmonic generators — CPS (Hexany/Dekany/Eikosany), harmonic/subharmonic/ADO/isoharmonic, diamond/odd/prime/Farey, EDO/ED-n — v1.1 (GEN-01..05)
+- ✓ Tempered & lattice generators — rank-2, well-temperament, Fokker block, free-text SonicWeave — v1.1 (GEN-06..09; delivers parked TEMP-01/07/08)
+- ✓ Advanced generators — Wilson recurrence / metallic (Mt. Meru), constant-structure — v1.1 (GEN-10)
+- ✓ Live shared-state integration — Send to Dashboard/Analysis via additive `scale-store` + `#s=`, empty-store boot guard — v1.1 (SYNC-01..04)
+- ✓ Scala archive browser — browse/search/load/audition + Send-to, build-time tempered-provenance — v1.1 (LIB-01..03; delivers parked TEMP-09)
+
 ### Active
 
-v1.1 Scale Generation & Library — see `.planning/REQUIREMENTS.md` for the scoped requirement set. Delivers parked TEMP-01 (regular-temperament / rank-2 mappings), TEMP-07 (SonicWeave embedded DSL), TEMP-08 (periodicity blocks / Fokker), and TEMP-09 (Scala archive browser).
+(Planning next milestone — run `/gsd-new-milestone`.) Candidate v2 work is tracked in `milestones/v1.1-REQUIREMENTS.md` (Deferred section): TEMP-02 ratio-to-comma decomposition, TEMP-03 Plomp-Levelt dissonance curve, TEMP-05 harmonic entropy, TEMP-06 3D lattice rendering, TEMP-10 MIDI Tuning Standard, plus GENX-01 tetrachordal (Chalmers) builder and GENX-02 temperament finder (search-by-constraints).
 
 ### Deferred to v2
 
@@ -111,6 +119,11 @@ These were originally in v1's "Active" list under "Temperament conversion (EDOs,
 | Three-layer purity discipline (kernel ↔ components ↔ pages) | Components import kernel by value; pages own audio lifecycle; no kernel-DOM bleed | ✓ Good — INVENTORY.md tracked every kernel symbol with source + decision back-references; never violated in v1 |
 | Pattern 4: cell-owned synth (D-34) | Each page declares its own synth cell with `invalidation.then(synth.dispose)` — synths are NOT shared via module export | ✓ Good — survived two-page (`/` + `/pages/analysis`) cross-navigation without leaking AudioContexts (verified at Checkpoint 1) |
 | Decimal phase numbering for urgent insertions | Clear semantics for inserting hotfixes between planned phases | — Not exercised in v1 (no decimal phases inserted). Pattern stands for future use. |
+| Zero new npm deps for v1.1; tempered/lattice methods as thin `sonicweave.ts` wrappers | `sonic-weave@0.14.1` already installed and its prelude covers rank-2 / well-temperament / Fokker / free-text; adding deps is peer-dep + regression risk | ✓ Good (v1.1) — rank-2/well-temperament/Fokker/free-text shipped (GEN-06..09) over a single adapter; no dependency churn |
+| Additive `scale-store` (localStorage + one-way `CustomEvent`), mirroring `theme-prefs.ts` | Integration must not touch the working Dashboard/Analysis boot/hash/textarea paths; one-way data flow keeps consumers pure | ✓ Good (v1.1) — SYNC-01..04 shipped; empty-store boot-equivalence gate (SYNC-04) stayed green across all of Phases 5–9 |
+| Pattern-2 widget contract: every generator is `(synth, opts?) => HTMLElement` exposing `getScale()` / `isTempered()` | One uniform surface lets the picker, transform strip, and Send-to treat all ~20 generators + the archive identically | ✓ Good (v1.1) — the 09-03 archive Send-to wiring was "pure plumbing"; `writeSharedScale` kept exactly one call site |
+| Build-time tempered-provenance flag (cents-of-record vs n/d), SURF-06 | A cents-defined (tempered) scale must never be laundered as exact ratios downstream; compute the flag once at build/generation time | ✓ Good (v1.1) — EDO/rank-2/well-temperament + tempered archive scales serialize cents-per-line; human-verified end-to-end |
+| Vendor a curated 195-file Scala snapshot, not the full ~5400 | Keeps the JSON index sub-MB and the browse list responsive; offline/self-host build with no network | ✓ Good (v1.1) — LIB-01..03 shipped; 76 tempered / 119 exact, searchable + auditionable offline |
 
 ## Evolution
 
@@ -130,4 +143,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-14 — Phase 9 complete (Scala archive browser: vendored 195-file Huygens-Fokker snapshot + build-time index + browser widget wired into the Generate surface — LIB-01/02/03, parked TEMP-09 delivered). v1.1 Scale Generation & Library is feature-complete (Phases 7–9). v1.0 MVP archive at `milestones/v1.0-ROADMAP.md` and `milestones/v1.0-REQUIREMENTS.md`.*
+*Last updated: 2026-06-14 after v1.1 milestone — **v1.1 Scale Generation & Library SHIPPED** (Phases 5–9; 23/23 requirements delivered and human-verified; 659 tests green). Generate surface + ~20 generators + live Send-to integration + Scala archive browser, parked TEMP-01/07/08/09 delivered, zero new npm deps. Archives at `milestones/v1.1-ROADMAP.md` and `milestones/v1.1-REQUIREMENTS.md`; v1.0 MVP archive at `milestones/v1.0-*`.*
