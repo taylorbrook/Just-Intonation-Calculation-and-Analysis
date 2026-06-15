@@ -76,6 +76,13 @@ type Mode = "basis" | "comma";
 const MAX_BASIS = 6;
 const MAX_EXTENT = 24;
 const MAX_COMMAS = 8;
+/**
+ * Defense-in-depth cap on the basis-mode extents product ∏(upᵢ+downᵢ+1)
+ * (mirrors the fokker.ts MAX_CARDINALITY = 1000 / edScale MAX_DIVISIONS precedent).
+ * Comma mode already caps via fokkerCardinality; this closes the same gap in basis
+ * mode (T-l2c-01) so an oversized product is blocked BEFORE enumeration.
+ */
+const MAX_CARDINALITY = 1000;
 
 /** Prime axes, indexed by monzo position (index 0 = prime 2, the implicit equave). */
 const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
@@ -467,6 +474,13 @@ export function generateFokker(
       readout.textContent = `→ ${String(product)} notes`;
       if (basis.length === 0) {
         status.textContent = "Add at least one basis interval.";
+        return null;
+      }
+      // Defense-in-depth cardinality cap (T-l2c-01): block an oversized enumeration
+      // BEFORE composing the source. The readout still shows the product so the user
+      // sees why it was blocked; the prior preview is preserved.
+      if (product > MAX_CARDINALITY) {
+        status.textContent = `Block too large: ${String(product)} notes exceeds the ${String(MAX_CARDINALITY)}-note cap — reduce the extents.`;
         return null;
       }
       return `parallelotope([${basis.join(", ")}], [${u.join(", ")}], [${d.join(", ")}])`;

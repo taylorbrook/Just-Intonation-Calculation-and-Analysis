@@ -339,4 +339,41 @@ describe("generateFokker factory", () => {
     // And the rounded Number value must NOT appear.
     expect(chipTexts).not.toContain("9007199254740992/1");
   });
+
+  // ─── Fix #3: basis mode caps the extents product at MAX_CARDINALITY (1000) ─────
+  it("basis mode over MAX_CARDINALITY (1000) sets a status message and does NOT enumerate (prior preview preserved)", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+    const status = el.querySelector(".generate-fokker__status");
+
+    // Default basis = [3, 5] → a valid 13-row preview exists.
+    const rowsBefore = el.querySelectorAll("tbody tr").length;
+    expect(rowsBefore).toBe(13);
+
+    // Add a third axis (7), then drive each Up extent to MAX_EXTENT (24) → with the
+    // default downs [0,1,0] the product = 25·26·25 = 16250 > 1000, every axis within
+    // MAX_EXTENT.
+    const basisInput = el.querySelector('input[name="fokker-basis-input"]') as HTMLInputElement;
+    const basisAdd = el.querySelector('button[name="fokker-basis-add"]') as HTMLButtonElement;
+    basisInput.value = "7";
+    basisAdd.click();
+
+    for (const name of ["fokker-up-0", "fokker-up-1", "fokker-up-2"]) {
+      const up = el.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+      up.value = "24";
+      up.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    // The readout shows the (over-cap) product; a status message names the cap; and
+    // NO oversized block was enumerated — the table is not re-rendered to >1000 rows
+    // (the prior valid preview is preserved).
+    const readout = el.querySelector(".generate-fokker__readout");
+    expect(readout?.textContent ?? "").toContain("16250");
+    const statusText = status?.textContent ?? "";
+    expect(statusText.length).toBeGreaterThan(0);
+    expect(statusText).toContain("1000");
+    expect(el.querySelectorAll("tbody tr").length).toBeLessThanOrEqual(1001);
+    // The block was NOT enumerated to 16250 rows.
+    expect(el.querySelectorAll("tbody tr").length).toBeLessThan(16250);
+  });
 });
