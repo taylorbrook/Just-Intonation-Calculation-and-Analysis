@@ -21,6 +21,18 @@ describe("fokkerCardinality — comma-mode |det| readout (GEN-08 / D-12)", () =>
     expect(() => fokkerCardinality(["81/80", "225/224"])).toThrow(RangeError);
   });
 
+  it("a lone 128/125 is a valid {5}-subgroup block of cardinality 3 (1-comma subgroup state)", () => {
+    // Fix #4 consequence: 128/125 = 2^7 / 5^3 → dropped-prime-2 row over (3,5) is
+    // [0,-3]; the prime-3 column is all-zero → dropped, leaving the square {5}
+    // matrix [[-3]] with |det| = 3. Under the old width−1 gate this lone comma was
+    // wrongly rejected (1 row × 2 cols). It now correctly enumerates a 3-note block.
+    expect(fokkerCardinality(["128/125"])).toBe(3);
+    const { reduced, survivingMonzoIndices } = reducedSubspaceMatrix(["128/125"]);
+    const PRIMES = [2, 3, 5, 7, 11, 13];
+    expect(survivingMonzoIndices.map((idx) => PRIMES[idx])).toEqual([5]);
+    expect(reduced).toEqual([[-3n]]);
+  });
+
   it("the 5-limit block 81/80 + 128/125 surviving primes are [3, 5] (no prime-7 column)", () => {
     // Pins the shared helper's original-monzo-index contract for the component bridge.
     const { survivingMonzoIndices } = reducedSubspaceMatrix(["81/80", "128/125"]);

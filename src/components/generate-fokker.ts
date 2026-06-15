@@ -463,8 +463,8 @@ export function generateFokker(
   /**
    * Compose the SonicWeave source for the active mode, updating the live "→ N
    * notes" readout (D-12) BEFORE returning. Returns null when the readout could
-   * not be computed (e.g. a non-square comma set) — the caller preserves the
-   * prior preview.
+   * not be computed (e.g. a degenerate / under-determined / over-cap comma set) —
+   * the caller preserves the prior preview.
    */
   function composeSource(): string | null {
     if (mode === "basis") {
@@ -494,9 +494,13 @@ export function generateFokker(
       readout.textContent = `→ ${String(card)} notes`;
       return commaToParallelotopeSource(commas);
     } catch (err) {
-      // Non-square / degenerate / over-cap comma set (RangeError). Show a clear
-      // readout message and DO NOT enumerate — the prior preview is preserved.
-      readout.textContent = "→ — notes (needs a square comma set)";
+      // Degenerate / under-determined / over-cap comma set (RangeError). Use a
+      // NEUTRAL readout and let the status line carry the accurate message (which
+      // names the live-prime subspace + required comma count) — the old fixed
+      // "needs a square comma set" copy mis-described valid 1-comma subgroup sets
+      // (e.g. 128/125 → 3) and the under-determined case alike. DO NOT enumerate;
+      // the prior preview is preserved.
+      readout.textContent = "→ — notes";
       status.textContent = err instanceof Error ? err.message : String(err);
       return null;
     }
