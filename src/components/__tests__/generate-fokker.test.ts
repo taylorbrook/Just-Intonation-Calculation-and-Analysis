@@ -376,4 +376,18 @@ describe("generateFokker factory", () => {
     // The block was NOT enumerated to 16250 rows.
     expect(el.querySelectorAll("tbody tr").length).toBeLessThan(16250);
   });
+
+  // ─── Fix (low): extent fields reflect the MAX_EXTENT clamp on edit ────────────
+  it("typing an over-range value (99) into an Up extent field snaps the visible field to MAX_EXTENT (24)", () => {
+    const el = generateFokker(makeStubSynth());
+    document.body.appendChild(el);
+
+    const up = el.querySelector('input[name="fokker-up-0"]') as HTMLInputElement;
+    expect(up).not.toBeNull();
+    up.value = "99";
+    up.dispatchEvent(new Event("input", { bubbles: true }));
+
+    // The field visibly snaps to the clamp (24), not the raw 99.
+    expect(up.value).toBe("24");
+  });
 });

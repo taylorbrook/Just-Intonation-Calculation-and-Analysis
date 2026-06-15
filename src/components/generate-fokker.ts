@@ -264,6 +264,9 @@ export function generateFokker(
       if (!Number.isInteger(parsed)) return;
       onInput(parsed);
       rebuild();
+      // Reflect the clamp in the visible field (the only callers are the extent
+      // fields, all bounded by MAX_EXTENT): a typed 99 snaps to 24.
+      input.value = String(Math.max(0, Math.min(MAX_EXTENT, parsed)));
     });
     cell.appendChild(input);
     return cell;
@@ -391,7 +394,7 @@ export function generateFokker(
         makeIntField(
           `Up (prime ${String(gen)})`,
           `fokker-up-${String(i)}`,
-          ups[i] ?? 0,
+          Math.max(0, Math.min(MAX_EXTENT, ups[i] ?? 0)),
           (n) => {
             ups[i] = Math.max(0, Math.min(MAX_EXTENT, n));
           },
@@ -402,7 +405,7 @@ export function generateFokker(
         makeIntField(
           `Down (prime ${String(gen)})`,
           `fokker-down-${String(i)}`,
-          downs[i] ?? 0,
+          Math.max(0, Math.min(MAX_EXTENT, downs[i] ?? 0)),
           (n) => {
             downs[i] = Math.max(0, Math.min(MAX_EXTENT, n));
           },
