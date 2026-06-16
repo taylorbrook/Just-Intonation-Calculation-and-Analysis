@@ -46,8 +46,11 @@ export interface SynthHandle {
   playNotes(freqs: number[], dur?: number): void;
   /** Play arpeggio with `stepSec` between note onsets. */
   playArpeggio(freqs: number[], stepSec?: number): void;
-  /** Start a sustained drone. Returns a stop callback. */
-  startDrone(hz: number): () => void;
+  /**
+   * Start a sustained drone. Returns the stop callback, or `null` when no voice
+   * started (disposed, unplayable Hz, or no Web Audio available in this env).
+   */
+  startDrone(hz: number): (() => void) | null;
   /** Stop everything immediately. */
   panic(): void;
   /** Number of currently-playing voices (for dev assertions). */
@@ -138,6 +141,10 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
   let activeVoices = 0;
   let disposed = false;
   let arpeggioTruncationWarned = false;
+  // #15a — warn at most once when Web Audio is unavailable in this environment.
+  let noWebAudioWarned = false;
+  // #16 — warn at most once when AudioContext.resume() rejects.
+  let resumeWarned = false;
   // AUDIO-06 / Pitfall #9 — visibilitychange listener handle, bound at most once
   // per createSynth lifetime by `bindVisibilityListener`, removed by `dispose`.
   let onVisibility: (() => void) | null = null;
@@ -205,24 +212,52 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
    * Returns true if synth+ctx are ready, false otherwise (disposed, or no Web Audio
    * available in this environment).
    */
+  /**
+   * #16 — fire-and-forget AudioContext.resume() that swallows rejections and
+   * warns at most once. Keep synchronous (no await) so the user-gesture frame
+   * is preserved (Pitfall #8).
+   */
+  const tryResume = (): void => {
+    ctx?.resume().catch(() => {
+      if (!resumeWarned) {
+        resumeWarned = true;
+        console.warn(
+          "[audio/synth] AudioContext.resume() failed; audio may be blocked until the next user gesture.",
+        );
+      }
+    });
+  };
+
   const ensure = (): boolean => {
     if (disposed) return false;
     if (ctx && synth) {
-      // Already initialised — but the context may have been suspended (e.g.
-      // tab backgrounded). Resume synchronously here so the user-gesture frame
-      // is preserved (Pitfall #8). Fire-and-forget; do NOT await.
-      if (ctx.state === "suspended") void ctx.resume();
+      // Already initialised — but the context may not be running (e.g. tab
+      // backgrounded → "suspended", or iOS Safari → "interrupted"). Re-attempt
+      // resume here so the user-gesture frame is preserved (Pitfall #8).
+      // Fire-and-forget; do NOT await. Retries on the next ensure() too.
+      if (ctx.state !== "running") tryResume();
       return true;
     }
     const Ctx = resolveAudioCtxCtor();
-    if (!Ctx) return false;
+    if (!Ctx) {
+      // #15a — surface the no-Web-Audio condition once so a silent failure is
+      // diagnosable. Playback (incl. startDrone) is disabled in this env.
+      if (!noWebAudioWarned) {
+        noWebAudioWarned = true;
+        console.warn(
+          "[audio/synth] Web Audio is unavailable in this environment; playback is disabled.",
+        );
+      }
+      return false;
+    }
     ctx = new Ctx({ latencyHint: "interactive" });
     // AUDIO-06 / Pitfall #7 — iOS 16.4+ hardware-mute-switch bypass.
     setAudioSessionPlayback();
     // AUDIO-06 / Pitfall #8 — synchronous fire-and-forget resume so the FIRST
     // user-gesture invocation unlocks the context. NO await between gesture
-    // and this call.
-    if (ctx.state === "suspended") void ctx.resume();
+    // and this call. A brand-new context is "suspended"; route through
+    // tryResume() for the #16 once-only rejection warning.
+    if (ctx.state === "suspended") tryResume();
     master = ctx.createGain();
     // QUICK-TUX-01 — initial master gain prefers explicit opts → persisted pref
     // → 0.2 default. opts.master wins if the caller is supplying their own.
@@ -334,9 +369,11 @@ export function createSynth(opts: CreateSynthOpts = {}): SynthHandle {
     },
 
     startDrone(hz) {
-      if (disposed) return () => {};
-      if (!isPlayableHz(hz)) return () => {};
-      if (!ensure() || !synth) return () => {};
+      // #15 — null is the no-voice-started contract (disposed, unplayable Hz,
+      // or no Web Audio); callers must not flip the drone button "on" on null.
+      if (disposed) return null;
+      if (!isPlayableHz(hz)) return null;
+      if (!ensure() || !synth) return null;
       const off = synth.noteOn(hz, 0.5);
       activeVoices++;
       let released = false;

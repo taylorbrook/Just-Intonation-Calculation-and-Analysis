@@ -364,7 +364,8 @@ describe("createSynth — startDrone (AUDIO-04)", () => {
     const synth = createSynth();
     const stop = synth.startDrone(440);
     expect(synth.activeVoices).toBe(1);
-    stop();
+    // Happy path: startDrone returns a callable (null is the no-voice contract).
+    stop!();
     expect(releaseSpy).toHaveBeenCalledTimes(1);
     expect(synth.activeVoices).toBe(0);
     synth.dispose();
@@ -374,8 +375,8 @@ describe("createSynth — startDrone (AUDIO-04)", () => {
     const synth = createSynth();
     const stop = synth.startDrone(440);
     expect(synth.activeVoices).toBe(1);
-    stop();
-    stop();
+    stop!();
+    stop!();
     expect(synth.activeVoices).toBe(0);
     synth.dispose();
   });
@@ -448,8 +449,8 @@ describe("createSynth — Hz clamps (T-02-17)", () => {
     const stop = synth.startDrone(NaN);
     expect(mockSynthInstance.noteOn).not.toHaveBeenCalled();
     expect(synth.activeVoices).toBe(0);
-    expect(typeof stop).toBe("function");
-    stop(); // should not throw
+    // #15 — null is the no-voice-started contract (no callable returned).
+    expect(stop).toBeNull();
     synth.dispose();
   });
 });
