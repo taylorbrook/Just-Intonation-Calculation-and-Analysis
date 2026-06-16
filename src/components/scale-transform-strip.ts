@@ -189,6 +189,12 @@ export function scaleTransformStrip(
   const readTranspose = (): void => {
     const n = clampPositiveInt(tnInput.value, RATIO_MAX);
     const d = clampPositiveInt(tdInput.value, RATIO_MAX);
+    // Write the clamped integers back so the displayed field can't diverge from
+    // state (an out-of-range entry is corrected immediately; an equal in-range
+    // value is a no-op on a type=number input). Integer strings only — never a
+    // float — so the field and the underlying ratio stay in lockstep.
+    tnInput.value = String(n);
+    tdInput.value = String(d);
     // 1/1 (or any unit ratio) is identity — null so applyTransforms skips it.
     state.transpose = n === d ? null : new Interval(`${String(n)}/${String(d)}`);
     rerender();

@@ -68,6 +68,19 @@ export interface SclIoOpts {
   baseHz?: number;
 }
 
+/**
+ * Sanitize a user-typed filename before it is composed into a download name
+ * (T-ji8-03). Replaces path separators (`/`, `\`) with `-`, strips C0 control
+ * chars + DEL, trims, and falls back to "scale" when the result is empty. The
+ * `.scl`/`.kbm` extension is appended by the caller AFTER this, so it is never
+ * stripped. Does NOT mutate the input field — only the composed name uses this.
+ */
+function sanitizeFilename(name: string): string {
+  // eslint-disable-next-line no-control-regex -- intentionally strip C0 + DEL.
+  const cleaned = name.replace(/[/\\]/g, "-").replace(/[\x00-\x1f\x7f]/g, "").trim();
+  return cleaned.length > 0 ? cleaned : "scale";
+}
+
 /** D-22 default: `scale-{N}-tone-{YYYY-MM-DD}` (no extension). */
 function defaultFilenameFor(scale: Scale): string {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -186,19 +199,21 @@ export function sclIo(scale: Scale, opts: SclIoOpts = {}): HTMLElement {
   exportSclBtn.type = "button";
   exportSclBtn.textContent = "⤓ Download .scl"; // UI-SPEC line 129.
   exportSclBtn.addEventListener("click", () => {
+    // Sanitize the user-typed name (T-ji8-03); the field value itself is untouched.
+    const safeName = sanitizeFilename(filenameInput.value);
     const text = writeScl(scale);
     const blob = new Blob([text], { type: "application/octet-stream" });
     const url = URL.createObjectURL(blob);
     try {
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${filenameInput.value}.scl`;
+      a.download = `${safeName}.scl`;
       // Firefox compat: append before click, remove after.
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       // Status announcement post-download (UI-SPEC line 136).
-      status.textContent = `Downloaded ${filenameInput.value}.scl.`;
+      status.textContent = `Downloaded ${safeName}.scl.`;
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -211,6 +226,7 @@ export function sclIo(scale: Scale, opts: SclIoOpts = {}): HTMLElement {
   exportKbmBtn.addEventListener("click", () => {
     // D-12: defaultKbmFor produces Pitfall #7-safe defaults (middle==ref==69)
     // when the dashboard hasn't supplied an explicit kbmForExport.
+    const safeName = sanitizeFilename(filenameInput.value);
     const kbm = opts.kbmForExport ?? defaultKbmFor(scale, opts.baseHz ?? 440);
     const text = writeKbm(kbm);
     const blob = new Blob([text], { type: "application/octet-stream" });
@@ -218,12 +234,12 @@ export function sclIo(scale: Scale, opts: SclIoOpts = {}): HTMLElement {
     try {
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${filenameInput.value}.kbm`;
+      a.download = `${safeName}.kbm`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       // Status announcement post-download (UI-SPEC line 137).
-      status.textContent = `Downloaded ${filenameInput.value}.kbm.`;
+      status.textContent = `Downloaded ${safeName}.kbm.`;
     } finally {
       URL.revokeObjectURL(url);
     }

@@ -33,6 +33,10 @@ import { MAX_SCALE_TEXT_BYTES } from "../lib/url.js";
 /** localStorage key. Namespaced — mirrors `tuning-systems:theme-prefs`. */
 export const SCALE_STORAGE_KEY = "tuning-systems:scale";
 
+/** Stateless + reusable — hoisted to module scope so the read/write byte caps
+ * don't allocate a fresh TextEncoder per call (#2). */
+const UTF8_ENCODER = new TextEncoder();
+
 /** Global CustomEvent name dispatched on `window` when the shared scale changes.
  * Consumers `window.addEventListener(SCALE_CHANGED_EVENT, handler)`. */
 export const SCALE_CHANGED_EVENT = "tuning-systems:scale-changed";
@@ -94,7 +98,7 @@ export function readSharedScale(): SharedScale | null {
     if (typeof obj.text !== "string") return null;
     // T-05-02: cap the stored text on READ too (defense-in-depth — a tampered
     // entry could exceed the write cap). UTF-8 byte length, shared cap.
-    if (new TextEncoder().encode(obj.text).length > MAX_SCALE_TEXT_BYTES) {
+    if (UTF8_ENCODER.encode(obj.text).length > MAX_SCALE_TEXT_BYTES) {
       return null;
     }
     return typeof obj.source === "string"
@@ -124,7 +128,7 @@ export function readSharedScale(): SharedScale | null {
  */
 export function writeSharedScale(text: string, source?: string): void {
   // Oversize guard first — reject before any side effect (no persist, no event).
-  if (new TextEncoder().encode(text).length > MAX_SCALE_TEXT_BYTES) {
+  if (UTF8_ENCODER.encode(text).length > MAX_SCALE_TEXT_BYTES) {
     return;
   }
   const payload: SharedScale = source !== undefined ? { text, source } : { text };
