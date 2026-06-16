@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseKbm, writeKbm, kbmToFrequencies } from "../kbm.js";
+import { parseKbm, writeKbm, kbmToFrequencies, kbmToFrequenciesWithDiagnostics } from "../kbm.js";
+import type { KbmMapping } from "../kbm.js";
 import { Scale } from "../scale.js";
 import { Interval } from "../interval.js";
 
@@ -72,6 +73,16 @@ describe("writeKbm", () => {
       expect(b).toEqual(a);
     }
   });
+
+  it("#13: round-trips referenceHz at full precision (no toFixed(6) truncation)", () => {
+    // These values lose precision under toFixed(6); exact equality is the point.
+    for (const hz of [432.0011223344, 440.000001]) {
+      const base = parseKbm(readFixture("12-tet.kbm"));
+      const m: KbmMapping = { ...base, referenceHz: hz };
+      const round = parseKbm(writeKbm(m));
+      expect(round.referenceHz).toBe(hz);
+    }
+  });
 });
 
 describe("kbmToFrequencies", () => {
@@ -103,5 +114,39 @@ describe("kbmToFrequencies", () => {
     const scale = new Scale([new Interval("9/8"), new Interval("2/1")]);
     const freqs = kbmToFrequencies(scale, kbm);
     expect(freqs.size).toBeGreaterThan(0);
+  });
+});
+
+describe("kbmToFrequenciesWithDiagnostics", () => {
+  it("#14: surfaces out-of-range mapped degrees in `skipped` instead of dropping silently", () => {
+    // A 2-degree scale yields degrees [1/1, 9/8, 2/1] (length 3). A keyMap entry
+    // of 5 points past the end → out of range → must be surfaced, not dropped.
+    const scale = new Scale([new Interval("9/8"), new Interval("2/1")]);
+    const kbm: KbmMapping = {
+      size: 2,
+      firstKey: 60,
+      lastKey: 61,
+      middleNote: 60,
+      referenceKey: 60,
+      referenceHz: 261.6256,
+      formalOctave: 2,
+      // position 0 → degree 0 (in range), position 1 → degree 5 (out of range)
+      keyMap: [0, 5],
+    };
+    const { frequencies, skipped } = kbmToFrequenciesWithDiagnostics(scale, kbm);
+
+    // MIDI 60 maps to position 0 (degree 0) → present.
+    expect(frequencies.has(60)).toBe(true);
+    // MIDI 61 maps to position 1 (degree 5, out of range) → skipped, absent.
+    expect(frequencies.has(61)).toBe(false);
+    expect(skipped).toEqual([{ midiNote: 61, mapEntry: 5 }]);
+  });
+
+  it("kbmToFrequencies delegates to .frequencies (backward-compatible)", () => {
+    const scale = new Scale([new Interval("9/8"), new Interval("2/1")]);
+    const kbm = parseKbm(readFixture("12-tet.kbm"));
+    const legacy = kbmToFrequencies(scale, kbm);
+    const { frequencies } = kbmToFrequenciesWithDiagnostics(scale, kbm);
+    expect(legacy).toEqual(frequencies);
   });
 });

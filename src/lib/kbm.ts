@@ -238,8 +238,10 @@ export function parseKbm(text: string): KbmMapping {
 /**
  * Serialize a KbmMapping to .kbm text. Round-trip-stable: the comment-prefixed
  * layout matches the Tuning Systems canonical fixtures byte-for-byte (modulo
- * trailing-newline normalization). The 6-decimal float for referenceHz is the
- * Scala convention.
+ * trailing-newline normalization). referenceHz is serialized at full JS
+ * precision via String() (the shortest round-trippable representation) so it
+ * round-trips exactly through parseKbm — parseFloatStrict accepts [eE]
+ * exponents, so any String() output is re-parseable.
  */
 export function writeKbm(kbm: KbmMapping): string {
   const lines: string[] = [];
@@ -256,7 +258,7 @@ export function writeKbm(kbm: KbmMapping): string {
   lines.push(`! Reference note for which frequency is given:`);
   lines.push(String(kbm.referenceKey));
   lines.push(`! Frequency to tune the above note to:`);
-  lines.push(kbm.referenceHz.toFixed(6));
+  lines.push(String(kbm.referenceHz));
   lines.push(`! Scale degree to consider as formal octave:`);
   lines.push(String(kbm.formalOctave));
   lines.push(`! Mapping:`);
@@ -298,13 +300,41 @@ export function writeKbm(kbm: KbmMapping): string {
  * mapEntry 0 still yields the unison.
  */
 export function kbmToFrequencies(scale: Scale, kbm: KbmMapping): Map<number, number> {
+  return kbmToFrequenciesWithDiagnostics(scale, kbm).frequencies;
+}
+
+/**
+ * Diagnostics returned alongside the frequency table by
+ * {@link kbmToFrequenciesWithDiagnostics}: one entry per MIDI note whose
+ * mapped scale degree fell outside the scale's degree list and was therefore
+ * not emitted into `frequencies`.
+ */
+export interface KbmFrequencyDiagnostics {
+  frequencies: Map<number, number>;
+  /** Mapped notes dropped because their degree was out of range (never silent). */
+  skipped: Array<{ midiNote: number; mapEntry: number }>;
+}
+
+/**
+ * Like {@link kbmToFrequencies}, but ALSO surfaces which MIDI notes were
+ * dropped because their mapped scale degree was out of range. Callers needing
+ * to detect/report silent data loss opt in here; the legacy
+ * `kbmToFrequencies(scale, kbm): Map<number, number>` signature is untouched
+ * and delegates to this function's `.frequencies`. Nothing is dropped silently:
+ * an out-of-range degree lands in `skipped` rather than vanishing.
+ */
+export function kbmToFrequenciesWithDiagnostics(
+  scale: Scale,
+  kbm: KbmMapping,
+): KbmFrequencyDiagnostics {
   const out = new Map<number, number>();
+  const skipped: Array<{ midiNote: number; mapEntry: number }> = [];
 
   // Anchor: Hz of the middleNote (where degree-0 / 1/1 sounds).
   const refHzAtMiddle = kbm.referenceHz * Math.pow(2, (kbm.middleNote - kbm.referenceKey) / 12);
 
   const wrap = kbm.formalOctave > 0 ? kbm.formalOctave : kbm.size;
-  if (wrap <= 0) return out;
+  if (wrap <= 0) return { frequencies: out, skipped };
 
   const periodRatio = Number(scale.period.fraction.valueOf());
 
@@ -326,14 +356,18 @@ export function kbmToFrequencies(scale: Scale, kbm: KbmMapping): Map<number, num
     if (mapEntry === undefined || mapEntry === null) continue;
 
     const iv = degrees[mapEntry];
-    if (iv === undefined) continue;
+    if (iv === undefined) {
+      // Out-of-range mapped degree: surface it instead of dropping silently.
+      skipped.push({ midiNote: n, mapEntry });
+      continue;
+    }
 
     // S-3 boundary coercion: Number() crosses into the audio tier here.
     const ratio = Number(iv.fraction.valueOf()) * Math.pow(periodRatio, octaveCount);
     out.set(n, refHzAtMiddle * ratio);
   }
 
-  return out;
+  return { frequencies: out, skipped };
 }
 
 /**
