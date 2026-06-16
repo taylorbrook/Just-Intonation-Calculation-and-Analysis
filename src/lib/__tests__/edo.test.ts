@@ -157,6 +157,24 @@ describe("bestJiInEdo", () => {
   it("throws RangeError when oddLimit exceeds 31 cap (D-08)", () => {
     expect(() => bestJiInEdo(12, 33, "odd")).toThrow(RangeError);
   });
+
+  // FIX #10 (260616-bkm): the odd-limit branch dedupes by EXACT canonical
+  // fraction string. High-EDO / low-odd-limit maps many steps to the same
+  // closest ratio; those collapse (Pitfall #1/#6 — never cents-within-epsilon).
+  it("'odd' branch emits no duplicate exact-fraction intervals for 72-EDO 9-odd-limit (FIX #10)", () => {
+    const s = bestJiInEdo(72, 9, "odd");
+    const keys = s.intervals.map((iv) => iv.fraction.toFraction());
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("'odd' branch ends with exactly one 2/1 period for 72-EDO 9-odd-limit (FIX #10 / D-14)", () => {
+    const s = bestJiInEdo(72, 9, "odd");
+    const periodKey = new Interval("2/1").fraction.toFraction();
+    const keys = s.intervals.map((iv) => iv.fraction.toFraction());
+    expect(keys.filter((k) => k === periodKey).length).toBe(1);
+    expect(keys[keys.length - 1]).toBe(periodKey);
+    expect(s.intervals.length).toBeLessThanOrEqual(72 + 1);
+  });
 });
 
 describe("oddLimitApproximation", () => {

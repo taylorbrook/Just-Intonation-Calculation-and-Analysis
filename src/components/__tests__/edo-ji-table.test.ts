@@ -66,9 +66,13 @@ describe("edoJiTable factory", () => {
     const after = Array.from(el.querySelectorAll("tbody tr")).map(
       (r) => r.querySelectorAll("td")[2]!.textContent,
     );
-    expect(after.length).toBe(before.length);
-    // Some row should differ between prime-7 and odd-7 at 12-EDO.
-    const anyDiff = before.some((v, i) => v !== after[i]);
+    // The tbody re-rendered with a non-empty result. (Row count may differ
+    // between prime and odd branches: exact-fraction dedupe — 260616-bkm FIX #10
+    // — collapses duplicate closest ratios, and the odd-7 branch at 12-EDO
+    // produces one fewer distinct ratio than the prime-7 branch.)
+    expect(after.length).toBeGreaterThan(0);
+    // The content changed between prime-7 and odd-7 at 12-EDO.
+    const anyDiff = before.length !== after.length || before.some((v, i) => v !== after[i]);
     expect(anyDiff).toBe(true);
   });
 

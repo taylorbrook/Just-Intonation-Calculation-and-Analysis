@@ -53,7 +53,18 @@ describe("monzo helpers", () => {
     expect(Math.abs(tenneyHeight([-4, 4, -1]) - expected)).toBeLessThan(0.01);
   });
 
-  it("benedettiHeight([-4, 4, -1]) === 6480 (= 81 × 80)", () => {
-    expect(benedettiHeight([-4, 4, -1])).toBe(6480);
+  it("benedettiHeight([-4, 4, -1]) === 6480n (= 81 × 80), exact bigint", () => {
+    expect(benedettiHeight([-4, 4, -1])).toBe(6480n);
+  });
+
+  it("benedettiHeight is EXACT past 2^53 — Mercator's comma 3^53/2^84 (FIX #9)", () => {
+    // Mercator's comma = 3^53 / 2^84, monzo [-84, 53]. n*d = 3^53 * 2^84 is a
+    // 41-digit integer — far past Number.MAX_SAFE_INTEGER (~9e15). The bigint
+    // path returns it exactly.
+    const expected = 3n ** 53n * 2n ** 84n;
+    expect(benedettiHeight([-84, 53])).toBe(expected);
+    // Document why bigint is required: the OLD Number() coercion was NOT bit-exact
+    // for this value (round-trip through Number loses low-order bits).
+    expect(BigInt(Number(expected))).not.toBe(expected);
   });
 });

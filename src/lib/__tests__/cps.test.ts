@@ -97,4 +97,17 @@ describe("cps — Combination Product Set", () => {
     const scale = cps(factors(1, 3, 5, 7), 2);
     expect(scale.intervals.length).toBe(7);
   });
+
+  // FIX (260616-bkm): the root pick now uses EXACT Fraction.compare (not float
+  // cents). The canonical Wilson vector is unchanged — the exact minimum product
+  // is still chosen as the tonic, so the rooted hexany starts on 1/1.
+  it("exact root selection (Fraction.compare): the rooted hexany starts on exact 1/1", () => {
+    const scale = cps(factors(1, 3, 5, 7), 2);
+    const first = scale.intervals[0];
+    expect(first?.fraction.n).toBe(1n);
+    expect(first?.fraction.d).toBe(1n);
+    expect(first?.equals(new Interval("1/1"))).toBe(true);
+    // The full exact fraction set is unchanged from the float-rooted result.
+    expect(ndStrings(scale)).toEqual(["1/1", "7/6", "5/4", "35/24", "5/3", "7/4", "2/1"]);
+  });
 });

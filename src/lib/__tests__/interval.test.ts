@@ -38,6 +38,34 @@ describe("Interval", () => {
     expect(i.centsFrom12tet).toBeLessThan(-13.6);
   });
 
+  // FIX (260616-bkm): cents must stay FINITE for arbitrarily large fractions.
+  // The old `1200*log2(Number(fraction.valueOf()))` overflowed to Infinity once
+  // n (or d) exceeded ~2^1024; the monzo fallback recovers a finite value.
+  it("cents is FINITE for a huge fraction whose Number() value overflows to Infinity", () => {
+    // 3^2000 is ~954 decimal digits — Number(3n**2000n) === Infinity (well past
+    // the ~308-digit / 2^1024 float ceiling). The monzo sum stays finite.
+    const huge = Interval.fromMonzo([0, 2000]); // 3^2000 / 1
+    // Document the overflow threshold: the direct float path is Infinity here.
+    expect(Number(huge.fraction.valueOf())).toBe(Number.POSITIVE_INFINITY);
+    expect(Number.isFinite(huge.cents)).toBe(true);
+    expect(huge.cents).toBeGreaterThan(0);
+    // Exact expectation: 1200 * 2000 * log2(3).
+    expect(huge.cents).toBeCloseTo(1200 * 2000 * Math.log2(3), 3);
+  });
+
+  // FIX (260616-bkm) regression: for NORMAL ratios the cents value must still
+  // match the old `1200*log2(n/d)` formula within float epsilon.
+  it("cents matches the old 1200*log2(n/d) formula for normal ratios (3/2, 5/4, 81/80)", () => {
+    for (const r of ["3/2", "5/4", "81/80"]) {
+      const iv = new Interval(r);
+      expect(iv.cents).toBeCloseTo(1200 * Math.log2(Number(iv.fraction.valueOf())), 9);
+    }
+  });
+
+  it("cents is 0 for the unison 1/1 (empty/zero monzo)", () => {
+    expect(new Interval("1/1").cents).toBe(0);
+  });
+
   it("multiplies (3/2 * 4/3 == 2/1)", () => {
     const result = new Interval("3/2").mul(new Interval("4/3"));
     expect(result.equals(new Interval("2/1"))).toBe(true);

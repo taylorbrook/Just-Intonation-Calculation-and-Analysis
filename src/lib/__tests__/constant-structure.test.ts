@@ -66,3 +66,37 @@ describe("isConstantStructure — EXACT, never cents-epsilon (Pitfall #1 / #6)",
     expect(result.ambiguousAt).toBeUndefined();
   });
 });
+
+describe("isConstantStructure — wrap-around uses scale.period (FIX #11, 260616-bkm)", () => {
+  it("uses the authoritative scale.period, NOT the last degree, for wrap-around extension", () => {
+    // Scale {1/1, 9/8, 6/5, 15/8} with an EXPLICIT period of 2/1. The last degree
+    // (15/8) is NOT the period — so the wrap-around extension differs depending on
+    // which is used. Measured against the TRUE period 2/1:
+    //   ext = [9/8, 6/5, 15/8, 9/4, 12/5, 15/4]
+    //   15/8 subtends 3 steps from the unison AND appears as the 2-step span
+    //   (9/4 ÷ 6/5 = 15/8) → the same interval value subtends BOTH 2 and 3 steps,
+    //   so the scale is genuinely NOT constant structure.
+    // The OLD (last-degree = 15/8) behavior built a different extension and missed
+    // this collision, wrongly reporting CS-✓. This test discriminates the fix.
+    const scale = new Scale(
+      ["1/1", "9/8", "6/5", "15/8"].map((s) => new Interval(s)),
+      new Interval("2/1"),
+    );
+    // Sanity: the last degree is NOT the period (the whole point of the test).
+    expect(scale.intervals[scale.intervals.length - 1]!.equals(scale.period)).toBe(false);
+    const result = isConstantStructure(scale);
+    expect(result.cs).toBe(false);
+    expect(result.ambiguousAt).toBeDefined();
+    const { intervalClassA, intervalClassB } = result.ambiguousAt!;
+    const pair = [intervalClassA, intervalClassB].sort((a, b) => a - b);
+    expect(pair).toEqual([2, 3]);
+  });
+
+  it("regression: a scale whose last degree DOES equal the explicit period still works", () => {
+    // When the last degree already equals scale.period (the conventional case),
+    // the fix is a no-op — the Pythagorean diatonic stays CS-✓.
+    const scale = scaleOf(["1/1", "9/8", "81/64", "729/512", "3/2", "27/16", "243/128", "2/1"]);
+    expect(scale.intervals[scale.intervals.length - 1]!.equals(scale.period)).toBe(true);
+    expect(isConstantStructure(scale).cs).toBe(true);
+  });
+});

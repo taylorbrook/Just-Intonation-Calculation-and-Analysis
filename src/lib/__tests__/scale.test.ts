@@ -224,4 +224,38 @@ describe("jiSubsetOfEdo (SCALE-05)", () => {
   it("throws RangeError when edoSteps is 0", () => {
     expect(() => jiSubsetOfEdo(0, 5)).toThrowError(RangeError);
   });
+
+  // FIX #10 (260616-bkm): dedupe by EXACT canonical fraction string. High-EDO /
+  // low-prime-limit inputs map many distinct steps to the same closest ratio;
+  // those collapse to ONE entry (Pitfall #1/#6 — never cents-within-epsilon).
+  it("emits no duplicate exact-fraction intervals for 53-EDO 3-limit (FIX #10)", () => {
+    const s = jiSubsetOfEdo(53, 3);
+    const keys = s.intervals.map((iv) => iv.fraction.toFraction());
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("emits no duplicate exact-fraction intervals for 72-EDO 5-limit (FIX #10)", () => {
+    const s = jiSubsetOfEdo(72, 5);
+    const keys = s.intervals.map((iv) => iv.fraction.toFraction());
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("the 2/1 period appears exactly once, at the end (FIX #10 / D-14)", () => {
+    const s = jiSubsetOfEdo(72, 5);
+    const periodKey = new Interval("2/1").fraction.toFraction();
+    const keys = s.intervals.map((iv) => iv.fraction.toFraction());
+    const periodCount = keys.filter((k) => k === periodKey).length;
+    expect(periodCount).toBe(1);
+    expect(keys[keys.length - 1]).toBe(periodKey);
+  });
+
+  it("1/1 is still present at index 0 after dedupe (FIX #10)", () => {
+    const s = jiSubsetOfEdo(72, 5);
+    expect(s.intervals[0]?.equals(new Interval("1/1"))).toBe(true);
+  });
+
+  it("deduped length is <= edoSteps + 1 (FIX #10)", () => {
+    const s = jiSubsetOfEdo(72, 5);
+    expect(s.intervals.length).toBeLessThanOrEqual(72 + 1);
+  });
 });

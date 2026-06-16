@@ -80,20 +80,28 @@ export class Interval {
   get cents(): number {
     if (this.#cents === undefined) {
       // Display projection only — float math is acceptable here (Pitfall #1).
-      // Compute from the monzo (Σ monzo[i] · log2(PRIMES[i])) rather than
-      // Number(this.fraction.valueOf()), which overflows to Infinity once the
-      // numerator/denominator exceeds ~2^1024. The monzo sum stays finite for
-      // arbitrarily large ratios. The unison (empty/zero monzo) yields 0.
-      let sum = 0;
-      const m = this.monzo;
-      for (let i = 0; i < m.length; i++) {
-        const exp = m[i];
-        if (exp === undefined || exp === 0) continue;
-        const p = PRIMES[i];
-        if (p === undefined) continue;
-        sum += exp * Math.log2(p);
+      // Primary path: the direct float ratio. This works for EVERY fraction —
+      // including tempered/cents-derived ratios whose huge float-approximation
+      // numerators are NOT prime-factorizable (toMonzo throws "Out of primes").
+      const direct = 1200 * Math.log2(Number(this.fraction.valueOf()));
+      if (Number.isFinite(direct)) {
+        this.#cents = direct;
+      } else {
+        // Overflow fallback: Number(n/d) becomes Infinity once n or d exceeds
+        // ~2^1024. Recover from the monzo (Σ monzo[i] · log2(PRIMES[i])), which
+        // stays finite for arbitrarily large JI ratios. Only reachable for
+        // factorizable (exact JI) fractions — those are the ones that overflow.
+        let sum = 0;
+        const m = this.monzo;
+        for (let i = 0; i < m.length; i++) {
+          const exp = m[i];
+          if (exp === undefined || exp === 0) continue;
+          const p = PRIMES[i];
+          if (p === undefined) continue;
+          sum += exp * Math.log2(p);
+        }
+        this.#cents = 1200 * sum;
       }
-      this.#cents = 1200 * sum;
     }
     return this.#cents;
   }
