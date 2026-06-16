@@ -39,6 +39,7 @@
 
 import { Interval } from "./interval.js";
 import type { Scale } from "./scale.js";
+import { stripBom } from "./text.js";
 
 const MAX_INPUT_BYTES = 1_000_000;
 const MAX_KEYMAP_LENGTH = 1024;
@@ -91,8 +92,7 @@ function utf8ByteLength(s: string): number {
  * non-printing character in source (project hygiene; matches scala.ts pattern).
  */
 function normalizeLines(text: string): string[] {
-  const noBom = text.replace(/^\uFEFF/, "");
-  return noBom.replace(/\r\n?/g, "\n").split("\n");
+  return stripBom(text).replace(/\r\n?/g, "\n").split("\n");
 }
 
 /** Drop blank lines and `!`-prefixed comment lines (after trim). */

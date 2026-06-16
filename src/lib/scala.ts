@@ -38,6 +38,7 @@
 
 import { Interval } from "./interval.js";
 import { Scale } from "./scale.js";
+import { stripBom } from "./text.js";
 // R-01 NOTE: only the helper, NEVER xen-dev-utils' Fraction.
 import { centsToValue } from "xen-dev-utils";
 
@@ -243,10 +244,7 @@ export function scalaToCsv(scale: Scale, baseHz: number): string {
 
 function normalizeLines(text: string): string[] {
   // Strip BOM (effective on first line only); normalize CRLF / CR to LF.
-  // The BOM character is U+FEFF (UTF-8 bytes EF BB BF, decoded by readFileSync
-  // as the single code point ﻿).
-  const noBom = text.replace(/^﻿/, "");
-  return noBom.replace(/\r\n?/g, "\n").split("\n");
+  return stripBom(text).replace(/\r\n?/g, "\n").split("\n");
 }
 
 function parsePitchToken(line: string): Interval {
