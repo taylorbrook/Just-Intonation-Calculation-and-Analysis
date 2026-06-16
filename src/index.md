@@ -20,7 +20,7 @@ import { tonalityDiamond } from "./components/tonality-diamond.js";
 import { keyboard } from "./components/keyboard.js";
 import { kbmToFrequencies, type KbmMapping } from "./lib/kbm.js";
 import { encodeScaleToHash, decodeHashToScale } from "./lib/url.js";
-import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT } from "./state/scale-store.js";
+import { readSharedScale, resolveInitialScaleText, SCALE_CHANGED_EVENT, SCALE_STORAGE_KEY } from "./state/scale-store.js";
 ```
 
 ```ts
@@ -115,6 +115,28 @@ const scaleText = view(scaleInput);
   };
   window.addEventListener(SCALE_CHANGED_EVENT, onScale);
   invalidation.then(() => window.removeEventListener(SCALE_CHANGED_EVENT, onScale));
+}
+```
+
+```ts
+// #22 — cross-tab counterpart of the same-tab CustomEvent cell above. The native
+// `storage` event fires in OTHER tabs when localStorage is written (never in the
+// writing tab), so an already-open Dashboard tab picks up a Generate→Send done in
+// another tab. Key-guard on SCALE_STORAGE_KEY skips unrelated writes (theme-prefs).
+// Re-read via readSharedScale() (validates shape + 8 KB cap + never throws,
+// T-05-01/02/03) — never parse e.newValue by hand. ONE-WAY DATA FLOW: writes ONLY
+// the textarea, never the store, so there is no feedback loop.
+{
+  const onStorage = (e) => {
+    if (e.key !== SCALE_STORAGE_KEY) return;
+    const shared = readSharedScale();
+    if (typeof shared?.text === "string" && shared.text.length) {
+      scaleInput.value = shared.text;
+      scaleInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  };
+  window.addEventListener("storage", onStorage);
+  invalidation.then(() => window.removeEventListener("storage", onStorage));
 }
 ```
 
