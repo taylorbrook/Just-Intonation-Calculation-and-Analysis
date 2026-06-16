@@ -18,8 +18,8 @@
  * Pattern 2 factory: (edoSteps, synth, opts?) => HTMLElement. No module-level
  * state. SynthHandle owner-allocated by the page cell.
  *
- * Defense-in-depth (T-04-17): every dynamic cell value flows through
- * `createElement` + `textContent` (NEVER `innerHTML`) so a malicious .scl
+ * Defense-in-depth (T-04-17): every cell value — header and data alike — flows
+ * through `createElement` + `textContent` (NEVER `innerHTML`) so a malicious .scl
  * description-derived ratio could never reach markup.
  */
 import { Interval } from "../lib/interval.js";
@@ -136,9 +136,15 @@ export function edoJiTable(
   // Table.
   const table = document.createElement("table");
   const thead = document.createElement("thead");
-  // Static header — no interpolated values, innerHTML safe (T-04-17 doesn't apply
-  // to constant string).
-  thead.innerHTML = "<tr><th>Step</th><th>Cents</th><th>JI Approx</th></tr>";
+  // Header row via createElement + textContent (never innerHTML) — uniform with the
+  // no-innerHTML discipline used for the data cells (T-04-17).
+  const headerRow = document.createElement("tr");
+  for (const label of ["Step", "Cents", "JI Approx"]) {
+    const th = document.createElement("th");
+    th.textContent = label;
+    headerRow.appendChild(th);
+  }
+  thead.appendChild(headerRow);
   table.appendChild(thead);
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);

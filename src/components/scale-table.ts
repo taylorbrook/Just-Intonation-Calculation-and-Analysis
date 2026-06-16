@@ -10,11 +10,11 @@
  * facing surface (the data path lives in src/lib/scala.ts where it's testable
  * without DOM).
  *
- * Defense-in-depth (T-02-22, T-02-23): all dynamic cell values go through
- * `createElement` + `textContent` (NEVER `innerHTML`) so any future code path
- * that surfaces user-controlled content as a ratio/cents value renders as
- * literal text. The static `<th>` row uses `innerHTML` because it contains
- * no interpolated values.
+ * Defense-in-depth (T-02-22, T-02-23): ALL cell values — header and data alike —
+ * go through `createElement` + `textContent` (NEVER `innerHTML`) so any future code
+ * path that surfaces user-controlled content as a ratio/cents value renders as
+ * literal text. The static `<th>` header row is built the same way for a uniform
+ * no-innerHTML discipline (even though its labels are constant strings).
  *
  * ARCHITECTURE Pattern 2 factory. Three-layer discipline: imports type from
  * src/lib/scale.js and the scalaToCsv helper from src/lib/scala.js (a kernel
@@ -57,12 +57,19 @@ export function scaleTable(scale: Scale, baseHz: number, opts: ScaleTableOpts = 
 
   const table = document.createElement("table");
   const thead = document.createElement("thead");
-  // Static header content — no interpolated values, innerHTML is safe and
-  // keeps the <th> tags readable. D-01: the tempered header has THREE columns
-  // (no Ratio); the JI header keeps the original four-column string verbatim.
-  thead.innerHTML = tempered
-    ? "<tr><th>Degree</th><th>Cents</th><th>¢ from 12-TET</th></tr>"
-    : "<tr><th>Degree</th><th>Ratio</th><th>Cents</th><th>¢ from 12-TET</th></tr>";
+  // Header row via createElement + textContent (never innerHTML) — uniform with the
+  // no-innerHTML discipline used for the data cells (T-02-23). D-01: the tempered
+  // header has THREE columns (no Ratio); the JI header keeps the original four labels.
+  const headerRow = document.createElement("tr");
+  const headerLabels = tempered
+    ? ["Degree", "Cents", "¢ from 12-TET"]
+    : ["Degree", "Ratio", "Cents", "¢ from 12-TET"];
+  for (const label of headerLabels) {
+    const th = document.createElement("th");
+    th.textContent = label;
+    headerRow.appendChild(th);
+  }
+  thead.appendChild(headerRow);
   table.appendChild(thead);
 
   const tbody = document.createElement("tbody");
