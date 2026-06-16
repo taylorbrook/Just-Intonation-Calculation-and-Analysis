@@ -103,9 +103,7 @@ export function reducedSubspaceMatrix(commaStrings: string[]): {
     if (full.some((row) => row[col] !== 0n)) survivingMonzoIndices.push(col);
   }
 
-  const reduced: bigint[][] = full.map((row) =>
-    survivingMonzoIndices.map((col) => row[col]!),
-  );
+  const reduced: bigint[][] = full.map((row) => survivingMonzoIndices.map((col) => row[col]!));
 
   return { reduced, survivingMonzoIndices };
 }

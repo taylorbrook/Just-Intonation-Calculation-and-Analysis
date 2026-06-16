@@ -121,23 +121,23 @@ describe("Interval", () => {
 // ---------------------------------------------------------------------------
 
 describe("Interval.source provenance (260615-jtm)", () => {
-  it("defaults to \"ratio\" for bare construction (backward-compatible)", () => {
+  it('defaults to "ratio" for bare construction (backward-compatible)', () => {
     expect(new Interval("5/4").source).toBe("ratio");
   });
 
-  it("defaults to \"ratio\" for numeric construction", () => {
+  it('defaults to "ratio" for numeric construction', () => {
     expect(new Interval(1.25).source).toBe("ratio");
   });
 
-  it("accepts an explicit \"cents\" source tag", () => {
+  it('accepts an explicit "cents" source tag', () => {
     expect(new Interval(1.25, "cents").source).toBe("cents");
   });
 
-  it("accepts an explicit \"ratio\" source tag", () => {
+  it('accepts an explicit "ratio" source tag', () => {
     expect(new Interval("5/4", "ratio").source).toBe("ratio");
   });
 
-  it("fromMonzo is exact by construction → source is \"ratio\"", () => {
+  it('fromMonzo is exact by construction → source is "ratio"', () => {
     expect(Interval.fromMonzo([-2, 0, 1]).source).toBe("ratio");
   });
 
@@ -150,7 +150,7 @@ describe("Interval.source provenance (260615-jtm)", () => {
     expect(cents.equals(ratio)).toBe(true);
   });
 
-  it("does NOT propagate source through arithmetic (transposed pitch defaults to \"ratio\")", () => {
+  it('does NOT propagate source through arithmetic (transposed pitch defaults to "ratio")', () => {
     const cents = new Interval(1.25, "cents");
     expect(cents.mul(new Interval("2/1")).source).toBe("ratio");
     expect(cents.div(new Interval("2/1")).source).toBe("ratio");

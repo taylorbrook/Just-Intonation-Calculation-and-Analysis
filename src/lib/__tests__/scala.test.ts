@@ -404,7 +404,7 @@ describe("writeScl (serializer, D-13)", () => {
 // ---------------------------------------------------------------------------
 
 describe("parsePitchToken provenance tagging (260615-jtm)", () => {
-  it("tags the dotted-cents path as source \"cents\"", () => {
+  it('tags the dotted-cents path as source "cents"', () => {
     const { intervals } = parseScl(readFixture("F02-cents-only.scl"));
     // Every non-unison degree in a cents-only file is cents-source.
     for (const iv of intervals.slice(1)) {
@@ -412,21 +412,21 @@ describe("parsePitchToken provenance tagging (260615-jtm)", () => {
     }
   });
 
-  it("leaves the ratio path as source \"ratio\"", () => {
+  it('leaves the ratio path as source "ratio"', () => {
     const { intervals } = parseScl(readFixture("F01-simple-7limit.scl"));
     for (const iv of intervals) {
       expect(iv.source).toBe("ratio");
     }
   });
 
-  it("leaves the monzo path as source \"ratio\" (exact by construction)", () => {
+  it('leaves the monzo path as source "ratio" (exact by construction)', () => {
     const { intervals } = parseScl(readFixture("F08-bohlen-pierce.scl"));
     for (const iv of intervals) {
       expect(iv.source).toBe("ratio");
     }
   });
 
-  it("a mixed file tags per-interval: cents degrees \"cents\", ratio degrees \"ratio\"", () => {
+  it('a mixed file tags per-interval: cents degrees "cents", ratio degrees "ratio"', () => {
     const { intervals } = parseScl(readFixture("F03-mixed-ratio-cents.scl"));
     // F03 order: 1/1, 9/8(ratio), 408.0(cents), 4/3(ratio), 700.0(cents), 5/3(ratio), 1100.0(cents), 2/1(ratio)
     expect(intervals[1]!.source).toBe("ratio"); // 9/8
