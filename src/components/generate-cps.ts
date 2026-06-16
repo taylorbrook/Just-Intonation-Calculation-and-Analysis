@@ -33,6 +33,7 @@
 import { Interval } from "../lib/interval.js";
 import type { Scale } from "../lib/scale.js";
 import { cps } from "../lib/cps.js";
+import { parsePositiveInt } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -56,22 +57,6 @@ const PRESETS: Record<string, { factors: number[]; k: number }> = {
   dekany: { factors: [1, 3, 5, 7, 9], k: 2 },
   eikosany: { factors: [1, 3, 5, 7, 9, 11], k: 3 },
 };
-
-/**
- * Parse a chip-input string into a strictly-positive integer, or null if invalid.
- * Rejects non-numeric text, non-integers (2.5), and values ≤ 0 (T-06-10 numeric
- * validation: the value is validated BEFORE it can become a chip).
- */
-function parsePositiveInt(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (trimmed === "") return null;
-  // Reject anything that is not a base-10 integer string (rejects "2.5", "abc",
-  // "1e3", "0x4" — Number(...) would otherwise coerce some of these).
-  if (!/^\d+$/.test(trimmed)) return null;
-  const n = parseInt(trimmed, 10);
-  if (!Number.isInteger(n) || n < 1) return null;
-  return n;
-}
 
 export function generateCps(synth: SynthHandle, opts: GenerateCpsOpts = {}): GenerateCpsElement {
   const baseHz = opts.baseHz ?? 440;
@@ -273,11 +258,13 @@ export function generateCps(synth: SynthHandle, opts: GenerateCpsOpts = {}): Gen
   });
 
   kInput.addEventListener("input", () => {
-    const parsed = parseInt(kInput.value, 10);
+    // STRICT integer parse (#19 hardening): the shared parsePositiveInt rejects
+    // "3.5"/"3abc"/"1e3" instead of the old lenient parseInt that coerced "3.5"→3.
     // Leave `k` untouched on a transiently-empty/invalid field; the kernel's
-    // RangeError will surface in the status region if the committed value is
-    // out of range (T-06-11). Only adopt a finite integer.
-    if (Number.isInteger(parsed)) {
+    // RangeError still surfaces in the status region if the committed value exceeds
+    // the upper bound (1 ≤ k ≤ factors.length — T-06-11).
+    const parsed = parsePositiveInt(kInput.value);
+    if (parsed !== null) {
       k = parsed;
       rebuild();
     }

@@ -45,6 +45,7 @@
 import type { Scale } from "../lib/scale.js";
 import { scaleFromSonicWeave } from "../lib/sonicweave.js";
 import { fokkerCardinality, reducedSubspaceMatrix } from "../lib/fokker.js";
+import { makeIntField, parsePositiveInt, parseRatio } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -86,38 +87,6 @@ const MAX_CARDINALITY = 1000;
 
 /** Prime axes, indexed by monzo position (index 0 = prime 2, the implicit equave). */
 const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
-
-/**
- * Parse a chip-input string into a strictly-positive integer, or null if invalid
- * (the generate-cps parsePositiveInt idiom; basis chips are integer generators).
- */
-function parsePositiveInt(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (trimmed === "") return null;
-  if (!/^\d+$/.test(trimmed)) return null;
-  const n = parseInt(trimmed, 10);
-  if (!Number.isInteger(n) || n < 1) return null;
-  return n;
-}
-
-/**
- * Validate a comma ratio string `n/d` (both positive integers). Returns the
- * normalized `n/d` string or null. The value is validated BEFORE it can become a
- * chip (T-07-12: literal text only, never innerHTML).
- */
-function parseRatio(raw: string): string | null {
-  const trimmed = raw.trim();
-  const m = /^(\d+)\/(\d+)$/.exec(trimmed);
-  if (!m) return null;
-  // WR-04: validate/normalize with BigInt, NOT parseInt — the project has no
-  // prime-limit ceiling (CLAUDE.md disqualifies Number-backed ratio paths), so a
-  // comma whose numerator/denominator exceeds 2^53 must be preserved exactly, not
-  // rounded. The regex already guarantees digit-only groups, so BigInt cannot throw.
-  const n = BigInt(m[1]!);
-  const d = BigInt(m[2]!);
-  if (n < 1n || d < 1n) return null;
-  return `${String(n)}/${String(d)}`;
-}
 
 /**
  * The comma→basis bridge (A3 path (a)): map a comma set to a `parallelotope(...)`
@@ -234,43 +203,6 @@ export function generateFokker(
   const playHost = document.createElement("div");
   playHost.className = "generate-fokker__play-host";
   root.appendChild(playHost);
-
-  // ── A labelled integer <input type="number"> cell (the generate-ed idiom). ──
-  function makeIntField(
-    labelText: string,
-    nameAttr: string,
-    value: number,
-    onInput: (n: number) => void,
-    attrs: { min?: string; max?: string } = {},
-  ): HTMLElement {
-    const cell = document.createElement("div");
-    cell.className = "generate-fokker__field";
-    const lbl = document.createElement("span");
-    lbl.className = "generate-fokker__field-label";
-    lbl.textContent = labelText;
-    cell.appendChild(lbl);
-    const input = document.createElement("input");
-    input.type = "number";
-    input.name = nameAttr;
-    input.step = "1";
-    if (attrs.min !== undefined) input.min = attrs.min;
-    if (attrs.max !== undefined) input.max = attrs.max;
-    input.value = String(value);
-    input.setAttribute("aria-label", labelText);
-    input.addEventListener("input", () => {
-      const trimmed = input.value.trim();
-      if (trimmed === "") return; // transient edit — leave state, no crash.
-      const parsed = parseInt(trimmed, 10);
-      if (!Number.isInteger(parsed)) return;
-      onInput(parsed);
-      rebuild();
-      // Reflect the clamp in the visible field (the only callers are the extent
-      // fields, all bounded by MAX_EXTENT): a typed 99 snaps to 24.
-      input.value = String(Math.max(0, Math.min(MAX_EXTENT, parsed)));
-    });
-    cell.appendChild(input);
-    return cell;
-  }
 
   /**
    * A generic chip input (the generate-cps chip idiom): a labelled list of chips
@@ -392,6 +324,7 @@ export function generateFokker(
     basisGenerators.forEach((gen, i) => {
       extentCells.push(
         makeIntField(
+          "generate-fokker",
           `Up (prime ${String(gen)})`,
           `fokker-up-${String(i)}`,
           Math.max(0, Math.min(MAX_EXTENT, ups[i] ?? 0)),
@@ -399,10 +332,12 @@ export function generateFokker(
             ups[i] = Math.max(0, Math.min(MAX_EXTENT, n));
           },
           { min: "0", max: String(MAX_EXTENT) },
+          { onCommit: rebuild, clampReflect: true },
         ),
       );
       extentCells.push(
         makeIntField(
+          "generate-fokker",
           `Down (prime ${String(gen)})`,
           `fokker-down-${String(i)}`,
           Math.max(0, Math.min(MAX_EXTENT, downs[i] ?? 0)),
@@ -410,6 +345,7 @@ export function generateFokker(
             downs[i] = Math.max(0, Math.min(MAX_EXTENT, n));
           },
           { min: "0", max: String(MAX_EXTENT) },
+          { onCommit: rebuild, clampReflect: true },
         ),
       );
     });

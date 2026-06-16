@@ -42,6 +42,7 @@
  */
 import type { Scale } from "../lib/scale.js";
 import { scaleFromSonicWeave } from "../lib/sonicweave.js";
+import { parseIntOrNull } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -106,18 +107,6 @@ const QUARTER_COMMA_FIFTH = "696.578428466209";
 /** Defense-in-depth caps on the native rank2 counts (D-18, mirror Phase-6 D-14). */
 const MAX_UP = 53;
 const MAX_DOWN = 53;
-
-/**
- * Parse an input's value into a finite integer, or null when transiently empty /
- * non-integer. The caller leaves closure state untouched on null so an in-progress
- * edit never crashes.
- */
-function parseIntOrNull(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (trimmed === "") return null;
-  const n = parseInt(trimmed, 10);
-  return Number.isInteger(n) ? n : null;
-}
 
 export function generateRank2(
   synth: SynthHandle,
@@ -257,8 +246,10 @@ export function generateRank2(
     input.value = String(value);
     input.setAttribute("aria-label", labelText);
     input.addEventListener("input", () => {
-      const parsed = parseIntOrNull(input.value);
-      if (parsed === null) return; // transient edit — leave state, no crash.
+      // Pass the field's own min so below-min values are rejected at the UI (#19
+      // hardening) — up has min=1, down has min=0.
+      const parsed = parseIntOrNull(input.value, Number(min));
+      if (parsed === null) return; // transient / below-min edit — leave state, no crash.
       onInput(parsed);
       rebuild();
     });
@@ -386,8 +377,9 @@ export function generateRank2(
   // ratio is exact; a typed cents value would be tempered — here the field is a
   // ratio (n/d), so custom + ratio → exact JI.
   const onGenEdit = (): void => {
-    const n = parseIntOrNull(genNInput.value);
-    const d = parseIntOrNull(genDInput.value);
+    // Generator n/d inputs both carry min=1 — reject below-min at the UI (#19).
+    const n = parseIntOrNull(genNInput.value, 1);
+    const d = parseIntOrNull(genDInput.value, 1);
     preset = "custom";
     presetSelect.value = "custom";
     if (n !== null) genN = n;

@@ -41,6 +41,7 @@ import { Interval } from "../lib/interval.js";
 import type { Scale } from "../lib/scale.js";
 import { edScale } from "../lib/generators.js";
 import { bestJiInEdo, type EdoJiKind } from "../lib/edo.js";
+import { makeIntField, makeRatioField } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -65,19 +66,6 @@ export interface GenerateEdElement extends HTMLElement {
 
 /** The three sub-methods. `edo` is the default (D-09). */
 type SubMethod = "edo" | "ed-n" | "best-ji";
-
-/**
- * Parse an input's value into a finite integer, or null when transiently empty /
- * non-integer. The caller leaves the closure-local state untouched on null so an
- * in-progress edit never crashes; the kernel's D-14 RangeError surfaces in the
- * status region if a committed out-of-range value reaches a builder (T-06-16).
- */
-function parseIntOrNull(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (trimmed === "") return null;
-  const n = parseInt(trimmed, 10);
-  return Number.isInteger(n) ? n : null;
-}
 
 export function generateEd(synth: SynthHandle, opts: GenerateEdOpts = {}): GenerateEdElement {
   const baseHz = opts.baseHz ?? 440;
@@ -156,95 +144,9 @@ export function generateEd(synth: SynthHandle, opts: GenerateEdOpts = {}): Gener
   playHost.className = "generate-ed__play-host";
   root.appendChild(playHost);
 
-  // ── Small builders for the param inputs (createElement + textContent only). ──
-
-  /** A labelled integer <input type="number"> cell. */
-  function makeIntField(
-    labelText: string,
-    nameAttr: string,
-    value: number,
-    onInput: (n: number) => void,
-    attrs: { min?: string; max?: string } = {},
-  ): HTMLElement {
-    const cell = document.createElement("div");
-    cell.className = "generate-ed__field";
-    const lbl = document.createElement("span");
-    lbl.className = "generate-ed__field-label";
-    lbl.textContent = labelText;
-    cell.appendChild(lbl);
-    const input = document.createElement("input");
-    input.type = "number";
-    input.name = nameAttr;
-    input.step = "1";
-    if (attrs.min !== undefined) input.min = attrs.min;
-    if (attrs.max !== undefined) input.max = attrs.max;
-    input.value = String(value);
-    input.setAttribute("aria-label", labelText);
-    input.addEventListener("input", () => {
-      const parsed = parseIntOrNull(input.value);
-      if (parsed === null) return; // transient edit — leave state, no crash.
-      onInput(parsed);
-      rebuild();
-    });
-    cell.appendChild(input);
-    return cell;
-  }
-
-  /**
-   * The mosBuilder makeRatioField idiom — two number inputs sandwiching a "/"
-   * glyph, for the ED-n equave (n/d, D-06). Each input has its own `name` so
-   * happy-dom selectors resolve unambiguously.
-   */
-  function makeRatioField(
-    labelText: string,
-    nNameAttr: string,
-    dNameAttr: string,
-    initialN: number,
-    initialD: number,
-    onChange: (n: number, d: number) => void,
-  ): HTMLElement {
-    const cell = document.createElement("div");
-    cell.className = "generate-ed__field";
-    const lbl = document.createElement("span");
-    lbl.className = "generate-ed__field-label";
-    lbl.textContent = labelText;
-    cell.appendChild(lbl);
-
-    const nInput = document.createElement("input");
-    nInput.type = "number";
-    nInput.name = nNameAttr;
-    nInput.min = "1";
-    nInput.step = "1";
-    nInput.value = String(initialN);
-    nInput.setAttribute("aria-label", `${labelText} numerator`);
-
-    const slash = document.createElement("span");
-    slash.className = "generate-ed__slash";
-    slash.textContent = "/";
-
-    const dInput = document.createElement("input");
-    dInput.type = "number";
-    dInput.name = dNameAttr;
-    dInput.min = "1";
-    dInput.step = "1";
-    dInput.value = String(initialD);
-    dInput.setAttribute("aria-label", `${labelText} denominator`);
-
-    const handler = (): void => {
-      const n = parseIntOrNull(nInput.value);
-      const d = parseIntOrNull(dInput.value);
-      if (n === null || d === null) return;
-      onChange(n, d);
-      rebuild();
-    };
-    nInput.addEventListener("input", handler);
-    dInput.addEventListener("input", handler);
-
-    cell.appendChild(nInput);
-    cell.appendChild(slash);
-    cell.appendChild(dInput);
-    return cell;
-  }
+  // ── Small builders for the param inputs. The integer + ratio fields come from
+  //    the shared generate-fields factory (#19), bound to this widget's BEM prefix
+  //    + rebuild(); makeKindField is component-specific and stays local. ──
 
   /** A labelled <select> cell (the best-JI kind: prime / odd). */
   function makeKindField(): HTMLElement {
@@ -283,6 +185,7 @@ export function generateEd(synth: SynthHandle, opts: GenerateEdOpts = {}): Gener
   function renderParams(): void {
     // The divisions field always reads/writes this sub-method's own slot (D-09).
     const divisionsField = makeIntField(
+      "generate-ed",
       "Divisions",
       "ed-divisions",
       divisionsBy[sub],
@@ -290,22 +193,33 @@ export function generateEd(synth: SynthHandle, opts: GenerateEdOpts = {}): Gener
         divisionsBy[sub] = n;
       },
       { min: "1", max: "1000" },
+      { onCommit: rebuild },
     );
     if (sub === "edo") {
       paramsRegion.replaceChildren(divisionsField);
     } else if (sub === "ed-n") {
       paramsRegion.replaceChildren(
         divisionsField,
-        makeRatioField("Equave", "ed-equave-n", "ed-equave-d", equaveN, equaveD, (n, d) => {
-          equaveN = n;
-          equaveD = d;
-        }),
+        makeRatioField(
+          "generate-ed",
+          "Equave",
+          "ed-equave-n",
+          "ed-equave-d",
+          equaveN,
+          equaveD,
+          (n, d) => {
+            equaveN = n;
+            equaveD = d;
+          },
+          { onCommit: rebuild },
+        ),
       );
     } else {
       // best-ji
       paramsRegion.replaceChildren(
         divisionsField,
         makeIntField(
+          "generate-ed",
           "Limit",
           "ed-bestji-limit",
           bestJiLimit,
@@ -313,6 +227,7 @@ export function generateEd(synth: SynthHandle, opts: GenerateEdOpts = {}): Gener
             bestJiLimit = n;
           },
           { min: "1", max: "31" },
+          { onCommit: rebuild },
         ),
         makeKindField(),
       );

@@ -35,6 +35,7 @@
 import type { Scale } from "../lib/scale.js";
 import { scaleFromSonicWeave } from "../lib/sonicweave.js";
 import { isConstantStructure } from "../lib/constant-structure.js";
+import { makeIntField, parseRatio } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -66,22 +67,6 @@ const MAX_GENERATORS = 6;
  * safe limit"). 8 is a generous musical ceiling that keeps the default (3) well clear.
  */
 const MAX_ORDINAL = 8;
-
-/**
- * Validate a generator ratio string `n/d` (both positive integers). Returns the
- * normalized `n/d` string or null. Validated with BigInt (no prime-limit ceiling —
- * CLAUDE.md disqualifies Number-backed ratio paths) BEFORE it can become a chip
- * (T-08-11: literal text only). Cloned from generate-fokker's parseRatio.
- */
-function parseRatio(raw: string): string | null {
-  const trimmed = raw.trim();
-  const m = /^(\d+)\/(\d+)$/.exec(trimmed);
-  if (!m) return null;
-  const n = BigInt(m[1]!);
-  const d = BigInt(m[2]!);
-  if (n < 1n || d < 1n) return null;
-  return `${String(n)}/${String(d)}`;
-}
 
 export function generateCs(synth: SynthHandle, opts: GenerateCsOpts = {}): GenerateCsElement {
   const baseHz = opts.baseHz ?? 440;
@@ -129,40 +114,6 @@ export function generateCs(synth: SynthHandle, opts: GenerateCsOpts = {}): Gener
   const playHost = document.createElement("div");
   playHost.className = "generate-cs__play-host";
   root.appendChild(playHost);
-
-  // ── A labelled integer <input type="number"> cell (the generate-fokker idiom). ──
-  function makeIntField(
-    labelText: string,
-    nameAttr: string,
-    value: number,
-    onInput: (n: number) => void,
-    attrs: { min?: string; max?: string } = {},
-  ): HTMLElement {
-    const cell = document.createElement("div");
-    cell.className = "generate-cs__field";
-    const lbl = document.createElement("span");
-    lbl.className = "generate-cs__field-label";
-    lbl.textContent = labelText;
-    cell.appendChild(lbl);
-    const input = document.createElement("input");
-    input.type = "number";
-    input.name = nameAttr;
-    input.step = "1";
-    if (attrs.min !== undefined) input.min = attrs.min;
-    if (attrs.max !== undefined) input.max = attrs.max;
-    input.value = String(value);
-    input.setAttribute("aria-label", labelText);
-    input.addEventListener("input", () => {
-      const trimmed = input.value.trim();
-      if (trimmed === "") return; // transient edit — leave state, no crash.
-      const parsed = parseInt(trimmed, 10);
-      if (!Number.isInteger(parsed)) return;
-      onInput(parsed);
-      rebuild();
-    });
-    cell.appendChild(input);
-    return cell;
-  }
 
   /**
    * A generic chip input (the generate-fokker / generate-cps chip idiom): a labelled
@@ -269,6 +220,7 @@ export function generateCs(synth: SynthHandle, opts: GenerateCsOpts = {}): Gener
 
   // The ORDINAL field (the Correction): labelled "ordinal", capped low.
   const ordinalField = makeIntField(
+    "generate-cs",
     "Ordinal",
     "cs-ordinal",
     ordinal,
@@ -278,6 +230,7 @@ export function generateCs(synth: SynthHandle, opts: GenerateCsOpts = {}): Gener
       ordinal = n;
     },
     { min: "0", max: String(MAX_ORDINAL) },
+    { onCommit: rebuild },
   );
 
   // Helper note (the Correction) — explains the ordinal semantics so users do not

@@ -39,6 +39,7 @@
 import { Interval } from "../lib/interval.js";
 import type { Scale } from "../lib/scale.js";
 import { harmonicSegment, subharmonicSegment, adoScale, isoharmonic } from "../lib/harmonic.js";
+import { makeIntField, makeRatioField } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -58,19 +59,6 @@ export interface GenerateHarmonicElement extends HTMLElement {
 
 /** The four sub-methods. `harmonic` is the default (D-08). */
 type SubMethod = "harmonic" | "subharmonic" | "ado" | "isoharmonic";
-
-/**
- * Parse an input's value into a finite integer, or null when transiently empty /
- * non-integer. The caller leaves the closure-local state untouched on null so an
- * in-progress edit never crashes; the kernel's D-14 RangeError surfaces in the
- * status region if a committed out-of-range value reaches a builder (T-06-13).
- */
-function parseIntOrNull(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (trimmed === "") return null;
-  const n = parseInt(trimmed, 10);
-  return Number.isInteger(n) ? n : null;
-}
 
 export function generateHarmonic(
   synth: SynthHandle,
@@ -156,39 +144,9 @@ export function generateHarmonic(
   playHost.className = "generate-harmonic__play-host";
   root.appendChild(playHost);
 
-  // ── Small builders for the param inputs (createElement + textContent only). ──
-
-  /** A labelled integer <input type="number"> cell. */
-  function makeIntField(
-    labelText: string,
-    nameAttr: string,
-    value: number,
-    onInput: (n: number) => void,
-    attrs: { min?: string; max?: string } = {},
-  ): HTMLElement {
-    const cell = document.createElement("div");
-    cell.className = "generate-harmonic__field";
-    const lbl = document.createElement("span");
-    lbl.className = "generate-harmonic__field-label";
-    lbl.textContent = labelText;
-    cell.appendChild(lbl);
-    const input = document.createElement("input");
-    input.type = "number";
-    input.name = nameAttr;
-    input.step = "1";
-    if (attrs.min !== undefined) input.min = attrs.min;
-    if (attrs.max !== undefined) input.max = attrs.max;
-    input.value = String(value);
-    input.setAttribute("aria-label", labelText);
-    input.addEventListener("input", () => {
-      const parsed = parseIntOrNull(input.value);
-      if (parsed === null) return; // transient edit — leave state, no crash.
-      onInput(parsed);
-      rebuild();
-    });
-    cell.appendChild(input);
-    return cell;
-  }
+  // ── Small builders for the param inputs. The integer + ratio fields come from
+  //    the shared generate-fields factory (#19), bound to this widget's BEM prefix
+  //    + rebuild(); makeReduceField is component-specific and stays local. ──
 
   /** A "reduce to octave" checkbox cell (D-04). */
   function makeReduceField(
@@ -214,62 +172,6 @@ export function generateHarmonic(
   }
 
   /**
-   * The mosBuilder makeRatioField idiom — two number inputs sandwiching a "/"
-   * glyph, for the ADO equave (n/d). Each input has its own `name` so happy-dom
-   * selectors resolve unambiguously.
-   */
-  function makeRatioField(
-    labelText: string,
-    nNameAttr: string,
-    dNameAttr: string,
-    initialN: number,
-    initialD: number,
-    onChange: (n: number, d: number) => void,
-  ): HTMLElement {
-    const cell = document.createElement("div");
-    cell.className = "generate-harmonic__field";
-    const lbl = document.createElement("span");
-    lbl.className = "generate-harmonic__field-label";
-    lbl.textContent = labelText;
-    cell.appendChild(lbl);
-
-    const nInput = document.createElement("input");
-    nInput.type = "number";
-    nInput.name = nNameAttr;
-    nInput.min = "1";
-    nInput.step = "1";
-    nInput.value = String(initialN);
-    nInput.setAttribute("aria-label", `${labelText} numerator`);
-
-    const slash = document.createElement("span");
-    slash.className = "generate-harmonic__slash";
-    slash.textContent = "/";
-
-    const dInput = document.createElement("input");
-    dInput.type = "number";
-    dInput.name = dNameAttr;
-    dInput.min = "1";
-    dInput.step = "1";
-    dInput.value = String(initialD);
-    dInput.setAttribute("aria-label", `${labelText} denominator`);
-
-    const handler = (): void => {
-      const n = parseIntOrNull(nInput.value);
-      const d = parseIntOrNull(dInput.value);
-      if (n === null || d === null) return;
-      onChange(n, d);
-      rebuild();
-    };
-    nInput.addEventListener("input", handler);
-    dInput.addEventListener("input", handler);
-
-    cell.appendChild(nInput);
-    cell.appendChild(slash);
-    cell.appendChild(dInput);
-    return cell;
-  }
-
-  /**
    * Rebuild the params sub-region for the active sub-method. Segment + isoharmonic
    * carry a reduce checkbox (D-04); ADO carries an equave ratio field and NO reduce
    * checkbox (intrinsically one equave).
@@ -278,6 +180,7 @@ export function generateHarmonic(
     if (sub === "harmonic" || sub === "subharmonic") {
       paramsRegion.replaceChildren(
         makeIntField(
+          "generate-harmonic",
           "Lowest harmonic",
           "harmonic-lo",
           segLo,
@@ -285,8 +188,10 @@ export function generateHarmonic(
             segLo = n;
           },
           { min: "1" },
+          { onCommit: rebuild },
         ),
         makeIntField(
+          "generate-harmonic",
           "Highest harmonic",
           "harmonic-hi",
           segHi,
@@ -294,6 +199,7 @@ export function generateHarmonic(
             segHi = n;
           },
           { min: "2" },
+          { onCommit: rebuild },
         ),
         makeReduceField("harmonic-reduce", segReduce, (c) => {
           segReduce = c;
@@ -302,6 +208,7 @@ export function generateHarmonic(
     } else if (sub === "ado") {
       paramsRegion.replaceChildren(
         makeIntField(
+          "generate-harmonic",
           "Divisions",
           "ado-divisions",
           adoDivisions,
@@ -309,16 +216,27 @@ export function generateHarmonic(
             adoDivisions = n;
           },
           { min: "1" },
+          { onCommit: rebuild },
         ),
-        makeRatioField("Equave", "ado-equave-n", "ado-equave-d", adoEquaveN, adoEquaveD, (n, d) => {
-          adoEquaveN = n;
-          adoEquaveD = d;
-        }),
+        makeRatioField(
+          "generate-harmonic",
+          "Equave",
+          "ado-equave-n",
+          "ado-equave-d",
+          adoEquaveN,
+          adoEquaveD,
+          (n, d) => {
+            adoEquaveN = n;
+            adoEquaveD = d;
+          },
+          { onCommit: rebuild },
+        ),
       );
     } else {
       // isoharmonic
       paramsRegion.replaceChildren(
         makeIntField(
+          "generate-harmonic",
           "Start",
           "iso-start",
           isoStart,
@@ -326,8 +244,10 @@ export function generateHarmonic(
             isoStart = n;
           },
           { min: "1" },
+          { onCommit: rebuild },
         ),
         makeIntField(
+          "generate-harmonic",
           "Difference",
           "iso-diff",
           isoDiff,
@@ -335,8 +255,10 @@ export function generateHarmonic(
             isoDiff = n;
           },
           { min: "1" },
+          { onCommit: rebuild },
         ),
         makeIntField(
+          "generate-harmonic",
           "Count",
           "iso-count",
           isoCount,
@@ -344,6 +266,7 @@ export function generateHarmonic(
             isoCount = n;
           },
           { min: "1" },
+          { onCommit: rebuild },
         ),
         makeReduceField("iso-reduce", isoReduce, (c) => {
           isoReduce = c;

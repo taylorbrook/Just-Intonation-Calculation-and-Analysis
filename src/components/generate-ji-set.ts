@@ -36,6 +36,7 @@
  */
 import type { Scale } from "../lib/scale.js";
 import { diamondScale, oddLimitSet, primeLimitSet, fareyScale } from "../lib/generators.js";
+import { parseIntOrNull } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -73,17 +74,18 @@ const LIMIT_LABEL: Record<SubMethod, string> = {
 };
 
 /**
- * Parse an input's value into a finite integer, or null when transiently empty /
- * non-integer. The caller leaves the closure-local state untouched on null so an
- * in-progress edit never crashes; the kernel's D-14 RangeError surfaces in the
- * status region if a committed out-of-range value reaches a builder (T-06-16).
+ * Per-sub-method upper bound for the limit/order input — the kernel caps, surfaced
+ * as the input's `max` attribute (#19 hardening) so the browser number spinner stops
+ * at the kernel ceiling. Verified caps: diamond enumerateDiamond ≤ 1023; odd-limit /
+ * prime-limit ODD_LIMIT_CAP = 31; farey MAX_FAREY_ORDER = 1000. (Diamond's separate
+ * ODD-only constraint is UNCHANGED — no new UI validation added.)
  */
-function parseIntOrNull(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (trimmed === "") return null;
-  const n = parseInt(trimmed, 10);
-  return Number.isInteger(n) ? n : null;
-}
+const MAX_LIMIT: Record<SubMethod, number> = {
+  diamond: 1023,
+  "odd-limit": 31,
+  "prime-limit": 31,
+  farey: 1000,
+};
 
 export function generateJiSet(
   synth: SynthHandle,
@@ -150,6 +152,7 @@ export function generateJiSet(
   limitInput.type = "number";
   limitInput.name = "ji-set-limit";
   limitInput.min = "1";
+  limitInput.max = String(MAX_LIMIT[sub]); // per-sub-method kernel cap (#19).
   limitInput.step = "1";
   limitInput.value = String(limits[sub]);
   limitInput.setAttribute("aria-label", LIMIT_LABEL[sub]);
@@ -210,16 +213,19 @@ export function generateJiSet(
   // ─── Wire events ───────────────────────────────────────────────────────────
   subSelect.addEventListener("change", () => {
     sub = subSelect.value as SubMethod;
-    // Relabel + restore this sub-method's remembered limit/order.
+    // Relabel + restore this sub-method's remembered limit/order + swap the max cap.
     limitLbl.textContent = LIMIT_LABEL[sub];
     limitInput.setAttribute("aria-label", LIMIT_LABEL[sub]);
+    limitInput.max = String(MAX_LIMIT[sub]); // per-sub-method kernel cap (#19).
     limitInput.value = String(limits[sub]);
     rebuild();
   });
 
   limitInput.addEventListener("input", () => {
-    const parsed = parseIntOrNull(limitInput.value);
-    if (parsed === null) return; // transient edit — leave state, no crash.
+    // min=1 matches the input's min attribute — below-min (negatives, 0) are rejected
+    // at the UI (#19 hardening), leaving closure state untouched.
+    const parsed = parseIntOrNull(limitInput.value, 1);
+    if (parsed === null) return; // transient / below-min edit — leave state, no crash.
     limits[sub] = parsed;
     rebuild();
   });

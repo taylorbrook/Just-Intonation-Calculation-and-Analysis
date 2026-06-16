@@ -42,6 +42,7 @@
  */
 import type { Scale } from "../lib/scale.js";
 import { scaleFromSonicWeave } from "../lib/sonicweave.js";
+import { parseIntOrNull } from "./generate-fields.js";
 import { scaleTable } from "./scale-table.js";
 import { playScale } from "./play-scale.js";
 import type { SynthHandle } from "../audio/synth.js";
@@ -114,18 +115,6 @@ const PRESETS: Record<string, CommaVector> = {
 
 /** The Pythagorean comma — passed EXPLICITLY to wellTemperament (D-07, Pitfall 2). */
 const PYTHAGOREAN_COMMA = "531441/524288";
-
-/**
- * Parse an input's value into a finite integer (may be negative for numerators), or
- * null when transiently empty / non-integer. The caller leaves closure state
- * untouched on null so an in-progress edit never crashes.
- */
-function parseIntOrNull(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (trimmed === "") return null;
-  const n = parseInt(trimmed, 10);
-  return Number.isInteger(n) ? n : null;
-}
 
 export function generateWelltemp(
   synth: SynthHandle,
@@ -230,6 +219,8 @@ export function generateWelltemp(
     dInput.setAttribute("aria-label", `Fifth ${String(index + 1)} comma-fraction denominator`);
 
     const handler = (): void => {
+      // NO min passed (#19): well-temperament numerators are legitimately negative
+      // (e.g. -1/6), so the shared parseIntOrNull keeps its no-floor default here.
       const n = parseIntOrNull(nInput.value);
       const d = parseIntOrNull(dInput.value);
       // Editing a fraction is a user edit → custom mode.
