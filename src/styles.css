@@ -156,3 +156,98 @@ aside.prereq a {
 aside.prereq a:hover {
   color: var(--theme-foreground);
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * Responsive pass (#21) — the project's first @media breakpoint, at ≤640px
+ * (narrow / phone).
+ *
+ * Prior decision D-17 keeps page bodies single-column at all widths, but the
+ * dense generator and analysis forms still lay their controls out as wrapping
+ * flex rows (`display:flex; flex-wrap:wrap`) that crowd on a phone. At ≤640px
+ * this block collapses those rows into clean single-column stacks: each
+ * generator widget's field row, the scale-transform strip, and the
+ * scale-compare A/B source row each become one full-width control per line
+ * (label left / control right). This is a layout-only pass — colours, theme
+ * tokens, the 16px input floor (iOS no-zoom) and the ≥44px tap targets are all
+ * left untouched.
+ *
+ * Generator widgets use per-component BEM prefixes (generate-cps__form, …) with
+ * no shared layout class, so the prefixes are enumerated explicitly. A new
+ * generator widget should add its `__form` / `__field` selectors here too.
+ * ───────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Generator field rows → one field per line. */
+  .generate-cps__form,
+  .generate-cs__form,
+  .generate-ed__form,
+  .generate-ed__params,
+  .generate-fokker__form,
+  .generate-fokker__params,
+  .generate-harmonic__form,
+  .generate-harmonic__params,
+  .generate-ji-set__form,
+  .generate-meru__form,
+  .generate-meru__params,
+  .generate-rank2__form,
+  .generate-welltemp__form,
+  .generate-welltemp__params {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .generate-cps__field,
+  .generate-cs__field,
+  .generate-ed__field,
+  .generate-fokker__field,
+  .generate-harmonic__field,
+  .generate-ji-set__field,
+  .generate-meru__field,
+  .generate-rank2__field,
+  .generate-welltemp__field {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Tighten the bordered params host so stacked fields keep breathing room. */
+  .generate-host--params {
+    padding: 12px;
+  }
+
+  /* Send-to CTAs span full width for easier tapping (scoped to this row). */
+  .generate-actions {
+    flex-direction: column;
+  }
+  .generate-actions .play-btn {
+    width: 100%;
+  }
+
+  /* Scale-transform strip → one field per line, label left / control right. */
+  .scale-transform-strip__form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .scale-transform-strip__field {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Scale-compare A/B source → stack the mode label + select full-width. */
+  .scale-compare__b-source {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .scale-compare__b-source label {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .scale-compare__b-source select {
+    flex: 1 1 auto;
+  }
+
+  /* Dense comparison table → tighter cells before the table-wrap scroll kicks
+   * in (the table already sits in .scale-compare__table-wrap { overflow-x }). */
+  .scale-compare thead th,
+  .scale-compare tbody td {
+    padding: 8px;
+  }
+}
