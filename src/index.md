@@ -13,7 +13,7 @@ import { Scale } from "./lib/scale.js";
 import { parseScala } from "./lib/scala.js";
 import { createSynth } from "./audio/synth.js";
 import { scaleTable } from "./components/scale-table.js";
-import { audioPanel } from "./components/audio-panel.js";
+import { audioPanel, disposeAudioPanel } from "./components/audio-panel.js";
 import { sclIo } from "./components/scl-io.js";
 import { lattice } from "./components/lattice.js";
 import { tonalityDiamond } from "./components/tonality-diamond.js";
@@ -206,7 +206,15 @@ const effectiveBaseHz = (importedKbm && !useBaseHzOverride)
 ```
 
 ```ts
-if (scale) display(audioPanel(scale, synth, effectiveBaseHz));
+// #6 — capture the panel element so we can dispose it on invalidation. When this
+// cell re-runs (new baseHz/scale), the OLD panel is discarded; disposing it
+// releases any held drone voice instead of leaking it (mirrors the synth cell's
+// invalidation.then(...) style above).
+if (scale) {
+  const el = audioPanel(scale, synth, effectiveBaseHz);
+  display(el);
+  invalidation.then(() => disposeAudioPanel(el));
+}
 ```
 
 ```ts
