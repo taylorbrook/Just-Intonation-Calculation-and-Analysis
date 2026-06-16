@@ -126,7 +126,7 @@ Note: components live in `src/components/` (not `src/lib/`), but they are listed
 
 | Symbol | Source | Notes |
 |--------|--------|-------|
-| `encodeScaleToHash` (`src/lib/url.ts`) | Custom (this repo) | ANAL-04 / D-15/D-16. Base64 URL-safe per RFC 4648 §5 (`+/` → `-_`, no padding). Prepends version byte (URL_HASH_VERSION = 0x01) for forward-compat. RangeError on > 8 KB plaintext (T-04-16 / MAX_SCALE_TEXT_BYTES). |
+| `encodeScaleToHash` (`src/lib/url.ts`) | Custom (this repo) | ANAL-04 / D-15/D-16. Base64 URL-safe per RFC 4648 §5 (`+/` → `-_`, no padding). Prepends version byte (URL_HASH_VERSION = 0x01) for forward-compat. Returns null on > 8 KB plaintext (never throws — matches decoder + writeSharedScale) (T-04-16 / MAX_SCALE_TEXT_BYTES). |
 | `decodeHashToScale` (`src/lib/url.ts`) | Custom (this repo) | ANAL-04 / D-19/D-20. NEVER throws — returns null on any failure (malformed alphabet, bad base64, malformed UTF-8 via `TextDecoder({fatal:true})`, wrong version byte, oversized hash > 16 KB). The page cell surfaces the error in the status region. |
 | `URL_HASH_VERSION` (`src/lib/url.ts`) | Custom (this repo) | Forward-compat hook (CONTEXT "deferred" — tiered URL scope is a future expansion). Currently 0x01. |
 | `MAX_SCALE_TEXT_BYTES` (`src/lib/url.ts`) | Custom (this repo) | 8192 (8 KB plaintext cap; encoded ≤ ~10.7 KB; decoder cap is 16 KB defense-in-depth — T-04-11). |

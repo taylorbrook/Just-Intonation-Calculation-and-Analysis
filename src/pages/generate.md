@@ -887,7 +887,7 @@ sendStatus.setAttribute("aria-live", "polite");
 // Two .play-btn CTAs that each: (1) write the current scale to the shared store
 // — the SOLE store write (one-way data flow per D-11) — then (2) navigate to the
 // target with #s= + encodeScaleToHash, mirroring index.md's "Analyze this scale →"
-// precedent (lines 202–218). On encodeScaleToHash RangeError (> 8 KB) surface the
+// precedent (lines 202–218). On encodeScaleToHash null return (> 8 KB) surface the
 // cap-error copy into sendStatus and navigate WITHOUT the hash (the target loads
 // its own seed). From /pages/generate the Dashboard is "../" and Analysis is
 // "./analysis" (verified against rendered routes — links validated at build).
@@ -971,12 +971,13 @@ function sendCurrentScaleTo(target) {
     ? (transformStrip.getTempered() ? centsPerLine(transformed) : ratioPerLine(transformed))
     : rawMethodScaleText();
   writeSharedScale(scaleText, SEND_SOURCE); // each handler invokes this exactly once
-  try {
-    const hash = "#s=" + encodeScaleToHash(scaleText);
+  // Over-cap (> 8 KB) → encodeScaleToHash returns null: surface the cap-error copy
+  // and navigate hashless (target loads its own seed). No exception path.
+  const encoded = encodeScaleToHash(scaleText);
+  if (encoded !== null) {
     clearSendStatus();
-    window.location.assign(target + hash);
-  } catch (err) {
-    console.warn("encodeScaleToHash failed:", err);
+    window.location.assign(target + "#s=" + encoded);
+  } else {
     showCapError();
     window.location.assign(target); // fallback: target loads its own seed
   }

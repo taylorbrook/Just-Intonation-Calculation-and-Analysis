@@ -159,18 +159,14 @@ const baseHz = view(Inputs.number({ value: 440, step: 0.01, label: "Reference pi
 ```ts
 // Hash-write — debounced 300ms (D-17 / D-26). Runs whenever scaleText changes.
 // Uses history.replaceState (NOT pushState) so back-button history stays clean
-// per D-17 invariant. Catches encodeScaleToHash's RangeError on > 8 KB input —
-// surfaces via console.warn (no UI surfacing for the analysis page; the URL
-// just stops auto-updating until the scale shrinks). T-04-40 mitigation.
+// per D-17 invariant. On over-cap (> 8 KB) encodeScaleToHash returns null and we
+// skip the update (no UI surfacing for the analysis page; the URL just stops
+// auto-updating until the scale shrinks). T-04-40 mitigation.
 {
   let timer = null;
   const flush = () => {
-    try {
-      const hash = "#s=" + encodeScaleToHash(scaleText);
-      history.replaceState(null, "", hash);
-    } catch (err) {
-      console.warn("encodeScaleToHash failed:", err);
-    }
+    const encoded = encodeScaleToHash(scaleText);
+    if (encoded !== null) history.replaceState(null, "", "#s=" + encoded);
   };
   clearTimeout(timer);
   timer = setTimeout(flush, 300);

@@ -162,17 +162,13 @@ if (dashboardHashError) {
 ```ts
 // Phase 4 ANAL-04 (D-17 / D-26): debounced 300ms hash-write. replaceState (NOT
 // pushState) so back-button history stays clean. Encoder caps at 8 KB (Plan 04-03);
-// RangeError → console.warn + skip (no UI surfacing for the dashboard — the URL
-// just doesn't update for huge inputs). T-04-40 mitigation.
+// over-cap → encodeScaleToHash returns null → skip (no UI surfacing for the
+// dashboard — the URL just doesn't update for huge inputs). T-04-40 mitigation.
 {
   let timer = null;
   const flush = () => {
-    try {
-      const hash = "#s=" + encodeScaleToHash(scaleText);
-      history.replaceState(null, "", hash);
-    } catch (err) {
-      console.warn("encodeScaleToHash failed:", err);
-    }
+    const encoded = encodeScaleToHash(scaleText);
+    if (encoded !== null) history.replaceState(null, "", "#s=" + encoded);
   };
   clearTimeout(timer);
   timer = setTimeout(flush, 300);
@@ -234,8 +230,8 @@ if (scale) {
 
 ```ts
 // Phase 4 ANAL-04 (D-04): one-click navigation to /analysis with the current
-// scale encoded into the hash. Catches encoder RangeError on > 8 KB; falls back
-// to plain navigation (the analysis page will then load its own seed).
+// scale encoded into the hash. On over-cap (> 8 KB) encodeScaleToHash returns
+// null; we navigate hashless (the analysis page will then load its own seed).
 {
   const btn = document.createElement("button");
   btn.className = "play-btn";
@@ -243,13 +239,8 @@ if (scale) {
   btn.textContent = "Analyze this scale →";
   btn.setAttribute("aria-label", "Open the analysis page seeded with the current scale.");
   btn.addEventListener("click", () => {
-    try {
-      const hash = "#s=" + encodeScaleToHash(scaleText);
-      window.location.assign("./pages/analysis" + hash);
-    } catch (err) {
-      console.warn("encodeScaleToHash failed:", err);
-      window.location.assign("./pages/analysis");
-    }
+    const encoded = encodeScaleToHash(scaleText);
+    window.location.assign("./pages/analysis" + (encoded !== null ? "#s=" + encoded : ""));
   });
   display(btn);
 }

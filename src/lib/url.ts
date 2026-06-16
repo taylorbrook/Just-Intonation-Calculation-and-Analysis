@@ -12,6 +12,11 @@
  *   2. Base64-encode the resulting Uint8Array.
  *   3. Translate `+` -> `-`, `/` -> `_`, strip `=` padding.
  *
+ * Encoder cap (T-04-16): scale text whose UTF-8 length exceeds
+ * MAX_SCALE_TEXT_BYTES (8 KB) yields `null` — the encoder NEVER throws,
+ * mirroring the decoder's never-throw contract and `writeSharedScale`'s
+ * silent no-op. Callers null-check and skip the URL/navigation update.
+ *
  * Decoding (D-20 — malformed → null, NEVER throw):
  *   1. Reject hash if length > MAX_HASH_BYTES (16 KB; oversized URL = DoS attempt).
  *   2. Translate `-` -> `+`, `_` -> `/`, restore `=` padding to multiple-of-4.
@@ -31,7 +36,8 @@
  *     payload. It returns plain text. XSS mitigation lives downstream at every
  *     DOM render boundary (T-04-11..T-04-13) — `textContent` / `String()` only,
  *     never `innerHTML` of decoded text.
- *   - Caps: MAX_SCALE_TEXT_BYTES = 8192 (encoder); MAX_HASH_BYTES = 16384 (decoder
+ *   - Caps: MAX_SCALE_TEXT_BYTES = 8192 (encoder — over-cap returns `null`, never
+ *     throws); MAX_HASH_BYTES = 16384 (decoder
  *     — base64 bloats by 4/3, so 8 KB plaintext → ~10.7 KB encoded; round up
  *     to 16 KB for headroom).
  *
@@ -43,12 +49,16 @@ export const URL_HASH_VERSION = 1 as const;
 export const MAX_SCALE_TEXT_BYTES = 8192;
 const MAX_HASH_BYTES = 16384;
 
-export function encodeScaleToHash(scaleText: string): string {
-  const utf8 = new TextEncoder().encode(scaleText);
+// Stateless + reusable — hoisted to module scope so each encode call doesn't
+// allocate a fresh TextEncoder (#2).
+const UTF8_ENCODER = new TextEncoder();
+
+export function encodeScaleToHash(scaleText: string): string | null {
+  const utf8 = UTF8_ENCODER.encode(scaleText);
   if (utf8.length > MAX_SCALE_TEXT_BYTES) {
-    throw new RangeError(
-      `encodeScaleToHash: scale text too large (${utf8.length} bytes; max ${MAX_SCALE_TEXT_BYTES})`,
-    );
+    // Over-cap → null (never throw); matches the decoder + writeSharedScale
+    // never-throw contract. Callers skip the URL/nav update on null.
+    return null;
   }
   const buf = new Uint8Array(utf8.length + 1);
   buf[0] = URL_HASH_VERSION;

@@ -21,7 +21,9 @@ describe("URL hash round-trip preserves the parsed scale", () => {
 27/16
 7/4
 2/1`;
-    const decoded = decodeHashToScale(encodeScaleToHash(seedText));
+    const encoded = encodeScaleToHash(seedText);
+    expect(encoded).not.toBeNull();
+    const decoded = decodeHashToScale(encoded ?? "");
     expect(decoded).toBe(seedText);
     const original = parseScala(seedText);
     const restored = parseScala(decoded ?? "");
@@ -46,6 +48,14 @@ describe("URL hash round-trip preserves the parsed scale", () => {
   it("encoded hash uses URL-safe alphabet only", () => {
     const seedText = "9/8\n2/1";
     const hash = encodeScaleToHash(seedText);
-    expect(hash).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(hash).not.toBeNull();
+    expect(hash ?? "").toMatch(/^[A-Za-z0-9_-]+$/);
+  });
+
+  it("returns null on > 8 KB plaintext instead of throwing", () => {
+    // "9/8\n" is 4 bytes; ×3000 ≈ 12 KB, well over the 8192-byte cap.
+    const oversized = "9/8\n".repeat(3000);
+    expect(() => encodeScaleToHash(oversized)).not.toThrow();
+    expect(encodeScaleToHash(oversized)).toBeNull();
   });
 });
