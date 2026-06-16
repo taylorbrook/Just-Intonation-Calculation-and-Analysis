@@ -34,6 +34,22 @@ export interface AudioPanelOpts {
   defaultDegree?: number;
 }
 
+/**
+ * #6 — per-instance cleanup registry. Page cells call `disposeAudioPanel(el)`
+ * in their `invalidation.then(...)` block so a discarded panel (cell re-run on
+ * a new baseHz/scale) releases any held drone voice instead of leaking it.
+ * Mirrors `disposeScaleCompare` in scale-compare.ts.
+ */
+const AUDIO_PANEL_CLEANUPS = new WeakMap<HTMLElement, () => void>();
+
+export function disposeAudioPanel(el: HTMLElement): void {
+  const fn = AUDIO_PANEL_CLEANUPS.get(el);
+  if (fn) {
+    fn();
+    AUDIO_PANEL_CLEANUPS.delete(el);
+  }
+}
+
 export function audioPanel(
   scale: Scale,
   synth: SynthHandle,
@@ -116,7 +132,9 @@ export function audioPanel(
 
   // Hold the stop callback returned by startDrone. Pitfall #9: this is the
   // ONLY way to release the voice; if we discarded it the synth would leak
-  // a held note until panic() or dispose().
+  // a held note until panic() or dispose(). #15b: startDrone may now return
+  // null when no voice started (disposed / unplayable Hz / no Web Audio) — in
+  // that case stopDrone stays null and the button stays visibly "off".
   let stopDrone: (() => void) | null = null;
 
   droneBtn.addEventListener("click", () => {
@@ -126,13 +144,23 @@ export function audioPanel(
       droneBtn.textContent = "🔇 Drone off";
       droneBtn.setAttribute("aria-pressed", "false");
     } else {
-      stopDrone = synth.startDrone(baseHz);
-      droneBtn.textContent = `🔊 Drone on (1/1 = ${baseHz.toFixed(1)} Hz)`;
-      droneBtn.setAttribute("aria-pressed", "true");
+      // #15b — only flip the button "on" when a voice actually started.
+      const started = synth.startDrone(baseHz);
+      if (started) {
+        stopDrone = started;
+        droneBtn.textContent = `🔊 Drone on (1/1 = ${baseHz.toFixed(1)} Hz)`;
+        droneBtn.setAttribute("aria-pressed", "true");
+      }
     }
   });
   row3.appendChild(droneBtn);
   root.appendChild(row3);
+
+  // #6 — release any held drone when this panel is discarded (cell re-run).
+  AUDIO_PANEL_CLEANUPS.set(root, () => {
+    stopDrone?.();
+    stopDrone = null;
+  });
 
   return root;
 }
