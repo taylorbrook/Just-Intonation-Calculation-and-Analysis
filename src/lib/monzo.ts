@@ -40,13 +40,12 @@ export const monzoScale = scale;
  * NOT the log). xen-dev-utils ships tenneyHeight (= log(n*d)) and wilsonHeight
  * but not Benedetti directly.
  *
- * Note: returns a Number. For typical music-theory ranges this fits well under
- * Number.MAX_SAFE_INTEGER. For large/pathological monzos consumers can compute
- * via `monzoToBigNumeratorDenominator` and multiply BigInts directly.
+ * Returns the EXACT BigInt product `n * d` — no precision ceiling. Mercator's
+ * comma (3^53 / 2^84) and larger commas stay exact past Number.MAX_SAFE_INTEGER.
  */
-export function benedettiHeight(monzo: Monzo): number {
+export function benedettiHeight(monzo: Monzo): bigint {
   const { numerator, denominator } = monzoToBigNumeratorDenominator(monzo);
-  return Number(numerator * denominator);
+  return numerator * denominator;
 }
 
 /**

@@ -22,11 +22,12 @@
  * apart) and falsely report non-CS. cents is FORBIDDEN as an input here.
  *
  * Algorithm (port of sonic-weave tools.js `hasConstantStructure`): the kernel `Scale`
- * carries a leading 1/1 and the period last (D-13/D-14); tools.js operates on `degrees`
- * = the intervals WITHOUT the implicit 1/1 but WITH the period at the end. We strip the
- * leading unison, then:
- *   1. Build an EXTENDED scale: each degree plus (period × degree), so wrap-around
- *      spans across the period boundary are measured exactly.
+ * carries a leading 1/1 and conventionally the period last (D-13/D-14); tools.js operates
+ * on `degrees` = the intervals WITHOUT the implicit 1/1. We strip the leading unison, then:
+ *   1. Build an EXTENDED scale: each degree plus (`scale.period` × degree), so wrap-around
+ *      spans across the period boundary are measured exactly. The wrap-around period is the
+ *      authoritative `scale.period` — NOT assumed to equal the last degree (it usually does,
+ *      but the Scale carries the explicit period and that is the source of truth).
  *   2. Record every interval-from-unison and every step-span `ext[i+j] / ext[i]` with its
  *      step-count (subtension). If any interval value recurs under a DIFFERENT subtension,
  *      the scale is not CS — report the colliding pair as `ambiguousAt`.
@@ -62,8 +63,8 @@ export interface ConstantStructureResult {
  */
 export function isConstantStructure(scale: Scale): ConstantStructureResult {
   // Strip the leading 1/1 (kernel convention D-13) to match tools.js `degrees`:
-  // intervals WITHOUT the implicit unison, WITH the period at the end. Equality via
-  // Interval.equals (BigInt) — NEVER cents.
+  // intervals WITHOUT the implicit unison. Equality via Interval.equals (BigInt)
+  // — NEVER cents.
   const degrees: Interval[] = [...scale.intervals];
   const first = degrees[0];
   if (first && first.equals(UNISON)) {
@@ -76,7 +77,9 @@ export function isConstantStructure(scale: Scale): ConstantStructureResult {
     return { cs: true };
   }
 
-  const period = degrees[n - 1]!;
+  // The authoritative wrap-around period is `scale.period` (the Scale carries the
+  // explicit period; the last degree is NOT guaranteed to equal it).
+  const period = scale.period;
 
   // Extended scale: each degree plus (period × degree) for wrap-around spans.
   const ext: Interval[] = [...degrees];

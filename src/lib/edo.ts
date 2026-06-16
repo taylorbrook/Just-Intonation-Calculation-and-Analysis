@@ -150,8 +150,10 @@ export function bestEdosForScale(
  * function is enforced by tests, not by re-implementing the algorithm here.
  *
  * Odd-limit branch enumerates odd ratios up to `limit` (capped at 31 per D-08), octave-reduces
- * each, and picks the closest by cents distance for each step. The result is a Scale of N+1
- * intervals: indices 0..N-1 are the per-step best approximations, index N is the period 2/1.
+ * each, and picks the closest by cents distance for each step. Duplicate closest ratios (common
+ * for high-EDO / low-odd-limit, where multiple steps map to the same ratio) are collapsed by
+ * EXACT canonical fraction string (Pitfall #1 / #6 — never cents-within-epsilon); the result
+ * ends with exactly one 2/1 period (D-14). After dedupe the length is ≤ N + 1.
  */
 export function bestJiInEdo(edoSteps: number, limit: number, kind: EdoJiKind): Scale {
   if (edoSteps < 1) {
@@ -176,8 +178,25 @@ export function bestJiInEdo(edoSteps: number, limit: number, kind: EdoJiKind): S
     const targetCents = stepCents * step;
     intervals.push(oddLimitApproximation(targetCents, limit));
   }
-  intervals.push(new Interval("2/1"));
-  return new Scale(intervals, new Interval("2/1"));
+
+  // Dedupe by EXACT canonical fraction string (Pitfall #1 / #6 — never cents
+  // tolerance), mirroring jiSubsetOfEdo / cps. Preserve first occurrence + order
+  // (1/1 stays first). Drop any 2/1 already produced by a step so the explicit
+  // period below is the single trailing 2/1 (D-14).
+  const period = new Interval("2/1");
+  const periodKey = period.fraction.toFraction();
+  const seen = new Set<string>();
+  const distinct: Interval[] = [];
+  for (const iv of intervals) {
+    const key = iv.fraction.toFraction();
+    if (key === periodKey) continue; // appended explicitly below, exactly once
+    if (!seen.has(key)) {
+      seen.add(key);
+      distinct.push(iv);
+    }
+  }
+  distinct.push(period);
+  return new Scale(distinct, period);
 }
 
 /**

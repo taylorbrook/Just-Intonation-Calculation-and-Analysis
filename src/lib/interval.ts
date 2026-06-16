@@ -21,7 +21,7 @@
  */
 
 import { Fraction } from "fraction.js";
-import { toMonzo, monzoToBigNumeratorDenominator } from "xen-dev-utils";
+import { toMonzo, monzoToBigNumeratorDenominator, PRIMES } from "xen-dev-utils";
 
 export type FractionInput =
   | Fraction
@@ -80,7 +80,20 @@ export class Interval {
   get cents(): number {
     if (this.#cents === undefined) {
       // Display projection only — float math is acceptable here (Pitfall #1).
-      this.#cents = 1200 * Math.log2(Number(this.fraction.valueOf()));
+      // Compute from the monzo (Σ monzo[i] · log2(PRIMES[i])) rather than
+      // Number(this.fraction.valueOf()), which overflows to Infinity once the
+      // numerator/denominator exceeds ~2^1024. The monzo sum stays finite for
+      // arbitrarily large ratios. The unison (empty/zero monzo) yields 0.
+      let sum = 0;
+      const m = this.monzo;
+      for (let i = 0; i < m.length; i++) {
+        const exp = m[i];
+        if (exp === undefined || exp === 0) continue;
+        const p = PRIMES[i];
+        if (p === undefined) continue;
+        sum += exp * Math.log2(p);
+      }
+      this.#cents = 1200 * sum;
     }
     return this.#cents;
   }

@@ -86,17 +86,17 @@ export function cps(factors: Interval[], k: number, period: Interval = new Inter
 
   // Root the CPS at its lowest product: divide every product by the smallest
   // (by value), so the set starts on a tonic 1/1 and the canonical Wilson
-  // hexany/dekany/eikosany vectors fall out. The division stays BigInt-exact;
-  // `.cents` is used ONLY to find the minimum (Pitfall #1 — a comparison key,
-  // not arithmetic). Ties in cents resolve to the same exact ratio, so the
-  // choice of min among equal-valued products is irrelevant to the result.
+  // hexany/dekany/eikosany vectors fall out. The division stays BigInt-exact.
+  // The root pick uses EXACT `Fraction.compare` (Pitfall #1/#6) — no float
+  // tie/ordering ambiguity in selecting the tonic. (The cents-based SORT below
+  // remains a display sort; only the root selection moved to exact compare.)
   let min = products[0];
   if (!min) {
     // Unreachable: k >= 1 and factors.length >= 1 guarantee >= 1 subset.
     throw new RangeError("cps: no subsets produced (empty combination)");
   }
   for (const p of products) {
-    if (p.cents < min.cents) min = p;
+    if (p.fraction.compare(min.fraction) < 0) min = p;
   }
   const rootMin = min;
 

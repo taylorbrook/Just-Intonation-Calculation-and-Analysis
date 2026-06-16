@@ -134,8 +134,11 @@ export class Scale {
  * requested prime limit, then round-trip through `${n}/${d}` to recover the
  * BigInt-backed Fraction in our Interval (R-01).
  *
- * The result has edoSteps intervals (indexed 0..edoSteps-1) plus 2/1 appended
- * as the period — total length = edoSteps + 1.
+ * Duplicate closest-JI ratios (common for high-EDO / low-prime-limit, where
+ * multiple distinct steps map to the SAME closest ratio) are collapsed by EXACT
+ * canonical fraction string (Pitfall #1 / #6 — never cents-within-epsilon). The
+ * result starts with 1/1 and ends with exactly one 2/1 period (D-14). After
+ * dedupe the length is ≤ edoSteps + 1.
  */
 export function jiSubsetOfEdo(edoSteps: number, primeLimit: number): Scale {
   if (edoSteps < 1) {
@@ -183,6 +186,23 @@ export function jiSubsetOfEdo(edoSteps: number, primeLimit: number): Scale {
     // of truth.
     intervals.push(new Interval(`${String(first.n)}/${String(first.d)}`));
   }
-  intervals.push(new Interval("2/1"));
-  return new Scale(intervals, new Interval("2/1"));
+
+  // Dedupe by EXACT canonical fraction string (Pitfall #1 / #6 — never cents
+  // tolerance), mirroring cps.ts. Preserve first occurrence + insertion order
+  // (1/1 stays first). Drop any 2/1 already produced by a step so the explicit
+  // period below is the single trailing 2/1 (D-14).
+  const period = new Interval("2/1");
+  const periodKey = period.fraction.toFraction();
+  const seen = new Set<string>();
+  const distinct: Interval[] = [];
+  for (const iv of intervals) {
+    const key = iv.fraction.toFraction();
+    if (key === periodKey) continue; // appended explicitly below, exactly once
+    if (!seen.has(key)) {
+      seen.add(key);
+      distinct.push(iv);
+    }
+  }
+  distinct.push(period);
+  return new Scale(distinct, period);
 }
