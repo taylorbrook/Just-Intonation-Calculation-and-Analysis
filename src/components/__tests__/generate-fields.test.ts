@@ -183,11 +183,19 @@ describe("makeIntField", () => {
 
   it("does NOT fire on an empty / non-numeric edit", () => {
     let commits = 0;
-    const el = makeIntField("generate-ed", "Divisions", "ed-divisions", 12, () => {}, {}, {
-      onCommit: () => {
-        commits += 1;
+    const el = makeIntField(
+      "generate-ed",
+      "Divisions",
+      "ed-divisions",
+      12,
+      () => {},
+      {},
+      {
+        onCommit: () => {
+          commits += 1;
+        },
       },
-    });
+    );
     const input = el.querySelector("input") as HTMLInputElement;
     input.value = "";
     input.dispatchEvent(new Event("input"));

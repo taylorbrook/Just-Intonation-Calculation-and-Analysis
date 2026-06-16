@@ -76,8 +76,10 @@ export interface SclIoOpts {
  * stripped. Does NOT mutate the input field — only the composed name uses this.
  */
 function sanitizeFilename(name: string): string {
-  // eslint-disable-next-line no-control-regex -- intentionally strip C0 + DEL.
-  const cleaned = name.replace(/[/\\]/g, "-").replace(/[\x00-\x1f\x7f]/g, "").trim();
+  const cleaned = name
+    .replace(/[/\\]/g, "-")
+    .replace(/[\x00-\x1f\x7f]/g, "")
+    .trim();
   return cleaned.length > 0 ? cleaned : "scale";
 }
 
