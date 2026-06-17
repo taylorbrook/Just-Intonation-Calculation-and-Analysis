@@ -19,11 +19,20 @@ function temperedScale(): Scale {
 }
 
 describe("circleOfPitches — marker count (Test 1)", () => {
-  it("renders exactly N marker groups for an N-interval scale", () => {
+  it("renders one marker per interior degree, excluding the redundant closing period", () => {
+    // The closing period (2/1) lands on the unison at 12 o'clock on a cyclic
+    // pitch-class circle, so it is NOT drawn as a separate node — one node per
+    // degree EXCEPT the trailing period.
     const scale = jiMajor();
     const el = circleOfPitches(scale, makeStubSynth());
     document.body.appendChild(el);
-    expect(el.querySelectorAll(".circle-of-pitches__node").length).toBe(scale.intervals.length);
+    expect(el.querySelectorAll(".circle-of-pitches__node").length).toBe(scale.intervals.length - 1);
+    // Exactly one tonic, and no node carries the period's "2/1" label.
+    expect(el.querySelectorAll(".circle-of-pitches__node--tonic").length).toBe(1);
+    const labels = [...el.querySelectorAll(".circle-of-pitches__label")].map(
+      (n) => n.textContent ?? "",
+    );
+    expect(labels).not.toContain("2/1");
   });
 
   it("returns a <section class='circle-of-pitches-widget'> root", () => {
@@ -97,16 +106,21 @@ describe("circleOfPitches — click audition (Test 3)", () => {
 });
 
 describe("circleOfPitches — empty-state (Test 4, D-17)", () => {
-  it("octave-only scale renders a <p> empty-state and NO svg markers", () => {
-    const scale = new Scale([new Interval("1/1"), new Interval("2/1")]);
-    // intervals.length === 2 still has interior? No — 1/1 + period only.
-    // Use a true unison-only scale to trip the <= 1 guard.
+  it("unison-only scale renders a <p> empty-state and NO svg markers", () => {
     const single = new Scale([new Interval("2/1")]);
     const el = circleOfPitches(single, makeStubSynth());
     expect(el.querySelector(".circle-of-pitches-empty")).not.toBeNull();
     expect(el.querySelector(".circle-of-pitches__node")).toBeNull();
-    // The two-element guard test is informational; assert the unison guard only.
-    void scale;
+  });
+
+  it("octave-only scale (1/1 + period) renders the empty-state once the period is excluded", () => {
+    // After dropping the redundant closing period, [1/1, 2/1] has no interior
+    // degree left to draw, so it must fall through to the empty-state — not a
+    // lone tonic dot.
+    const octaveOnly = new Scale([new Interval("1/1"), new Interval("2/1")]);
+    const el = circleOfPitches(octaveOnly, makeStubSynth());
+    expect(el.querySelector(".circle-of-pitches-empty")).not.toBeNull();
+    expect(el.querySelector(".circle-of-pitches__node")).toBeNull();
   });
 });
 

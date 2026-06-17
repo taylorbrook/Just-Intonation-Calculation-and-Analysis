@@ -4,6 +4,9 @@
  * Factory: `circleOfPitches(scale, synth, opts?) => HTMLElement`.
  * One `<g>` marker per scale degree placed on a ring at
  *   θ = iv.cents / scale.period.cents · 2π
+ * The closing period (the trailing 2/1, per Scale's D-14 contract) is NOT drawn
+ * as its own node: on a cyclic pitch-class circle it coincides with the unison
+ * at 12 o'clock, so rendering it would stack the "2/1" label on the "1/1" tonic.
  * (D-02 non-octave-aware — the angle denominator is the period's cents, NOT a
  * hard-coded 1200, so Bohlen-Pierce / ED-3 scales wrap correctly). Faint 12-EDO
  * reference ticks every 100¢ around the rim. Rim labels follow the tempered-vs-JI
@@ -77,9 +80,23 @@ export function circleOfPitches(
   const baseHz = opts.baseHz ?? DEFAULT_BASE_HZ;
   const tempered = opts.tempered === true;
 
+  // D-14 contract: every well-formed scale's LAST interval IS its period (e.g.
+  // 2/1). On a cyclic pitch-class circle the period lands at the same point as
+  // the unison (θ = periodCents/periodCents·2π = 2π ≡ 0 — 12 o'clock), so drawing
+  // it as its own node stacks the "2/1" dot + label exactly on the "1/1" tonic,
+  // garbling the label and masking the tonic's green accent. Octave-equivalence
+  // is already expressed by the ring closing on itself, so the closing period is
+  // redundant — render only the degrees up to (not including) it. The tonic node
+  // at 12 o'clock marks that point; full per-degree audition (the octave included)
+  // stays available in the scale table rendered beneath the circle.
+  const lastIdx = scale.intervals.length - 1;
+  const closesOnPeriod = lastIdx > 0 && scale.intervals[lastIdx]?.equals(scale.period) === true;
+  const degrees = closesOnPeriod ? scale.intervals.slice(0, lastIdx) : scale.intervals;
+
   // Empty-state FIRST (mirror lattice.ts:156–165): a scale with no interior
-  // degrees (unison-only / empty) renders a friendly <p>, not an empty SVG.
-  if (scale.intervals.length <= 1) {
+  // degrees (unison-only / octave-only / empty) renders a friendly <p>, not a
+  // lone dot or an empty SVG.
+  if (degrees.length <= 1) {
     const empty = document.createElement("p");
     empty.className = "circle-of-pitches-empty";
     empty.textContent =
@@ -125,12 +142,12 @@ export function circleOfPitches(
     }
   }
 
-  const N = scale.intervals.length;
+  const N = degrees.length;
   const thinLabels = N > LABEL_THINNING_THRESHOLD;
 
-  // One marker group per degree.
+  // One marker group per degree (the redundant closing period is excluded above).
   for (let i = 0; i < N; i++) {
-    const iv = scale.intervals[i];
+    const iv = degrees[i];
     if (!iv) continue; // noUncheckedIndexedAccess guard
 
     const a = periodCents > 0 ? (iv.cents / periodCents) * TWO_PI : 0;
