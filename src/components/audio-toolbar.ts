@@ -103,6 +103,37 @@ export function audioToolbarHeadPayload(): string {
   color: var(--theme-foreground-muted);
   min-width: 4.5em;
 }
+@media (max-width: 640px) {
+  /* The 461px-wide floating cluster is wider than a phone viewport and, at the
+   * top-right, collides with the full-width Framework masthead
+   * (#observablehq-header is itself position:fixed; top:0, so it can't be padded
+   * out of the way). Dock the toolbar to the bottom instead: a full-width bottom
+   * app-bar (square, top-bordered, controls right-aligned) with compact controls
+   * — labels + readout hidden, slider narrowed — clear of the masthead and one
+   * row tall even at 375px. body padding-bottom keeps the footer / page-nav
+   * scrollable above the bar (the fixed bar itself ignores body padding). */
+  body {
+    padding-bottom: 46px;
+  }
+  [data-tuning-systems-audio-toolbar] {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    gap: 8px;
+    padding: 7px 12px;
+    justify-content: flex-end;
+    border-width: 1px 0 0 0;
+    border-radius: 0;
+  }
+  [data-tuning-systems-audio-toolbar] .ts-tb-label-text,
+  [data-tuning-systems-audio-toolbar] .ts-vol-readout {
+    display: none;
+  }
+  [data-tuning-systems-audio-toolbar] input[type="range"] {
+    width: 96px;
+  }
+}
 </style>`;
 
   // ────── Inline <script> IIFE ─────────────────────────────────────────
@@ -197,7 +228,10 @@ export function audioToolbarHeadPayload(): string {
     // Waveform label + select
     var wfLabel = document.createElement("label");
     wfLabel.setAttribute("for", "ts-wf");
-    wfLabel.textContent = "Waveform";
+    var wfText = document.createElement("span");
+    wfText.className = "ts-tb-label-text";
+    wfText.textContent = "Waveform";
+    wfLabel.appendChild(wfText);
     var wfSelect = document.createElement("select");
     wfSelect.id = "ts-wf";
     for (var i = 0; i < WAVEFORMS.length; i++) {
@@ -212,7 +246,10 @@ export function audioToolbarHeadPayload(): string {
     // Volume label + range + readout
     var volLabel = document.createElement("label");
     volLabel.setAttribute("for", "ts-vol");
-    volLabel.textContent = "Volume";
+    var volText = document.createElement("span");
+    volText.className = "ts-tb-label-text";
+    volText.textContent = "Volume";
+    volLabel.appendChild(volText);
     var volRange = document.createElement("input");
     volRange.type = "range";
     volRange.id = "ts-vol";
