@@ -11,29 +11,13 @@ import {
   monzoToBigNumeratorDenominator,
   primeLimit,
   monzosEqual,
-  add,
-  sub,
-  scale,
   tenneyHeight,
-  wilsonHeight,
   PRIMES,
 } from "xen-dev-utils";
 
-export {
-  toMonzo,
-  monzoToBigNumeratorDenominator,
-  primeLimit,
-  monzosEqual,
-  tenneyHeight,
-  wilsonHeight,
-  PRIMES,
-};
+export { toMonzo, monzoToBigNumeratorDenominator, primeLimit, monzosEqual, tenneyHeight, PRIMES };
 
 export type Monzo = number[];
-
-export const monzoAdd = add;
-export const monzoSub = sub;
-export const monzoScale = scale;
 
 /**
  * Benedetti height = n × d (the actual product of numerator and denominator,
