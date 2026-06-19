@@ -72,7 +72,7 @@ export function cps(factors: Interval[], k: number, period: Interval = OCTAVE): 
   // 260615-ipz: reject non-positive factors at cps's OWN boundary. A non-positive
   // factor would multiply into a non-positive product and then trip octaveReduce's
   // non-positive guard; fail closed here with a domain-specific message instead.
-  if (factors.some((f) => f.fraction.s < 0n || f.fraction.n === 0n)) {
+  if (factors.some((f) => !f.isPositive())) {
     throw new RangeError("cps: all factors must be positive ratios (> 0)");
   }
 

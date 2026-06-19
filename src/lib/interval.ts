@@ -133,6 +133,16 @@ export class Interval {
     return this.fraction.compare(UNISON.fraction) > 0;
   }
 
+  /**
+   * Positive-ratio predicate (C2): single source of truth for the "is this a
+   * positive ratio (> 0)?" fail-closed check. Sign-and-zero based (`.s`/`.n`,
+   * BigInt on a kernel Interval per fraction.js@5), NOT a compare-to-1 — which
+   * would over-reject valid sub-unison ratios (1/2, 3/5).
+   */
+  isPositive(): boolean {
+    return this.fraction.s > 0n && this.fraction.n !== 0n;
+  }
+
   mul(other: Interval): Interval {
     return new Interval(this.fraction.mul(other.fraction));
   }
@@ -160,11 +170,13 @@ export class Interval {
     let f = this.fraction;
     // Guard the TRUE infinite-loop surface (260615-ipz): a non-positive fraction
     // (<= 0). `f.compare(one) < 0` stays true forever for a negative/zero `f`
-    // because `f.mul(pf)` cannot push it up to 1/1. The test is sign/zero based
-    // (`.s < 0n || .n === 0n`) — NOT `compare(one) <= 0`, which would over-reject
-    // valid sub-unison ratios (1/2, 3/5) that the tonality diamond depends on
-    // reducing (e.g. 3/5 -> 6/5). `one` is reused above only for the period guard.
-    if (f.s < 0n || f.n === 0n) {
+    // because `f.mul(pf)` cannot push it up to 1/1. Routed through the shared
+    // sign/zero-based `isPositive()` (C2) — NOT `compare(one) <= 0`, which would
+    // over-reject valid sub-unison ratios (1/2, 3/5) that the tonality diamond
+    // depends on reducing (e.g. 3/5 -> 6/5). At this point `f === this.fraction`
+    // (the loop below reassigns `f`), so `!this.isPositive()` is equivalent to the
+    // old `f.s/f.n` test. `one` is reused above only for the period guard.
+    if (!this.isPositive()) {
       throw new RangeError(
         `Interval.octaveReduce: cannot reduce a non-positive ratio (got ${f.toFraction()})`,
       );
