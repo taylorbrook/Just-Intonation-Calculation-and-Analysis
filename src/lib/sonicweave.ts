@@ -127,9 +127,10 @@ export function scaleFromSonicWeave(src: string): SonicWeaveResult {
         // admit the zero interval (`0/1` → -Infinity cents). Fail closed, like
         // parseScala (Pitfall #6). Also neutralizes WR-06 (custom negative rank-2
         // generator). NOTE: f.s / f.n arrive as runtime Numbers here (NOT BigInts
-        // as the blueprint assumed), so the zero test goes through Number(f.n) — a
-        // strict `f.n === 0n` would silently miss the zero interval (number !== bigint).
-        if (f.s < 0n || Number(f.n) === 0) {
+        // as the blueprint assumed), so the sign test is a plain Number comparison
+        // (`f.s < 0`) and the zero test goes through Number(f.n) — a strict
+        // `f.n === 0n` would silently miss the zero interval (number !== bigint).
+        if (f.s < 0 || Number(f.n) === 0) {
           return { scale: null, tempered, error: "Scale contains a non-positive interval." };
         }
         out.push(new Interval(`${String(f.n)}/${String(f.d)}`));
