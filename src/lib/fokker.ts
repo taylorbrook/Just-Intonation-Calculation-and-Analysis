@@ -50,6 +50,7 @@
  */
 
 import { toMonzo, integerDet } from "xen-dev-utils";
+import { PRIMES } from "./monzo.js";
 
 /** Defense-in-depth cap on the number of commas (T-07-05). */
 const MAX_COMMAS = 8;
@@ -60,9 +61,6 @@ const MAX_COMMAS = 8;
  * unreasonably large downstream periodicity-block enumeration.
  */
 const MAX_CARDINALITY = 1000;
-
-/** The prime axes, indexed by monzo position (index 0 = prime 2, the equave). */
-const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
 
 /**
  * The reduced (3,5,7,…)-subspace matrix of a comma set, with all-zero prime columns
