@@ -58,7 +58,7 @@ ${tex`f`}. The ratio of the *n*-th partial to the fundamental is exactly
 ${tex`n/1`} — an integer. Every just-intonation interval this notebook
 explores is, somewhere upstream, a ratio between two of these integers.
 
-The harmonic series is the ground floor of JI. The 5-limit major third
+The harmonic series is foundational to JI. The 5-limit major third
 ${tex`5/4`} is partial 5 over partial 4. The pure perfect fifth ${tex`3/2`}
 is partial 3 over partial 2. The harmonic seventh ${tex`7/4`} is partial 7
 over partial 4. Pick any two partials and the interval between them is a
@@ -246,7 +246,7 @@ A few things to notice as you scan the table:
   of familiar intervals; they're new intervals. Most Western music never
   reaches for them.
 
-## Why this is the ground floor
+## Why this is foundational
 
 Every more elaborate construction this notebook explores reduces back to
 ratios in the harmonic series:
