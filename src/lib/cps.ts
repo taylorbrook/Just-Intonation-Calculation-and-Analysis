@@ -14,10 +14,10 @@
  *   - Eikosany = cps([1,3,5,7,9,11], 3)   → 20 degrees + period
  *
  * Exactness (Pitfall #1 / #6): products stay BigInt-exact through Interval.mul;
- * dedupe is keyed STRICTLY on `iv.fraction.toFraction()` (the canonical reduced
- * `n/d` string) — NEVER cents-within-epsilon. No float path can launder two
- * distinct ratios into one. The only float in this module is `iv.cents`, used
- * solely as a SORT KEY.
+ * dedupe (via the shared `finalizeScale`) is keyed STRICTLY on the canonical
+ * reduced `n/d` string (`Interval.key`) — NEVER cents-within-epsilon. No float
+ * path can launder two distinct ratios into one. The only float in this module
+ * is `iv.cents`, used solely as a SORT KEY.
  *
  * Period (D-07): JI families fix the equave at the octave, but the kernel still
  * takes a `period` param so the capability exists (Bohlen-Pierce tritave etc.);

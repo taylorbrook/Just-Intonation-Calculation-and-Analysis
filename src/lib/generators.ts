@@ -10,11 +10,11 @@
  * EXACTNESS vs. TEMPERED — the load-bearing distinction of this module:
  *
  *   diamondScale / oddLimitSet / primeLimitSet / fareyScale are EXACT JI. Every
- *   ratio is integer-derived and stays BigInt-exact through Interval. Dedupe is
- *   keyed STRICTLY on `iv.fraction.toFraction()` (the canonical reduced n/d) —
- *   NEVER cents-within-epsilon (Pitfall #1/#6, T-06-07). The only float is
- *   `iv.cents`, used solely as a SORT KEY. Each ends with the 2/1 octave as the
- *   period (D-07 — JI families fix the equave at the octave).
+ *   ratio is integer-derived and stays BigInt-exact through Interval. Dedupe
+ *   (via the shared `finalizeScale`) is keyed STRICTLY on the canonical reduced
+ *   n/d (`Interval.key`) — NEVER cents-within-epsilon (Pitfall #1/#6, T-06-07).
+ *   The only float is `iv.cents`, used solely as a SORT KEY. Each ends with the
+ *   2/1 octave as the period (D-07 — JI families fix the equave at the octave).
  *
  *   edScale is TEMPERED (SURF-06). Its pitches do NOT have an exact ratio of
  *   record: step cents = `(k / divisions) * equave.cents`, and each pitch is
