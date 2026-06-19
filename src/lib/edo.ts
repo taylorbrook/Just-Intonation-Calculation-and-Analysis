@@ -98,6 +98,14 @@ export function bestEdosForScale(
   // free fit at every EDO; we still include it because its contribution to all three metrics
   // is zero (rounding gap zero, weight finite — clamp at 1) and excluding it would muddy the
   // RMS denominator.
+  //
+  // The PERIOD endpoint (e.g. 1200¢ for an octave scale) is likewise a perfect fit at every
+  // EDO and is intentionally kept in the error population too. Accepted modeling choice (B1):
+  // both endpoints contribute 0 to max/RMS, so they dilute the RMS denominator by 2 "free"
+  // points — but identically across all EDOs, so RANKING is unaffected. Excluding them would
+  // force the builder to special-case the endpoints for a body-only metric the UI never
+  // requests. Consequence: reported RMS/max are slightly optimistic vs. a body-only metric —
+  // documented and accepted, not a bug.
   const idealCentsList: number[] = scale.intervals.map((iv) => iv.cents);
   // Tenney weighting needs each interval's monzo (prime factorization). A tempered scale
   // (e.g. an EDO sent as cents via the Generate page) is stored as lossy float-derived
