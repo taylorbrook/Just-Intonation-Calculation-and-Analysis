@@ -122,6 +122,17 @@ export class Interval {
     return `${String(this.fraction.n)}/${String(this.fraction.d)}`;
   }
 
+  /**
+   * Period guard predicate (C1): single source of truth for the "is this interval
+   * strictly above 1/1?" contract that Scale (constructor), Interval.octaveReduce,
+   * adoScale, and edScale all enforce on the period/equave. Compares against the
+   * shared UNISON singleton (S3) — class methods evaluate at call time, so UNISON
+   * (declared after the class) is in scope when this runs.
+   */
+  isAboveUnison(): boolean {
+    return this.fraction.compare(UNISON.fraction) > 0;
+  }
+
   mul(other: Interval): Interval {
     return new Interval(this.fraction.mul(other.fraction));
   }
@@ -141,7 +152,7 @@ export class Interval {
   octaveReduce(period?: Interval): Interval {
     const p = period ?? OCTAVE;
     const one = new Fraction(1n, 1n);
-    if (p.fraction.compare(one) <= 0) {
+    if (!p.isAboveUnison()) {
       throw new RangeError(
         `Interval.octaveReduce: period must be > 1/1 (got ${p.fraction.toFraction()})`,
       );

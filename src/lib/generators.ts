@@ -216,7 +216,7 @@ export function edScale(divisions: number, equave: Interval): Scale {
       `edScale: divisions must be an integer in [1, ${String(MAX_DIVISIONS)}] (got ${String(divisions)})`,
     );
   }
-  if (equave.fraction.compare(UNISON.fraction) <= 0) {
+  if (!equave.isAboveUnison()) {
     throw new RangeError(`edScale: equave must be > 1/1 (got ${equave.fraction.toFraction()})`);
   }
 

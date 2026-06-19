@@ -36,7 +36,7 @@ export class Scale {
     const p = period ?? copy[copy.length - 1]!;
     // CR-01: reject period <= 1/1 at construction so Scale.reduce/rotate can't
     // hand a malformed period to Interval.octaveReduce and hang the tab.
-    if (p.fraction.compare(UNISON.fraction) <= 0) {
+    if (!p.isAboveUnison()) {
       throw new RangeError(`Scale: period must be > 1/1 (got ${p.fraction.toFraction()})`);
     }
     this.period = p;

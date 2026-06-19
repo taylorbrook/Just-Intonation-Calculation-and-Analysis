@@ -36,7 +36,7 @@
  * (Plan 06) which renders the picker widget.
  */
 
-import { Interval, UNISON, OCTAVE } from "./interval.js";
+import { Interval, OCTAVE } from "./interval.js";
 import { Scale, finalizeScale } from "./scale.js";
 
 /** Defense-in-depth cap on the highest harmonic enumerated (T-06-03). */
@@ -145,7 +145,7 @@ export function adoScale(divisions: number, equave: Interval): Scale {
       `adoScale: divisions must be an integer in [1, ${String(MAX_DIVISIONS)}] (got ${String(divisions)})`,
     );
   }
-  if (equave.fraction.compare(UNISON.fraction) <= 0) {
+  if (!equave.isAboveUnison()) {
     throw new RangeError(`adoScale: equave must be > 1/1 (got ${equave.fraction.toFraction()})`);
   }
 
