@@ -23,8 +23,8 @@
  *   - range.max ≤ 1000 (sanity cap; throws RangeError otherwise)
  */
 
-import { Interval } from "./interval.js";
-import { Scale, jiSubsetOfEdo } from "./scale.js";
+import { Interval, UNISON, OCTAVE } from "./interval.js";
+import { Scale, jiSubsetOfEdo, finalizeScale } from "./scale.js";
 import { tenneyHeight } from "./monzo.js";
 // R-01: NEVER import Fraction from xen-dev-utils. Reserved for future use.
 // (No Fraction needed at module top level today — Interval owns the BigInt path.)
@@ -172,31 +172,17 @@ export function bestJiInEdo(edoSteps: number, limit: number, kind: EdoJiKind): S
   const intervals: Interval[] = [];
   for (let step = 0; step < edoSteps; step++) {
     if (step === 0) {
-      intervals.push(new Interval("1/1"));
+      intervals.push(UNISON);
       continue;
     }
     const targetCents = stepCents * step;
     intervals.push(oddLimitApproximation(targetCents, limit));
   }
 
-  // Dedupe by EXACT canonical fraction string (Pitfall #1 / #6 — never cents
-  // tolerance), mirroring jiSubsetOfEdo / cps. Preserve first occurrence + order
-  // (1/1 stays first). Drop any 2/1 already produced by a step so the explicit
-  // period below is the single trailing 2/1 (D-14).
-  const period = new Interval("2/1");
-  const periodKey = period.fraction.toFraction();
-  const seen = new Set<string>();
-  const distinct: Interval[] = [];
-  for (const iv of intervals) {
-    const key = iv.fraction.toFraction();
-    if (key === periodKey) continue; // appended explicitly below, exactly once
-    if (!seen.has(key)) {
-      seen.add(key);
-      distinct.push(iv);
-    }
-  }
-  distinct.push(period);
-  return new Scale(distinct, period);
+  // Dedupe by EXACT canonical key + append the single trailing 2/1 period (D-14)
+  // via the shared tail, mirroring jiSubsetOfEdo. sort:false preserves the
+  // monotonic step insertion order (Pitfall #1 / #6 — never cents tolerance).
+  return finalizeScale(intervals, OCTAVE, { sort: false });
 }
 
 /**
@@ -218,7 +204,7 @@ export function oddLimitApproximation(targetCents: number, oddLimitCap: number):
     );
   }
   if (targetCents === 0) {
-    return new Interval("1/1");
+    return UNISON;
   }
   let bestIv: Interval | null = null;
   let bestDist = Number.POSITIVE_INFINITY;
@@ -236,7 +222,7 @@ export function oddLimitApproximation(targetCents: number, oddLimitCap: number):
   // Enumeration over odd i,j ∈ [1, cap] always includes (1, 1) → 1/1, so bestIv is always set
   // when oddLimitCap >= 1. Defensive return guards the type system without a runtime path.
   if (!bestIv) {
-    return new Interval("1/1");
+    return UNISON;
   }
   return bestIv;
 }

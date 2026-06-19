@@ -40,7 +40,7 @@
  */
 
 import { Interval, UNISON, OCTAVE } from "./interval.js";
-import { Scale } from "./scale.js";
+import { Scale, finalizeScale } from "./scale.js";
 import { enumerateDiamond } from "./diamond.js";
 import { oddLimit, primeLimitOfMonzo } from "./monzo.js";
 import { centsToRatio } from "./cents.js";
@@ -71,23 +71,9 @@ const PRIME_SET_HEIGHT = 81;
  * so it is never in the enumeration and is always appended).
  */
 function foldExactSet(intervals: Interval[], period: Interval): Scale {
-  const seen = new Set<string>();
-  const distinct: Interval[] = [];
-  for (const iv of intervals) {
-    const key = iv.fraction.toFraction();
-    if (!seen.has(key)) {
-      seen.add(key);
-      distinct.push(iv);
-    }
-  }
-  // Sort by cents ascending (float used ONLY as a sort key — Pitfall #1).
-  distinct.sort((a, b) => a.cents - b.cents);
-  // Ensure the result ends with the period (D-07/D-14).
-  const last = distinct[distinct.length - 1];
-  if (!last || !last.equals(period)) {
-    distinct.push(period);
-  }
-  return new Scale(distinct, period);
+  // Dedupe by exact n/d (Pitfall #1 / #6 — never cents), sort by cents, append the
+  // period (D-07/D-14) via the shared tail. Callers reduce into [1, period) first.
+  return finalizeScale(intervals, period);
 }
 
 /**
@@ -105,7 +91,7 @@ function foldExactSet(intervals: Interval[], period: Interval): Scale {
 export function diamondScale(oddLimitN: number): Scale {
   // enumerateDiamond needs a Scale only to compute its inScale flag, which we
   // ignore here — pass a minimal throwaway. (It also validates oddLimit ≤ 1023.)
-  const throwaway = new Scale([new Interval("1/1")], OCTAVE);
+  const throwaway = new Scale([UNISON], OCTAVE);
   const cells = enumerateDiamond(oddLimitN, throwaway);
   // The diamond is octave-bound by definition (enumerateDiamond reduces against
   // a fixed 2/1), so the period here is always the octave.

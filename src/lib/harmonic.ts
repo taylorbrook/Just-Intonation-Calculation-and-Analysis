@@ -37,7 +37,7 @@
  */
 
 import { Interval, UNISON, OCTAVE } from "./interval.js";
-import { Scale } from "./scale.js";
+import { Scale, finalizeScale } from "./scale.js";
 
 /** Defense-in-depth cap on the highest harmonic enumerated (T-06-03). */
 const MAX_HARMONIC = 1024;
@@ -52,25 +52,11 @@ const MAX_ISO_COUNT = 1024;
  * `reduce === true` branch of the segment/isoharmonic builders.
  */
 function foldToOctave(intervals: Interval[]): Scale {
-  const seen = new Set<string>();
-  const distinct: Interval[] = [];
-  for (const iv of intervals) {
-    const folded = iv.octaveReduce(OCTAVE);
-    const key = folded.fraction.toFraction();
-    if (!seen.has(key)) {
-      seen.add(key);
-      distinct.push(folded);
-    }
-  }
-  // Sort by cents ascending (float used ONLY as a sort key — Pitfall #1).
-  distinct.sort((a, b) => a.cents - b.cents);
-  // Ensure the result ends with the period 2/1 (D-14). If the unison was the only
-  // octave-class present, the period is still appended so the scale is octave-pinned.
-  const last = distinct[distinct.length - 1];
-  if (!last || !last.equals(OCTAVE)) {
-    distinct.push(OCTAVE);
-  }
-  return new Scale(distinct, OCTAVE);
+  // Octave-reduce every interval into [1, 2), then dedupe by exact n/d + sort by
+  // cents + append the 2/1 period (D-14) via the shared tail. Pitfall #1 / #6 —
+  // the dedupe key is the exact ratio, never cents-within-epsilon.
+  const folded = intervals.map((iv) => iv.octaveReduce(OCTAVE));
+  return finalizeScale(folded, OCTAVE);
 }
 
 /**

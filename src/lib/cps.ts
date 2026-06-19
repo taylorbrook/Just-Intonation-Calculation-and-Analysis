@@ -38,7 +38,7 @@
  */
 
 import { Interval, UNISON, OCTAVE } from "./interval.js";
-import { Scale } from "./scale.js";
+import { Scale, finalizeScale } from "./scale.js";
 import { kCombinations } from "xen-dev-utils";
 
 /** Defense-in-depth cap on the factor-set size (T-06-01). C(12, 6) = 924. */
@@ -102,24 +102,8 @@ export function cps(factors: Interval[], k: number, period: Interval = OCTAVE): 
   // Root each product, then octave-reduce by the period (period-aware, Pitfall #13).
   const reduced = products.map((p) => p.div(rootMin).octaveReduce(period));
 
-  // Dedupe by EXACT n/d string (Pitfall #1 / #6) — never cents tolerance.
-  const seen = new Set<string>();
-  const distinct: Interval[] = [];
-  for (const iv of reduced) {
-    const key = iv.fraction.toFraction();
-    if (!seen.has(key)) {
-      seen.add(key);
-      distinct.push(iv);
-    }
-  }
-
-  // Sort by cents ascending (float used ONLY as a sort key — Pitfall #1).
-  distinct.sort((a, b) => a.cents - b.cents);
-
-  // Append the period as the final interval (D-14). The unison 1/1 is naturally
-  // present whenever a subset product octave-reduces to 1/1 (e.g. the {1,...}
-  // subsets of a 1-led factor set); we do not force-prepend it.
-  distinct.push(period);
-
-  return new Scale(distinct, period);
+  // Dedupe by EXACT n/d (Pitfall #1 / #6 — never cents), sort by cents, append the
+  // period (D-14) via the shared tail. The unison 1/1 is naturally present whenever
+  // a subset product octave-reduces to 1/1; we do not force-prepend it.
+  return finalizeScale(reduced, period);
 }

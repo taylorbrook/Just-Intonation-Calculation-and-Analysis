@@ -111,6 +111,17 @@ export class Interval {
     return c - Math.round(c / 100) * 100;
   }
 
+  /**
+   * Canonical dedupe key (S1): the reduced `n/d` string. fraction.js normalizes
+   * sign + GCD on construction, so two Intervals satisfy `.equals` iff their
+   * `.key` strings are identical — the single source of truth for exact-ratio
+   * Set-dedupe across the scale builders (NEVER a cents-within-epsilon key —
+   * Pitfall #1 / #6).
+   */
+  get key(): string {
+    return `${String(this.fraction.n)}/${String(this.fraction.d)}`;
+  }
+
   mul(other: Interval): Interval {
     return new Interval(this.fraction.mul(other.fraction));
   }
