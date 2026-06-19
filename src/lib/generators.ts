@@ -60,8 +60,8 @@ const MAX_DIVISIONS = 1000;
 const PRIME_SET_HEIGHT = 81;
 
 /**
- * Set-dedupe by EXACT n/d (Pitfall #1/#6), sort by cents, and append `period` as
- * the final interval (D-07/D-14). Shared by the three exact-JI set builders that
+ * Delegates to the shared `finalizeScale` (EXACT n/d dedupe, Pitfall #1/#6 — never
+ * cents; D-07/D-14 period append). Shared by the three exact-JI set builders that
  * enumerate raw ratios. The unison 1/1 always survives the dedupe (the (1,1) cell
  * / b=1,a=1 pair / etc.), so the result starts at 1/1.
  *
@@ -71,8 +71,6 @@ const PRIME_SET_HEIGHT = 81;
  * so it is never in the enumeration and is always appended).
  */
 function foldExactSet(intervals: Interval[], period: Interval): Scale {
-  // Dedupe by exact n/d (Pitfall #1 / #6 — never cents), sort by cents, append the
-  // period (D-07/D-14) via the shared tail. Callers reduce into [1, period) first.
   return finalizeScale(intervals, period);
 }
 

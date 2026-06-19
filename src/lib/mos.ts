@@ -11,11 +11,11 @@
  * Two exports:
  *   - buildMos(generator, period, size) — stack the generator over a CENTERED
  *     range of offsets `k ∈ [chainLo, chainLo + size - 1]` (both negative and
- *     positive), period-reduce each via Interval.octaveReduce(period), sort
- *     ascending by cents, dedupe by BigInt Fraction equality (Pitfall #1: NEVER
- *     cents-within-epsilon), append the period if not already present, wrap in
- *     a Scale. Returns a Scale fungible with hand-built scales (D-14: scaleTable
- *     + Play work unchanged).
+ *     positive), period-reduce each via Interval.octaveReduce(period), then run
+ *     the shared dedupe→sort→append-period (D-14) tail via finalizeScale (keyed on
+ *     EXACT n/d, Pitfall #1: NEVER cents-within-epsilon), wrapped in a Scale.
+ *     Returns a Scale fungible with hand-built scales (D-14: scaleTable + Play
+ *     work unchanged).
  *
  *     Centered chain selection (CRITICAL — uni-directional up-stack produces
  *     the WRONG mode of the canonical scale): for size N, choose chainLo
@@ -178,9 +178,9 @@ export function buildMos(generator: Interval, period: Interval, size: number): S
     stacks.push(cur.octaveReduce(period));
   }
 
-  // Dedupe by exact n/d (Pitfall #1 — NEVER cents tolerance), sort ascending by
-  // cents, and append the period (D-14) via the shared tail. Stacks are already
-  // octave-reduced into [1, period), so the period is never an interior member.
+  // Run the shared dedupe→sort→append-period (D-14) tail via finalizeScale — keyed on
+  // EXACT n/d (Pitfall #1 — NEVER cents tolerance). Stacks are already octave-reduced
+  // into [1, period), so the period is never an interior member.
   return finalizeScale(stacks, period);
 }
 

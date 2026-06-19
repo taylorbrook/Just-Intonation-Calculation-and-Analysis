@@ -47,14 +47,14 @@ const MAX_DIVISIONS = 1000;
 const MAX_ISO_COUNT = 1024;
 
 /**
- * Octave-reduce every interval into [1, 2), dedupe by EXACT n/d (Pitfall #1 / #6),
- * sort by cents, and append the octave 2/1 as the period (D-14). Shared by the
- * `reduce === true` branch of the segment/isoharmonic builders.
+ * Octave-reduce every interval into [1, 2), then run the shared dedupe→sort→
+ * append-period (D-14) tail via `finalizeScale` (keyed on EXACT n/d, Pitfall #1 /
+ * #6 — never cents). Shared by the `reduce === true` branch of the
+ * segment/isoharmonic builders.
  */
 function foldToOctave(intervals: Interval[]): Scale {
-  // Octave-reduce every interval into [1, 2), then dedupe by exact n/d + sort by
-  // cents + append the 2/1 period (D-14) via the shared tail. Pitfall #1 / #6 —
-  // the dedupe key is the exact ratio, never cents-within-epsilon.
+  // Octave-reduce into [1, 2) FIRST (the caller's required pre-condition), then defer
+  // the dedupe/sort/append-period tail to the shared finalizeScale.
   const folded = intervals.map((iv) => iv.octaveReduce(OCTAVE));
   return finalizeScale(folded, OCTAVE);
 }

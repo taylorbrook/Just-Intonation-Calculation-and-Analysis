@@ -6,9 +6,9 @@
  * their own lowest product — every product is divided by the smallest product so
  * the CPS starts on a tonic 1/1 (the standard Wilson construction: a hexany is
  * the set of dyads BETWEEN the products, which is the products normalized to
- * their lowest tone). Each rooted ratio is octave-reduced, deduped by EXACT n/d,
- * sorted by cents, and the period is appended (D-14). The classic CPS families
- * fall out of the (factors, k) pair:
+ * their lowest tone). Each rooted ratio is octave-reduced, then the dedupe→sort→
+ * append-period (D-14) tail runs via the shared `finalizeScale`. The classic CPS
+ * families fall out of the (factors, k) pair:
  *   - Hexany   = cps([1,3,5,7], 2)        → 6 degrees + period
  *   - Dekany   = cps([1,3,5,7,9], 2)      → 10 degrees + period
  *   - Eikosany = cps([1,3,5,7,9,11], 3)   → 20 degrees + period
@@ -102,8 +102,8 @@ export function cps(factors: Interval[], k: number, period: Interval = OCTAVE): 
   // Root each product, then octave-reduce by the period (period-aware, Pitfall #13).
   const reduced = products.map((p) => p.div(rootMin).octaveReduce(period));
 
-  // Dedupe by EXACT n/d (Pitfall #1 / #6 — never cents), sort by cents, append the
-  // period (D-14) via the shared tail. The unison 1/1 is naturally present whenever
-  // a subset product octave-reduces to 1/1; we do not force-prepend it.
+  // Run the shared dedupe→sort→append-period (D-14) tail via finalizeScale — keyed on
+  // EXACT n/d (Pitfall #1 / #6 — never cents). The unison 1/1 is naturally present
+  // whenever a subset product octave-reduces to 1/1; we do not force-prepend it.
   return finalizeScale(reduced, period);
 }
