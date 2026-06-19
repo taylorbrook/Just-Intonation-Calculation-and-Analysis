@@ -190,6 +190,11 @@ export function bestJiInEdo(edoSteps: number, limit: number, kind: EdoJiKind): S
   // Dedupe by EXACT canonical key + append the single trailing 2/1 period (D-14)
   // via the shared tail, mirroring jiSubsetOfEdo. sort:false preserves the
   // monotonic step insertion order (Pitfall #1 / #6 — never cents tolerance).
+  //
+  // sort:false RELIES ON the monotonic step insertion order: the steps are produced in
+  // ascending-cents order and nearest-ratio selection preserves that monotonicity, so
+  // the pushed intervals are already sorted and sort:false is correct (a default
+  // sort:true would yield identical output).
   return finalizeScale(intervals, OCTAVE, { sort: false });
 }
 

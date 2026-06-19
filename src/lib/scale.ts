@@ -227,5 +227,11 @@ export function jiSubsetOfEdo(edoSteps: number, primeLimit: number): Scale {
   // via the shared tail. sort:false preserves the monotonic step insertion order
   // (Pitfall #1 / #6 — never cents tolerance); any 2/1 produced by a step is
   // dropped and re-appended exactly once.
+  //
+  // sort:false RELIES ON the nearest-ratio insertion order being monotonic ascending
+  // in cents: the loop walks steps in ascending order and nearest-neighbor on a sorted
+  // candidate set is monotonic in the query, so the pushed intervals are already sorted.
+  // finalizeScale's default sort:true would therefore be harmless here too — the order
+  // is already correct; sort:false just skips a redundant sort.
   return finalizeScale(intervals, OCTAVE, { sort: false });
 }
