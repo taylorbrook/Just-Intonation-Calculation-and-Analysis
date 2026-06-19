@@ -19,7 +19,7 @@
  */
 
 import { parseScl } from "./scala.js";
-import { stripBom } from "./text.js";
+import { normalizeLines } from "./text.js";
 
 /**
  * D-A3 entry shape. `name` = the parseScl description line (the search field,
@@ -58,7 +58,7 @@ export const DEFAULT_SEARCH_CAP = 50;
  */
 export function isTemperedScl(sclText: string): boolean {
   // Normalize CRLF/CR → LF and strip a leading BOM, matching scala.ts.
-  const lines = stripBom(sclText).replace(/\r\n?/g, "\n").split("\n");
+  const lines = normalizeLines(sclText);
   const nonComment: string[] = [];
   for (const raw of lines) {
     if (raw.startsWith("!")) continue;

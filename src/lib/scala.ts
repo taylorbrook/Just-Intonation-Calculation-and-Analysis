@@ -38,11 +38,10 @@
 
 import { Interval } from "./interval.js";
 import { Scale } from "./scale.js";
-import { stripBom } from "./text.js";
+import { utf8ByteLength, normalizeLines, MAX_FILE_INPUT_BYTES } from "./text.js";
 // R-01 NOTE: only the helper, NEVER xen-dev-utils' Fraction.
 import { centsToValue } from "xen-dev-utils";
 
-const MAX_INPUT_BYTES = 1_000_000;
 const MAX_MONZO_LENGTH = 32;
 const MAX_MONZO_MAGNITUDE = 1024;
 // 260615-ipz sanity bound on cents magnitude. A cents value beyond this fails
@@ -54,30 +53,13 @@ const MAX_MONZO_MAGNITUDE = 1024;
 const MAX_ABS_CENTS = 1_000_000;
 
 /**
- * CR-03: the trust-boundary cap is documented in bytes, but the previous guard
- * compared `string.length` (UTF-16 code units), letting a 3 MB UTF-8 file made
- * of 3-byte CJK chars slip past with `length === 1_000_000`. Measure real
- * UTF-8 bytes here.
- *
- * Cheap upper bound: every UTF-16 code unit costs at most 3 UTF-8 bytes
- * (BMP code points are 1-3 bytes; a surrogate pair = 2 code units = 4 UTF-8
- * bytes = 2 bytes/code-unit). So `s.length * 3` is a safe over-estimate. Fall
- * back to TextEncoder only when the cheap bound clears the cap, keeping the
- * common-case (small scales) allocation-free.
- */
-function utf8ByteLength(s: string): number {
-  if (s.length * 3 <= MAX_INPUT_BYTES) return s.length * 3;
-  return new TextEncoder().encode(s).byteLength;
-}
-
-/**
  * Parse the body (pitch lines only — no description / count header) of a Scala
  * file or text-input. Auto-prepends 1/1 (D-13). Comment lines (`!`-prefixed)
  * and empty lines are skipped. Used by both parseScl (internal) and the
  * dashboard text-input (Plan 07) per D-12.
  */
 export function parseScala(body: string): Interval[] {
-  if (utf8ByteLength(body) > MAX_INPUT_BYTES) {
+  if (utf8ByteLength(body) > MAX_FILE_INPUT_BYTES) {
     throw new Error(`parseScala: input too large (max 1MB UTF-8)`);
   }
   const intervals: Interval[] = [new Interval("1/1")];
@@ -101,7 +83,7 @@ export interface ParsedScl {
  * mismatch and negative-ratio / multi-slash inputs with clear errors.
  */
 export function parseScl(file: string): ParsedScl {
-  if (utf8ByteLength(file) > MAX_INPUT_BYTES) {
+  if (utf8ByteLength(file) > MAX_FILE_INPUT_BYTES) {
     throw new Error(`parseScl: input too large (max 1MB UTF-8)`);
   }
   const lines = normalizeLines(file);
@@ -241,11 +223,6 @@ export function scalaToCsv(scale: Scale, baseHz: number): string {
 // ---------------------------------------------------------------------------
 // Internals
 // ---------------------------------------------------------------------------
-
-function normalizeLines(text: string): string[] {
-  // Strip BOM (effective on first line only); normalize CRLF / CR to LF.
-  return stripBom(text).replace(/\r\n?/g, "\n").split("\n");
-}
 
 function parsePitchToken(line: string): Interval {
   const trimmed = line.trim();

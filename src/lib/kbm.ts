@@ -39,9 +39,8 @@
 
 import { Interval } from "./interval.js";
 import type { Scale } from "./scale.js";
-import { stripBom } from "./text.js";
+import { utf8ByteLength, normalizeLines, MAX_FILE_INPUT_BYTES } from "./text.js";
 
-const MAX_INPUT_BYTES = 1_000_000;
 const MAX_KEYMAP_LENGTH = 1024;
 const MAX_FORMAL_OCTAVE = 1024;
 const MAX_MIDI = 127;
@@ -73,26 +72,6 @@ export interface KbmMapping {
   formalOctave: number;
   /** Per-pattern scale-degree mapping; null = muted / unmapped. Length === size. */
   keyMap: ReadonlyArray<number | null>;
-}
-
-/**
- * Cheap upper-bound for UTF-8 byte length. Mirrors scala.ts' guard (CR-03).
- * Every UTF-16 code unit costs at most 3 UTF-8 bytes; `s.length * 3` is a
- * safe over-estimate. Fall back to TextEncoder only when the cheap bound
- * crosses the cap, keeping the common case allocation-free.
- */
-function utf8ByteLength(s: string): number {
-  if (s.length * 3 <= MAX_INPUT_BYTES) return s.length * 3;
-  return new TextEncoder().encode(s).byteLength;
-}
-
-/**
- * Strip BOM (U+FEFF; effective on first line only); normalize CRLF / CR to LF.
- * The BOM is referenced by the explicit `\uFEFF` escape — never as a literal
- * non-printing character in source (project hygiene; matches scala.ts pattern).
- */
-function normalizeLines(text: string): string[] {
-  return stripBom(text).replace(/\r\n?/g, "\n").split("\n");
 }
 
 /** Drop blank lines and `!`-prefixed comment lines (after trim). */
@@ -132,7 +111,7 @@ function parseFloatStrict(token: string, field: string): number {
  * bounds. Fails closed: every malformed input throws a named-field error.
  */
 export function parseKbm(text: string): KbmMapping {
-  if (utf8ByteLength(text) > MAX_INPUT_BYTES) {
+  if (utf8ByteLength(text) > MAX_FILE_INPUT_BYTES) {
     throw new Error(`parseKbm: input too large (max 1MB UTF-8)`);
   }
 
