@@ -37,7 +37,7 @@
  * 02) which renders the picker widget.
  */
 
-import { Interval } from "./interval.js";
+import { Interval, UNISON, OCTAVE } from "./interval.js";
 import { Scale } from "./scale.js";
 import { kCombinations } from "xen-dev-utils";
 
@@ -57,7 +57,7 @@ const MAX_FACTORS = 12;
  *   outside `[1, factors.length]` (T-06-01 — the cap is the last line of defense
  *   against combinatorial DoS, enforced here in the kernel).
  */
-export function cps(factors: Interval[], k: number, period: Interval = new Interval("2/1")): Scale {
+export function cps(factors: Interval[], k: number, period: Interval = OCTAVE): Scale {
   // Defense-in-depth caps FIRST (T-06-01) — before any enumeration.
   if (factors.length < 1 || factors.length > MAX_FACTORS) {
     throw new RangeError(
@@ -81,8 +81,7 @@ export function cps(factors: Interval[], k: number, period: Interval = new Inter
   const subsets = kCombinations(factors, k);
 
   // Multiply each subset exactly (BigInt) — the raw subset products.
-  const one = new Interval("1/1");
-  const products = subsets.map((subset) => subset.reduce((acc, iv) => acc.mul(iv), one));
+  const products = subsets.map((subset) => subset.reduce((acc, iv) => acc.mul(iv), UNISON));
 
   // Root the CPS at its lowest product: divide every product by the smallest
   // (by value), so the set starts on a tonic 1/1 and the canonical Wilson

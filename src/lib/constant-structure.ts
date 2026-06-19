@@ -36,11 +36,8 @@
  * generate-cs.ts (Plan 03) for the D-14 CS-status readout.
  */
 
-import { Interval } from "./interval.js";
+import { UNISON, type Interval } from "./interval.js";
 import type { Scale } from "./scale.js";
-
-/** The unison 1/1 — stripped from the leading position to match tools.js `degrees`. */
-const UNISON = new Interval("1/1");
 
 /**
  * The two colliding interval classes (step-counts) when a scale is NOT constant

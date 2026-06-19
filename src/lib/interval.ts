@@ -128,7 +128,7 @@ export class Interval {
    * Default period = 2/1. Pass `new Interval("3/1")` for tritave (Bohlen-Pierce).
    */
   octaveReduce(period?: Interval): Interval {
-    const p = period ?? new Interval("2/1");
+    const p = period ?? OCTAVE;
     const one = new Fraction(1n, 1n);
     if (p.fraction.compare(one) <= 0) {
       throw new RangeError(
@@ -162,6 +162,16 @@ export class Interval {
     return this.fraction.toFraction();
   }
 }
+
+/**
+ * Shared immutable singletons (S3). `Interval` is immutable by contract
+ * (`readonly fraction`, private lazy caches), so a single instance of the two
+ * universal anchors is safe to reuse everywhere instead of re-allocating
+ * `new Interval("1/1")` / `new Interval("2/1")` per call site or per loop
+ * iteration. Use these for the unison and the octave equave throughout the kernel.
+ */
+export const UNISON = new Interval("1/1");
+export const OCTAVE = new Interval("2/1");
 
 /**
  * Compute a monzo for an arbitrary fraction (with possibly negative exponents).

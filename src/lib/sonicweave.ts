@@ -64,13 +64,10 @@
 // that condition present, Framework resolves the bare import and serves
 // `/_node/sonic-weave@0.14.1/index.js` — the real, complete build.
 import { evaluateSource } from "sonic-weave";
-import { Interval } from "./interval.js";
+import { Interval, UNISON } from "./interval.js";
 import { Scale } from "./scale.js";
 import { centsToRatio } from "./cents.js";
 import { MAX_SCALE_TEXT_BYTES } from "./url.js";
-
-/** The unison 1/1 — prepended when SonicWeave's currentScale omits it (D-13). */
-const UNISON = new Interval("1/1");
 
 /**
  * The adapter's return contract. Every Phase-7 widget destructures this.
@@ -170,7 +167,7 @@ export function scaleFromSonicWeave(src: string): SonicWeaveResult {
   // output is fungible with buildMos / cps (exact n/d, length, iv.equals()).
   const first = out[0];
   if (!first || !first.equals(UNISON)) {
-    out.unshift(new Interval("1/1"));
+    out.unshift(UNISON);
   }
 
   return { scale: new Scale(out), tempered };

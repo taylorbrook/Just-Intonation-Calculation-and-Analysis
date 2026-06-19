@@ -76,10 +76,9 @@
  * "xen-dev-utils".
  */
 
-import { Interval } from "./interval.js";
+import { Interval, UNISON } from "./interval.js";
 import { Scale } from "./scale.js";
 
-const ONE = new Interval("1/1");
 const PYTHAGOREAN_GEN = new Interval("3/2");
 const PYTHAGOREAN_PERIOD = new Interval("2/1");
 
@@ -143,7 +142,7 @@ function chainLoFor(generator: Interval, period: Interval, size: number): number
  */
 export function buildMos(generator: Interval, period: Interval, size: number): Scale {
   // Validate.
-  if (period.fraction.compare(ONE.fraction) <= 0) {
+  if (period.fraction.compare(UNISON.fraction) <= 0) {
     throw new RangeError("MOS period must be > 1/1");
   }
   if (size < 1 || !Number.isFinite(size) || !Number.isInteger(size)) {
@@ -163,14 +162,14 @@ export function buildMos(generator: Interval, period: Interval, size: number): S
   // here (period > 1/1 already validated; a non-positive generator would throw,
   // which is acceptable fail-closed behavior).
   const reducedGen = generator.octaveReduce(period);
-  if (reducedGen.equals(ONE)) {
+  if (reducedGen.equals(UNISON)) {
     return new Scale([period], period);
   }
 
   const chainLo = chainLoFor(generator, period, size);
   const stacks: Interval[] = [];
   for (let k = chainLo; k < chainLo + size; k++) {
-    let cur: Interval = ONE;
+    let cur: Interval = UNISON;
     if (k > 0) {
       for (let i = 0; i < k; i++) cur = cur.mul(generator);
     } else if (k < 0) {
@@ -218,7 +217,7 @@ export function buildMos(generator: Interval, period: Interval, size: number): S
  * Tie-break: smaller candidate wins on equal distance to target.
  */
 export function nearestMosSize(generator: Interval, period: Interval, target: number): number {
-  if (period.fraction.compare(ONE.fraction) <= 0) {
+  if (period.fraction.compare(UNISON.fraction) <= 0) {
     throw new RangeError("MOS period must be > 1/1");
   }
   if (target < 1 || !Number.isFinite(target) || !Number.isInteger(target)) {

@@ -39,16 +39,11 @@
  * Pure data — no DOM, no audio. Consumed by src/components (Plan 07).
  */
 
-import { Interval } from "./interval.js";
+import { Interval, UNISON, OCTAVE } from "./interval.js";
 import { Scale } from "./scale.js";
 import { enumerateDiamond } from "./diamond.js";
 import { oddLimit, primeLimitOfMonzo } from "./monzo.js";
 import { centsToRatio } from "./cents.js";
-
-/** Octave period — every exact-JI family fixes the equave here (D-07). */
-const OCTAVE = new Interval("2/1");
-/** The unison 1/1 — the lower bound the edScale equave must exceed. */
-const UNISON = new Interval("1/1");
 
 /** Combinatorial cap shared by oddLimitSet / primeLimitSet (ODD_LIMIT_CAP precedent). */
 const LIMIT_CAP = 31;

@@ -36,7 +36,7 @@
  * (Plan 06) which renders the picker widget.
  */
 
-import { Interval } from "./interval.js";
+import { Interval, UNISON, OCTAVE } from "./interval.js";
 import { Scale } from "./scale.js";
 
 /** Defense-in-depth cap on the highest harmonic enumerated (T-06-03). */
@@ -45,9 +45,6 @@ const MAX_HARMONIC = 1024;
 const MAX_DIVISIONS = 1000;
 /** Defense-in-depth cap on the isoharmonic chord length (T-06-03). */
 const MAX_ISO_COUNT = 1024;
-
-/** Octave period for the reduce-to-octave path (D-04). */
-const OCTAVE = new Interval("2/1");
 
 /**
  * Octave-reduce every interval into [1, 2), dedupe by EXACT n/d (Pitfall #1 / #6),
@@ -162,7 +159,7 @@ export function adoScale(divisions: number, equave: Interval): Scale {
       `adoScale: divisions must be an integer in [1, ${String(MAX_DIVISIONS)}] (got ${String(divisions)})`,
     );
   }
-  if (equave.fraction.compare(new Interval("1/1").fraction) <= 0) {
+  if (equave.fraction.compare(UNISON.fraction) <= 0) {
     throw new RangeError(`adoScale: equave must be > 1/1 (got ${equave.fraction.toFraction()})`);
   }
 
