@@ -77,7 +77,7 @@
  */
 
 import { Interval, UNISON } from "./interval.js";
-import { Scale } from "./scale.js";
+import { Scale, finalizeScale } from "./scale.js";
 
 const PYTHAGOREAN_GEN = new Interval("3/2");
 const PYTHAGOREAN_PERIOD = new Interval("2/1");
@@ -178,29 +178,10 @@ export function buildMos(generator: Interval, period: Interval, size: number): S
     stacks.push(cur.octaveReduce(period));
   }
 
-  // Dedupe by BigInt Fraction equality (Pitfall #1 — NEVER cents tolerance).
-  // Use a Set keyed on canonical "n/d" string for O(N) dedupe; equivalent to
-  // Interval.equals because Fraction normalizes sign + GCD on construction.
-  const seen = new Set<string>();
-  const unique: Interval[] = [];
-  for (const iv of stacks) {
-    const key = `${String(iv.fraction.n)}/${String(iv.fraction.d)}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(iv);
-    }
-  }
-
-  // Sort ascending by cents (consumer table-display contract).
-  unique.sort((a, b) => a.cents - b.cents);
-
-  // Append the period if not already the trailing entry (D-14 contract).
-  const last = unique[unique.length - 1];
-  if (!last || !last.equals(period)) {
-    unique.push(period);
-  }
-
-  return new Scale(unique, period);
+  // Dedupe by exact n/d (Pitfall #1 — NEVER cents tolerance), sort ascending by
+  // cents, and append the period (D-14) via the shared tail. Stacks are already
+  // octave-reduced into [1, period), so the period is never an interior member.
+  return finalizeScale(stacks, period);
 }
 
 /**
