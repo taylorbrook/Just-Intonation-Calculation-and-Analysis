@@ -22,6 +22,7 @@
 
 import { Fraction } from "fraction.js";
 import { toMonzo, monzoToBigNumeratorDenominator, PRIMES } from "xen-dev-utils";
+import { centsFrom12tet as centsFrom12tetFn } from "./cents.js";
 
 export type FractionInput =
   | Fraction
@@ -106,9 +107,13 @@ export class Interval {
     return this.#cents;
   }
 
+  /**
+   * Signed cents deviation from the nearest 12-TET semitone. Delegates to the
+   * cents.ts `centsFrom12tet` projection (C3) so the `c - Math.round(c/100)*100`
+   * formula lives in exactly one place (cents.ts is the single source of truth).
+   */
   get centsFrom12tet(): number {
-    const c = this.cents;
-    return c - Math.round(c / 100) * 100;
+    return centsFrom12tetFn(this.cents);
   }
 
   /**

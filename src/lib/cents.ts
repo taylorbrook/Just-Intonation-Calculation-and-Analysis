@@ -14,7 +14,10 @@ export function toCents(value: number | number[]): number {
   return Array.isArray(value) ? monzoToCents(value) : valueToCents(value);
 }
 
-/** Signed deviation from nearest 12-TET semitone, in cents. */
+/**
+ * Signed deviation from nearest 12-TET semitone, in cents. Sole owner of the
+ * `c - Math.round(c/100)*100` projection — `Interval.centsFrom12tet` delegates here (C3).
+ */
 export function centsFrom12tet(cents: number): number {
   return cents - Math.round(cents / 100) * 100;
 }
