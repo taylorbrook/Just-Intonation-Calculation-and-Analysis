@@ -145,4 +145,51 @@ describe("circleOfPitches — hover tooltip (Test 5, D-04)", () => {
     // And NO ASCII hyphen-minus used as a sign immediately before a cents digit.
     expect(titles.some((t) => /\s-\d/.test(t))).toBe(false);
   });
+
+  it("every marker's tooltip ends with a positive, finite Hz field", () => {
+    const el = circleOfPitches(jiMajor(), makeStubSynth(), { baseHz: 440 });
+    const titles = [...el.querySelectorAll("title")].map((t) => t.textContent ?? "");
+    expect(titles.length).toBeGreaterThan(0);
+    for (const title of titles) {
+      expect(title.endsWith(" Hz")).toBe(true);
+      const hz = Number(title.slice(title.lastIndexOf("|") + 1, -3).trim());
+      expect(Number.isFinite(hz)).toBe(true);
+      expect(hz).toBeGreaterThan(0);
+    }
+  });
+
+  it("the tonic marker's tooltip reports baseHz itself", () => {
+    const el = circleOfPitches(jiMajor(), makeStubSynth(), { baseHz: 440 });
+    const tonic = el.querySelector(".circle-of-pitches__node--tonic");
+    expect(tonic).not.toBeNull();
+    expect(tonic!.querySelector("title")!.textContent).toContain("440.00 Hz");
+  });
+
+  it("the tempered branch shows cents instead of a ratio but never loses the Hz field", () => {
+    const el = circleOfPitches(temperedScale(), makeStubSynth(), {
+      baseHz: 100,
+      tempered: true,
+    });
+    const titles = [...el.querySelectorAll("title")].map((t) => t.textContent ?? "");
+    expect(titles.length).toBeGreaterThan(0);
+    for (const title of titles) {
+      expect(title.endsWith(" Hz")).toBe(true);
+    }
+    // Tonic at baseHz 100.
+    expect(titles[0]).toContain("100.00 Hz");
+  });
+
+  it("the audition Hz equals the Hz printed in that same marker's tooltip", () => {
+    const synth = makeStubSynth();
+    const el = circleOfPitches(jiMajor(), synth, { baseHz: 440 });
+    document.body.appendChild(el);
+    const nodes = el.querySelectorAll<SVGGElement>(".circle-of-pitches__node");
+    // The 5/4 degree (index 2 in jiMajor).
+    const target = nodes[2]!;
+    const title = target.querySelector("title")!.textContent ?? "";
+    const printed = Number(title.slice(title.lastIndexOf("|") + 1, -3).trim());
+    target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const [hz] = synth.playNote.mock.calls[0]! as [number, number];
+    expect(hz.toFixed(2)).toBe(printed.toFixed(2));
+  });
 });

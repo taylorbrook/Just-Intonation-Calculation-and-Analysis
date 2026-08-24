@@ -13,7 +13,10 @@
  * display discipline (D-01): exact ratio (e.g. "5/4") for JI, cents-only
  * (e.g. "408.0¢") for tempered output — a float-derived ratio is NEVER shown for
  * a tempered scale. Hover shows an SVG `<title>` tooltip + a highlight class
- * (D-04); click / Enter / Space auditions via the passed-in page-owned synth.
+ * (D-04) carrying the pitch, its signed cents-from-12tet, and the marker's
+ * frequency in Hz — the frequency field is the SAME per-node const the click
+ * handler sends to the synth, so the tooltip can never drift from the sound;
+ * click / Enter / Space auditions via the passed-in page-owned synth.
  * Octave-only / empty scales render a friendly empty-state `<p>` (mirrors
  * lattice.ts) instead of an empty SVG (D-17).
  *
@@ -186,30 +189,35 @@ export function circleOfPitches(
       g.appendChild(label);
     }
 
+    // S-3 BigInt→Number audio boundary. ONE binding per node for the frequency:
+    // both playNote call sites AND the tooltip below read it, so what the marker
+    // prints can never drift from what the marker sounds. The tempered audio
+    // ratio is STILL the Number-coerced fraction; only the LABEL is cents-only.
+    const freqHz = baseHz * Number(iv.fraction.valueOf());
+
     // Hover tooltip (D-04) — mirror lattice.ts <title>. Pitch info + signed
-    // cents-from-12tet (U+2212 minus for negatives).
+    // cents-from-12tet (U+2212 minus for negatives) + the marker's frequency.
     const dev = formatSignedCents(iv.centsFrom12tet);
+    const hzText = `${freqHz.toFixed(2)} Hz`;
     const title = document.createElementNS(SVG_NS, "title");
     title.textContent = tempered
-      ? `${centsText} | ${dev} from 12-TET`
-      : `${ratioText} | ${dev} from 12-TET`;
+      ? `${centsText} | ${dev} from 12-TET | ${hzText}`
+      : `${ratioText} | ${dev} from 12-TET | ${hzText}`;
     g.appendChild(title);
 
     // Hover highlight (D-04): toggle a CSS class so the marker pops on pointer.
     g.addEventListener("mouseenter", () => g.classList.add("circle-of-pitches__node--hover"));
     g.addEventListener("mouseleave", () => g.classList.remove("circle-of-pitches__node--hover"));
 
-    // Click → audition (keyboard.ts idiom). S-3 BigInt→Number audio boundary —
-    // the tempered audio ratio is STILL the Number-coerced fraction; only the
-    // label above is cents-only.
-    const ratio = Number(iv.fraction.valueOf());
+    // Click → audition (keyboard.ts idiom). Both handlers use the SAME `freqHz`
+    // const the tooltip prints — see its declaration above.
     g.addEventListener("click", () => {
-      synth.playNote(baseHz * ratio, NOTE_DUR_SEC);
+      synth.playNote(freqHz, NOTE_DUR_SEC);
     });
     g.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        synth.playNote(baseHz * ratio, NOTE_DUR_SEC);
+        synth.playNote(freqHz, NOTE_DUR_SEC);
       }
     });
 
