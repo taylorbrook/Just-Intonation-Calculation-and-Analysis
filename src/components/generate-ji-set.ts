@@ -19,8 +19,8 @@
  *
  * EXACT JI (NOT tempered): each sub-method dispatches to the matching
  * generators.ts builder (diamondScale / oddLimitSet / primeLimitSet / fareyScale)
- * and renders the DEFAULT scaleTable variant — the 4-column Degree | Ratio |
- * Cents | ¢-from-12tet table with a Ratio column and NO tempered badge. (The
+ * and renders the DEFAULT scaleTable variant — the 5-column Degree | Ratio |
+ * Cents | ¢-from-12tet | Hz table with a Ratio column and NO tempered badge. (The
  * tempered cents-only variant is the ED widget's, Plan 07 Task 2.)
  *
  * On any change: dispatch on the active sub-method, render via scaleTable +

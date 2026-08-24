@@ -214,7 +214,10 @@ export function scalaToCsv(scale: Scale, baseHz: number): string {
       formatRatio(iv),
       iv.cents.toFixed(2),
       iv.centsFrom12tet.toFixed(2),
-      (baseHz * Number(iv.fraction.valueOf())).toFixed(3),
+      // Degree-to-frequency is owned by ONE function (Scale.degreeToFreq) so the
+      // clipboard payload and the rendered scaleTable can never disagree. Output
+      // stays byte-identical to the prior inline expression.
+      scale.degreeToFreq(i, baseHz).toFixed(3),
     ]);
   });
   return rows.map((r) => r.join("\t")).join("\n");

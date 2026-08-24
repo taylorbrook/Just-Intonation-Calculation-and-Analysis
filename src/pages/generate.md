@@ -22,6 +22,7 @@ import { generateArchive } from "../components/generate-archive.js";
 import { circleOfPitches } from "../components/circle-of-pitches.js";
 import { scaleTransformStrip } from "../components/scale-transform-strip.js";
 import { encodeScaleToHash } from "../lib/url.js";
+import { NOTE_NAMES, noteToHz, formatNoteName, DEFAULT_A4_HZ } from "../lib/pitch.js";
 import { writeSharedScale } from "../state/scale-store.js";
 ```
 
@@ -206,7 +207,45 @@ previewHost.className = "generate-host generate-host--preview";
 ```
 
 ```ts
-const baseHz = view(Inputs.number({ value: 440, step: 0.01, label: "Reference pitch (Hz)" }));
+// Tonic picker — name the 1/1 instead of typing a raw frequency. Choosing a
+// tonic re-anchors the WHOLE page: every generator widget's table, the shared
+// circle, the transformed table and every ⏵⏵ Play button already read `baseHz`.
+const tonicNote = view(Inputs.select([...NOTE_NAMES], { value: "A", label: "Tonic note" }));
+```
+
+```ts
+const tonicOctave = view(
+  Inputs.number({ value: 4, min: -1, max: 9, step: 1, label: "Tonic octave" }),
+);
+```
+
+```ts
+const a4Hz = view(Inputs.number({ value: 440, min: 1, step: 0.01, label: "A4 calibration (Hz)" }));
+```
+
+```ts
+// Derived reference pitch. An Observable number input yields null when the user
+// clears the field, so SANITIZE before calling into the kernel (T-bfz-03): fall
+// back to octave 4 and to DEFAULT_A4_HZ so `baseHz` is always finite and positive
+// and pitch.ts's RangeError guards are never reached from the UI.
+//
+// The NAME `baseHz` is load-bearing — roughly forty downstream cells read it.
+// Shipped defaults (A / 4 / 440) give exactly 440, so first paint is unchanged.
+const tonicOctaveSafe = Number.isInteger(tonicOctave) ? tonicOctave : 4;
+const a4HzSafe = Number.isFinite(a4Hz) && a4Hz > 0 ? a4Hz : DEFAULT_A4_HZ;
+const baseHz = noteToHz(tonicNote, tonicOctaveSafe, a4HzSafe);
+```
+
+```ts
+// Live readout of the derived anchor. Text via textContent only (page-wide
+// discipline) — never markup assignment.
+const tonicReadout = (() => {
+  const p = document.createElement("p");
+  p.className = "dashboard-helper";
+  p.textContent = `Tonic ${formatNoteName(tonicNote, tonicOctaveSafe)} = ${baseHz.toFixed(2)} Hz — the scale's 1/1.`;
+  return p;
+})();
+display(tonicReadout);
 ```
 
 ```ts
@@ -601,7 +640,7 @@ try {
 
 ```ts
 // ─── Preview-host swap (D-07) ────────────────────────────────────────────────
-// scaleTable (Degree/Ratio/Cents/¢-from-12tet) + playScale (⏵⏵ Play scale
+// scaleTable (Degree/Ratio/Cents/¢-from-12tet/Hz) + playScale (⏵⏵ Play scale
 // arpeggio). Reactive on method and baseHz. The CPS + harmonic branches render
 // their own table inside the mounted widget, so this host shows a pointer caption
 // for them; the demo-seed / placeholder branches render the shared table here. On
