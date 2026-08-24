@@ -640,7 +640,7 @@ try {
 
 ```ts
 // ─── Preview-host swap (D-07) ────────────────────────────────────────────────
-// scaleTable (Degree/Ratio/Cents/¢-from-12tet) + playScale (⏵⏵ Play scale
+// scaleTable (Degree/Ratio/Cents/¢-from-12tet/Hz) + playScale (⏵⏵ Play scale
 // arpeggio). Reactive on method and baseHz. The CPS + harmonic branches render
 // their own table inside the mounted widget, so this host shows a pointer caption
 // for them; the demo-seed / placeholder branches render the shared table here. On

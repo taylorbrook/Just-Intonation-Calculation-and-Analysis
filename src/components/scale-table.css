@@ -1,10 +1,20 @@
-/* scale-table.css — 4-column scale table with optional copy button.
+/* scale-table.css — 5-column scale table with optional copy button.
  *
  * Theme tokens only — never hard-coded hex (UI-SPEC).
  */
 
 .scale-table {
   margin-block: 16px;
+}
+
+/* With the Hz column the table is wide enough to crush on a phone. Scroll the
+ * EXISTING wrapper sideways rather than adding a new wrapper div — the tests
+ * assert this element's direct-child order (badge before table). Mirrors the
+ * .scale-compare__table-wrap precedent in src/styles.css. */
+@media (max-width: 640px) {
+  .scale-table {
+    overflow-x: auto;
+  }
 }
 
 /* SURF-06 tempered badge (D-02, D-15) — understated chip: muted label color +

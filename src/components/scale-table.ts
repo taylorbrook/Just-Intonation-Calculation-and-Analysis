@@ -1,5 +1,11 @@
 /**
- * scaleTable — 4-column table per D-06: Degree | Ratio | Cents | ¢ from 12-TET.
+ * scaleTable — 5-column table per D-06: Degree | Ratio | Cents | ¢ from 12-TET | Hz.
+ *
+ * The Hz column is a DISPLAY PROJECTION of `Scale.degreeToFreq` — the same
+ * projection the ⏵⏵ Play path uses — so it honors whatever reference pitch the
+ * calling page passes as `baseHz`, and the printed number can never drift from
+ * the sounded one. A non-finite or non-positive `baseHz` renders an em-dash
+ * placeholder rather than printing "NaN"/"Infinity" as if it were a real pitch.
  *
  * Cents at 0.1¢ default precision (Pitfall #16: 0.1¢ is the JND-friendly default;
  * the dashboard could opt into 0.01¢ via `opts.precision = 2` if/when sub-cent
@@ -30,17 +36,25 @@ export interface ScaleTableOpts {
   /** Cents decimal places. Default 1 (0.1¢ — Pitfall #16). */
   precision?: number;
   /**
+   * Hz decimal places. Default 2 — two decimals reads cleanly for audible
+   * frequencies. (The clipboard payload keeps its own 3-decimal precision;
+   * this option does not affect it.)
+   */
+  hzPrecision?: number;
+  /**
    * SURF-06 tempered variant (D-01, D-02). When true, the Ratio column is
-   * DROPPED entirely (Degree | Cents | ¢ from 12-TET only) and a visible
+   * DROPPED entirely (Degree | Cents | ¢ from 12-TET | Hz only) and a visible
    * "tempered" badge renders above the table — so EDO/ED-n output is never
-   * presented as exact JI ("tempered, not laundered JI"). Default false: the
-   * JI 4-column path is byte-for-byte unchanged (anti-regression).
+   * presented as exact JI ("tempered, not laundered JI"). Dropping the ratio
+   * COLUMN never drops the Hz VALUE. Default false: the JI path keeps its Ratio
+   * column.
    */
   tempered?: boolean;
 }
 
 export function scaleTable(scale: Scale, baseHz: number, opts: ScaleTableOpts = {}): HTMLElement {
   const precision = opts.precision ?? 1;
+  const hzPrecision = opts.hzPrecision ?? 2;
   const tempered = opts.tempered === true;
 
   const wrapper = document.createElement("div");
@@ -59,11 +73,12 @@ export function scaleTable(scale: Scale, baseHz: number, opts: ScaleTableOpts = 
   const thead = document.createElement("thead");
   // Header row via createElement + textContent (never innerHTML) — uniform with the
   // no-innerHTML discipline used for the data cells (T-02-23). D-01: the tempered
-  // header has THREE columns (no Ratio); the JI header keeps the original four labels.
+  // header has FOUR columns (no Ratio); the JI header keeps its labels and both
+  // gain Hz as a pure append at the end.
   const headerRow = document.createElement("tr");
   const headerLabels = tempered
-    ? ["Degree", "Cents", "¢ from 12-TET"]
-    : ["Degree", "Ratio", "Cents", "¢ from 12-TET"];
+    ? ["Degree", "Cents", "¢ from 12-TET", "Hz"]
+    : ["Degree", "Ratio", "Cents", "¢ from 12-TET", "Hz"];
   for (const label of headerLabels) {
     const th = document.createElement("th");
     th.textContent = label;
@@ -82,11 +97,20 @@ export function scaleTable(scale: Scale, baseHz: number, opts: ScaleTableOpts = 
     // rule: NO color-coding the deviation column (no red/green) — sign is
     // typographic only.
     const deviation = (delta > 0 ? "+" : "") + delta.toFixed(precision);
+    // Hz via Scale.degreeToFreq — the SAME projection the ⏵⏵ Play path uses, so
+    // the printed number and the sounded number can never drift apart. Sourcing
+    // it from the method (rather than recomputing baseHz * fraction inline) is
+    // the whole point. The loop index is always in range, so degreeToFreq's
+    // RangeError branch is unreachable here.
+    const freq = scale.degreeToFreq(i, baseHz);
+    // An honest placeholder beats a fake pitch: a non-finite or non-positive
+    // reference renders an em-dash, never "NaN" / "Infinity" / "0.00".
+    const hz = Number.isFinite(freq) && freq > 0 ? freq.toFixed(hzPrecision) : "—";
     // D-01: tempered drops the ratio cell entirely (no float-derived fraction
-    // masquerading as exact JI). The JI path keeps the original 4 cells verbatim.
+    // masquerading as exact JI). Hz is appended last on BOTH branches.
     const cells: string[] = tempered
-      ? [String(i + 1), cents.toFixed(precision), deviation]
-      : [String(i + 1), iv.fraction.toFraction(), cents.toFixed(precision), deviation];
+      ? [String(i + 1), cents.toFixed(precision), deviation, hz]
+      : [String(i + 1), iv.fraction.toFraction(), cents.toFixed(precision), deviation, hz];
     for (const value of cells) {
       const td = document.createElement("td");
       td.textContent = value; // T-02-23: textContent — never innerHTML.
